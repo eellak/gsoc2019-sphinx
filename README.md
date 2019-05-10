@@ -35,14 +35,14 @@ A detailed timeline follows, organized by [GSoC timeline](https://developers.goo
   - Implementation of the personalized acoustic model, based on user's dictation commands.
 
 - __Phase 2 (Jun 29 - Jul 26)__
- - Email classification.
- - Implementation of domain-specific language models.
- - Implementation of the correction system.
- - Integration of special dictation commands.
+  - Email classification.
+  - Implementation of domain-specific language models.
+  - Implementation of the correction system.
+  - Integration of special dictation commands.
  
 - __Phase 3 (Jul 27 - Aug 26)__
- - Implementation of the UI.
- - Playback of the email to the user.
+  - Implementation of the UI.
+  - Playback of the email to the user.
  
 
 ## People
