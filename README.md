@@ -26,7 +26,7 @@ A detailed timeline follows, organized by [GSoC timeline](https://developers.goo
 
 - __Community Bonding Period (May 6 - May 26)__
   - Get to know my mentors better and discuss the project more extensively.
-  - Implementation of the baseline part of the ASR system based on the default acoustic and language model.
+  - Implementation of the baseline part of the ASR system based on the default acoustic and language model, that can be found [here](https://www.dropbox.com/sh/fl6698yfuam54ch/AABx4hHs4P5kFVBGJQQZN_Voa?dl=0).
   - Crawling of Greek websites with open licenses, in order to build a better language model.
 
 - __Phase 1 (May 27 - Jun 28)__
