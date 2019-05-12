@@ -2,10 +2,21 @@ package com.asr.recognizer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 public class StreamEvaluator {
 
 	public static void main(String[] args) throws IOException {
+	    // Uncomment to disable all log messages of Sphinx4
+		/*
+		Logger cmRootLogger = Logger.getLogger("default.config");
+		cmRootLogger.setLevel(java.util.logging.Level.OFF);
+		String conFile = System.getProperty("java.util.logging.config.file");
+		if (conFile == null) {
+		    System.setProperty("java.util.logging.config.file", "ignoreAllSphinx4LoggingOutput");
+		}
+		*/
+		
 		// Create a recognizer based on the default acoustic and language model.
 		StreamRecognizer recognizer = new StreamRecognizer("cmusphinx-el-gr-5.2/el-gr.cd_cont_5000", "cmusphinx-el-gr-5.2/el-gr.dic", "cmusphinx-el-gr-5.2/el-gr.lm.bin");
 		// Folder that holds the speech data to evaluate
