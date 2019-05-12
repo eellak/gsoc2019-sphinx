@@ -14,7 +14,7 @@ import edu.cmu.sphinx.api.StreamSpeechRecognizer;
  */
 
 public class StreamRecognizer {
-	/* Holds the paths of each model.*/
+    /* Holds the paths of each model.*/
     Configuration configuration;
     StreamSpeechRecognizer recognizer;
 	
@@ -28,7 +28,7 @@ public class StreamRecognizer {
     public StreamRecognizer(String acousticModel, String phoneticDict, String languageModel) throws IOException {
     	/* Set the path of the acoustic model, the phonetic dictionary 
     	and the language model */
-        Configuration configuration = new Configuration();
+        this.configuration = new Configuration();
         this.configuration.setAcousticModelPath(acousticModel);
         this.configuration.setDictionaryPath(phoneticDict);
         this.configuration.setLanguageModelPath(languageModel);
@@ -43,10 +43,14 @@ public class StreamRecognizer {
      */
 	public String recognizeFile(String filename) throws IOException {
     	recognizer.startRecognition(new FileInputStream(filename));
-    	SpeechResult result = recognizer.getResult();
+        SpeechResult result;
+        String resultString = "";
 		// Pause recognition process. It can be resumed then with startRecognition(false).
-		recognizer.stopRecognition();
-		return result.getHypothesis();
+	    while ((result = recognizer.getResult()) != null) {
+	    	resultString += result.getHypothesis();
+	    }
+	    recognizer.stopRecognition();
+	    return resultString;
     }
 }
 
