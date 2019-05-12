@@ -47,7 +47,7 @@ public class StreamRecognizer {
         String resultString = "";
 		// Pause recognition process. It can be resumed then with startRecognition(false).
 	    while ((result = recognizer.getResult()) != null) {
-	    	resultString += result.getHypothesis();
+	    	resultString += result.getHypothesis() + " ";
 	    }
 	    recognizer.stopRecognition();
 	    return resultString;
