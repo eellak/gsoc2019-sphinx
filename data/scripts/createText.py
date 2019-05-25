@@ -1,7 +1,6 @@
-#!/bin/bash
-
-# A script that reads test.transcriptions file and write each
-# sentence in 'train-text.txt' file line by line.
+# A python script that reads 'test.transcriptions' file and
+# write each sentence in 'train-text.txt' file line by line.
+# Necessary to build a language model from transciptions.
 
 # Open read file
 r = open("../../test.transciptions", 'r')
