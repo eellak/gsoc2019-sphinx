@@ -13,13 +13,14 @@ In the modern era of Big Data, many dictation systems have already been implemen
 
 ## Timeline
 
-A detailed timeline follows, organized by [GSoC timeline](https://developers.google.com/open-source/gsoc/timeline).
+A detailed timeline follows, organized by [GSoC timeline](https://developers.google.com/open-source/gsoc/timeline). More details can be found in [Project](https://github.com/eellak/gsoc2019-sphinx/projects/1).
 
 - __Student application work (Mar 25 - Apr 09)__
   
   Get familiar with all the concepts of the project, read documentation and think about possible extensions. Some useful links follow:
   - [Sphinx](https://cmusphinx.github.io/wiki/)
-  - [Scrapy](https://docs.scrapy.org/en/latest/)
+  - [SRILM](http://www.speech.sri.com/projects/srilm/)
+  - [g2p-seq2seq](https://github.com/cmusphinx/g2p-seq2seq)
   - [WebSocket](https://blog.teamtreehouse.com/an-introduction-to-websockets)
   - [Spacy](https://spacy.io/)
   - [React](https://reactjs.org/tutorial/tutorial.html)
@@ -27,11 +28,29 @@ A detailed timeline follows, organized by [GSoC timeline](https://developers.goo
 - __Community Bonding Period (May 6 - May 26)__
   - Get to know my mentors better and discuss the project more extensively.
   - Implementation of the baseline part of the ASR system based on the default acoustic and language model, that can be found [here](https://www.dropbox.com/sh/fl6698yfuam54ch/AABx4hHs4P5kFVBGJQQZN_Voa?dl=0).
-  - Crawling of Greek websites with open licenses, in order to build a better language model.
+  - Search for speech datasets (recordings along with their transcriptions) and organize them in order to be in Sphinx standard form. More details [here](data).
+  - Implementation of a domain specific and a merged (specific + default) language model for each dataset.
+  - Evaluation of these models in both datasets. Using the default acoustic model and dictionary, the results are:
+    - Paramythi
+    
+      | Language model  | Accuracy |
+      | :---:  | :---: |
+      | default  | 59.55%  |
+      | specific  | 51.99%  |
+      | merged  | 65.04%  |
+      
+    - Radio
+    
+      | Language model  | Accuracy |
+      | :---:  | :---: |
+      | default  | 53.28%  |
+      | specific  | 53.92%  |
+      | merged  | 66.03%  |
 
 - __Phase 1 (May 27 - Jun 28)__
-  - Implementation of the Greek language model.
-  - Training of the model in a department of Journalism dataset.
+  - Extension of the the default dictionary using [g2p-seq2seq](https://github.com/cmusphinx/g2p-seq2seq).
+  - Adaption of the acoustic model in both datasets and evaluation.
+  - Implementation of a system that extracts the emails from a user's account.
   - Implementation of the personalized acoustic model, based on user's dictation commands.
 
 - __Phase 2 (Jun 29 - Jul 26)__
