@@ -8,6 +8,7 @@
 import sys
 import os
 
+
 # Search for a specific word in the
 # dictionary.
 def searchDic(word, dict):
@@ -20,16 +21,32 @@ def searchDic(word, dict):
     return False
 
 
+if len(sys.argv) != 3:
+    sys.exit("Wrong number of parameters!")
+
+# Read dictionary and transcription file.
 dict = sys.argv[1]
 file = sys.argv[2]
+if not os.path.isfile(dict) or not os.path.isfile(file):
+    sys.exit("Wrong arguments")
 
-w = open('missing-words.txt', 'w')
+# Keep track of missing words, to avoid duplicates.
+missing = []
 
-with open(file, 'r') as f:
+with open(file, 'r') as f, open('missing-words.txt', 'w') as w:
     for line in f:
+        # Some Greek texts have \xa0 (Unicode representing spaces)
+        # so remove it, before splitting on spaces.
+        line = line.replace(u'\xa0', u' ')
         words = line.split(' ')
+        # Last word is the identifires of the transcription, so
+        # don't care about it.
+        print('Searching for transcription: ' + words[-1])
         for word in words[:len(words)-1]:
-            if not searchDic(word, dict):
-                w.write(word + '\n')
-                print(word)
-w.close()
+            if word:
+                if (not searchDic(word, dict)) and (word not in missing):
+                    w.write(word + '\n')
+                    print(word)
+                    missing.append(word)
+
+print('OK')
