@@ -10,6 +10,7 @@ from google.auth.transport.requests import Request
 import email
 from email.header import decode_header
 from email.iterators import typed_subpart_iterator
+from alphabet_detector import AlphabetDetector
 
 
 # If modifying these scopes, delete the file token.pickle.
@@ -115,9 +116,14 @@ def get_header(header_text, default="ascii"):
 
         '''
     headers = decode_header(header_text)
-
-    header_sections = [str(text, charset or default)
-                       if charset is not None else text for text, charset in headers]
+    header_sections = []
+    for text, charset in headers:
+        if charset is not None:
+            header_sections.append(str(text, charset or default))
+        elif isinstance(text, (bytes, bytearray)):
+            header_sections.append(text.decode("utf-8"))
+        else:
+            header_sections.append(text)
     return u"".join(header_sections)
 
 
@@ -180,13 +186,26 @@ def save(messages):
             message: MIME object
 
         '''
+    body_messages = []
     with open('info', 'w') as w1:
         for i, msg in enumerate(raw_messages):
             with open('email_' + str(i), 'w') as w2:
-                w1.write(msg["from"] + ' ' + msg["to"] +
+                w1.write(get_header(msg["from"]) + ' ' + get_header(msg["to"]) +
                          ' ' + get_header(msg['subject']))
                 w1.write('\n')
-                w2.write(clean_html(get_body(msg)))
+                clean_text = clean_html(get_body(msg))
+                body_messages.append(clean_text)
+                w2.write(clean_text)
+    return body_messages
+
+
+def keep_greek(text):
+    ad = AlphabetDetector()
+    greek = ""
+    for word in body.split(' '):
+        if ad.only_alphabet_chars(word, "GREEK"):
+            greek += ' ' + word
+    return greek
 
 
 if __name__ == '__main__':
@@ -195,4 +214,9 @@ if __name__ == '__main__':
     # Get the body of the inbox messages.
     raw_messages = read_emails(service, 10)
     # Save messages.
-    save(raw_messages)
+    body_messages = save(raw_messages)
+
+    # Save greek parts.
+    for i, body in enumerate(body_messages):
+        with open('email_greek_' + str(i), 'w') as w:
+            w.write(keep_greek(body))
