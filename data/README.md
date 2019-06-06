@@ -10,6 +10,8 @@
   
 - __pda:__ Recordings of Greek people asking questions about the weather, nearest hospitals and pharmacies. It was created for the purposes of this [diploma thesis](https://github.com/adamelen/PDA-implementing-ASR).
 
+  Link: https://www.dropbox.com/sh/t7uwom0hxp7cehb/AAC5EEB18DSm8qGLXFfobquWa?dl=0
+
 
 
 # Structure 
