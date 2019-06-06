@@ -7,6 +7,8 @@
 - __radio:__ Multiple Greek speakers of the Department of Journalism tell the news lasting 1 hour.
 
   Link: https://www.dropbox.com/sh/a8dkcgchb3cxgnc/AAA-7uxX8embvJWPOW-yQFTGa?dl=0
+  
+- __pda:__ Recordings of Greek people asking questions about the weather, nearest hospitals and pharmacies. It was created for the purposes of this [diploma thesis](https://github.com/adamelen/PDA-implementing-ASR).
 
 
 
