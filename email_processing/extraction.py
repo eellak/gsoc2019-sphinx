@@ -48,19 +48,19 @@ def connect():
 
 
 def read_emails(service, limit=100, save_raw=False):
-    '''Read the user's emails and return them as a list of mime messages.
+    '''Read the user's sent emails and return them as a list of mime messages.
 
         Args:
             service: A recourse object, that helps us make requests.
             limit: Total number of messages to read.
             save_raw: If true, raw message files are saved too.
         Returns:
-            mime_messages: A list contatining all the emails in MIME format.
+            mime_messages: A list contatining all the sent emails in MIME format.
 
         '''
     # Call the Gmail API.
     results = service.users().messages().list(
-        userId='me', maxResults=limit).execute()
+        userId='me', maxResults=limit, labelIds=['SENT']).execute()
     # Get user's messages based on given limit.
     messages = results.get('messages', [])
     mime_messages = []
@@ -184,12 +184,11 @@ def save(messages):
     '''Get the body of a message object.
         Args:
             message: MIME object
-
         '''
     body_messages = []
     with open('info', 'w') as w1:
-        for i, msg in enumerate(raw_messages):
-            with open('email_' + str(i), 'w') as w2:
+        for i, msg in enumerate(messages):
+            with open('./texts/email_' + str(i), 'w') as w2:
                 w1.write(get_header(msg["from"]) + ' ' + get_header(msg["to"]) +
                          ' ' + get_header(msg['subject']))
                 w1.write('\n')
@@ -200,6 +199,14 @@ def save(messages):
 
 
 def keep_greek(text):
+    '''Get the body of a message object.
+
+        Args:
+            message: MIME object
+        Returns:
+            body_part: string containg the body of the message
+
+        '''
     ad = AlphabetDetector()
     greek = ""
     for word in body.split(' '):
@@ -218,5 +225,5 @@ if __name__ == '__main__':
 
     # Save greek parts.
     for i, body in enumerate(body_messages):
-        with open('email_greek_' + str(i), 'w') as w:
+        with open('./texts/email_greek_' + str(i), 'w') as w:
             w.write(keep_greek(body))
