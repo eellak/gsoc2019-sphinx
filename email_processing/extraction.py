@@ -70,7 +70,7 @@ def read_emails(service, limit=100, save_raw=False):
             userId='me', id=message['id'], format='raw').execute()
         raw_msg = msg_dict['raw']
         # Convert message encoding from base64 to utf-8.
-        string_message = str(base64.urlsafe_b64decode(raw_msg), "utf-8")
+        string_message = str(base64.urlsafe_b64decode(raw_msg), "ISO-8859-7")
         # Convert current message to mime format.
         mime_msg = email.message_from_string(string_message)
         mime_messages.append(mime_msg)
