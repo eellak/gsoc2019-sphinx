@@ -1,6 +1,6 @@
 from __future__ import print_function
+from helper import keep_greek, clean_html, save_messages
 import urllib
-from bs4 import BeautifulSoup
 import base64
 import pickle
 import os.path
@@ -10,7 +10,7 @@ from google.auth.transport.requests import Request
 import email
 from email.header import decode_header
 from email.iterators import typed_subpart_iterator
-from alphabet_detector import AlphabetDetector
+import chardet
 
 
 # If modifying these scopes, delete the file token.pickle.
@@ -53,7 +53,7 @@ def read_emails(service, limit=100, save_raw=False):
         Args:
             service: A recourse object, that helps us make requests.
             limit: Total number of messages to read.
-            save_raw: If true, raw message files are saved too.
+            save_raw: If true, raw message files will be saved too.
         Returns:
             mime_messages: A list contatining all the sent emails in MIME format.
 
@@ -75,34 +75,9 @@ def read_emails(service, limit=100, save_raw=False):
         mime_msg = email.message_from_string(string_message)
         mime_messages.append(mime_msg)
         if save_raw:
-            with open('raw_email_' + str(idx), 'w') as w:
+            with open('/texts/raw_email_' + str(idx), 'w') as w:
                 w.write(string_message)
     return mime_messages
-
-
-def clean_html(html_text):
-    '''Remove html code from a given text, using the BeautifulSoup library.
-
-        Args:
-            html_text: string that may contain html code.
-        Returns:
-            clean_text: string that is equal to html_text without the html code.
-
-        '''
-    soup = BeautifulSoup(html_text, features='lxml')
-    # Kill all script and style elements
-    for script in soup(["script", "style"]):
-        script.extract()
-    # Get text
-    text = soup.get_text()
-    # Break it into lines and remove leading and trailing space on each
-    lines = (line.strip() for line in text.splitlines())
-    # Break multi-headlines into a line each
-    chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-    # Drop blank lines
-    clean_text = '\n'.join(chunk for chunk in chunks if chunk)
-
-    return clean_text
 
 
 def get_header(header_text, default="ascii"):
@@ -180,50 +155,38 @@ def get_body(message):
         return body_part
 
 
-def save(messages):
-    '''Get the body of a message object.
+def mime2str(messages, greek=True):
+    '''Convert a list of raw messages to a list of strings.
+
         Args:
-            message: MIME object
+            messages: A list of raw messages.
+            greek: If True, keep only greek part of the body.
+        Returns:
+            body_messages: A list of strings containing the bedy of each message.
+            header_messages: A list of lists that contains the sender, the receiver
+                and the subject of each message.
+
         '''
     body_messages = []
-    with open('info', 'w') as w1:
-        for i, msg in enumerate(messages):
-            with open('./texts/email_' + str(i), 'w') as w2:
-                w1.write(get_header(msg["from"]) + ' ' + get_header(msg["to"]) +
-                         ' ' + get_header(msg['subject']))
-                w1.write('\n')
-                clean_text = clean_html(get_body(msg))
-                body_messages.append(clean_text)
-                w2.write(clean_text)
-    return body_messages
+    header_messages = []
+    for msg in messages:
+        curr_header = []
+        header_messages.append([get_header(msg["from"]), get_header(
+            msg["to"]), get_header(msg["subject"])])
+        clean_text = clean_html(get_body(msg))
+        if greek:
+            body_messages.append(keep_greek(clean_text))
+        else:
+            body_messages.append(clean_text)
 
-
-def keep_greek(text):
-    '''Get the body of a message object.
-
-        Args:
-            message: MIME object
-        Returns:
-            body_part: string containg the body of the message
-
-        '''
-    ad = AlphabetDetector()
-    greek = ""
-    for word in body.split(' '):
-        if ad.only_alphabet_chars(word, "GREEK"):
-            greek += ' ' + word
-    return greek
+    return body_messages, header_messages
 
 
 if __name__ == '__main__':
     # Connect to the Gmail API.
     service = connect()
     # Get the body of the inbox messages.
-    raw_messages = read_emails(service, 10)
-    # Save messages.
-    body_messages = save(raw_messages)
-
-    # Save greek parts.
-    for i, body in enumerate(body_messages):
-        with open('./texts/email_greek_' + str(i), 'w') as w:
-            w.write(keep_greek(body))
+    raw_messages = read_emails(service)
+    # Get the body and the header of each message.
+    body_messages, header_messages = mime2str(raw_messages)
+    save_messages(body_messages, header_messages)
