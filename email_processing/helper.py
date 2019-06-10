@@ -17,7 +17,7 @@ def process_text(text):
             for word in lines[i].split(' '):
                 if ad.only_alphabet_chars(word, "GREEK"):
                     out += word + ' '
-    return out.replace("\r", "")
+    return out.replace("\r", "").replace(".", ".\n")
 
 
 def save_messages(body_messages, header_messages):
