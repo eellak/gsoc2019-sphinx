@@ -45,6 +45,21 @@ def classify_emails(emails):
     return categories
 
 
+def save_texts(categories):
+    '''Save the emails of each category in a txt file in order to build the
+        topic-specific language model.
+
+        Args:
+            categories: A dictionary that has the category name in Greek as key and a
+                list with the emails of this category as value.
+    '''
+
+    for category in categories:
+        with open('./categories/' + category, 'w') as w:
+            for email in categories[category]:
+                w.write(email + '\n')
+
+
 if __name__ == '__main__':
     emails = []
     for email in os.listdir('./texts'):
@@ -52,4 +67,4 @@ if __name__ == '__main__':
             emails.append(f.read())
 
     categories = classify_emails(emails)
-    print(categories)
+    save_texts(categories)
