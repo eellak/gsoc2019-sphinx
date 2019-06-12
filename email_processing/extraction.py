@@ -48,14 +48,15 @@ def connect():
 
 
 def read_emails(service, limit=100, save_raw=False):
-    '''Read the user's sent emails and return them as a list of mime messages.
+    '''Read the user's sent emails.
 
         Args:
             service: A recourse object, that helps us make requests.
             limit: Total number of messages to read.
             save_raw: If true, raw message files will be saved too.
         Returns:
-            mime_messages: A list contatining all the sent emails in MIME format.
+            body_messages: A list that contains the body of each message.
+            header_messages = A list that contains the headers of each message.
 
         '''
     # Call the Gmail API and get all sent emails.
@@ -63,7 +64,8 @@ def read_emails(service, limit=100, save_raw=False):
         userId='me', maxResults=limit, labelIds=['SENT']).execute()
     # Get user's messages based on given limit.
     messages = results.get('messages', [])
-    mime_messages = []
+    body_messages = []
+    header_messages = []
     for idx, message in enumerate(messages):
         # Get message based in the id.
         msg_dict = service.users().messages().get(
@@ -73,11 +75,13 @@ def read_emails(service, limit=100, save_raw=False):
         string_message = str(base64.urlsafe_b64decode(raw_msg), "ISO-8859-7")
         # Convert current message to mime format.
         mime_msg = email.message_from_string(string_message)
-        mime_messages.append(mime_msg)
-        if save_raw:
-            with open('/texts/raw_email_' + str(idx), 'w') as w:
-                w.write(string_message)
-    return mime_messages
+        # Convert current message from mime to string.
+        body, header = mime2str(mime_msg)
+        # If message is not empty, keep it.
+        if body:
+            body_messages.append(body)
+            header_messages.append(header)
+    return body_messages, header_messages
 
 
 def get_header(header_text, default="ascii"):
@@ -150,6 +154,7 @@ def get_body(message):
     else:
         # If it is not multipart, the payload will be a string
         # representing the message body.
+        charset = get_charset(message)
         if charset == "utf-8":
             body = str(message.get_payload(decode=True),
                        get_charset(message),
@@ -160,39 +165,36 @@ def get_body(message):
         return body_part
 
 
-def mime2str(messages):
-    '''Convert a list of raw messages to a list of strings.
+def mime2str(msg):
+    '''Convert a mime message in string format.
 
         Args:
-            messages: A list of raw messages.
+            msg: A mime message.
         Returns:
-            body_messages: A list of strings containing the body of each message.
-            header_messages: A list of lists that contains the sender, the receiver
-                and the subject of each message.
+            body: The body of the message as a string.
+            headers: A list that contains the sender, the receiver
+                and the subject of the message.
 
         '''
-    body_messages = []
-    header_messages = []
-    for msg in messages:
-        # Get the body and clean any html code.
-        clean_text = BeautifulSoup(get_body(msg), "lxml").text
-        # Remove non-greek and other symbols.
-        processed_text = process_text(clean_text)
-        # Keep message and its header only if it contains some text in the body.
-        if processed_text and not processed_text.isspace():
-            body_messages.append(processed_text)
-            header_messages.append([get_header(msg["from"]), get_header(
-                msg["to"]), get_header(msg["subject"])])
+    # Get the body and clean any html code.
+    text_without_html = BeautifulSoup(get_body(msg), "lxml").text
+    # Clean the text.
+    clean_text = process_text(text_without_html)
+    # Keep message and its header only if it contains some text in the body.
+    if clean_text and not clean_text.isspace():
+        headers = [get_header(msg["from"]), get_header(
+            msg["to"]), get_header(msg["subject"])]
 
-    return body_messages, header_messages
+        return clean_text, headers
+
+    # Else return empty string.
+    return "", ""
 
 
 if __name__ == '__main__':
     # Connect to the Gmail API.
     service = connect()
-    # Get the body of the inbox messages in raw format.
-    raw_messages = read_emails(service)
-    # Get the body and the header of each message.
-    body_messages, header_messages = mime2str(raw_messages)
+    # Get the body and the header of the sent messages.
+    body, headers = read_emails(service)
     # Save messages in txt files.
-    save_messages(body_messages, header_messages)
+    save_messages(body, headers)
