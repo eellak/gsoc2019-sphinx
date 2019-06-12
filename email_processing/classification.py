@@ -60,6 +60,20 @@ def save_texts(categories):
                 w.write(email + '\n')
 
 
+def save_texts_together(categories):
+    '''Save all the emails in one file.
+
+        Args:
+            categories: A dictionary that has the category name in Greek as key and a
+                list with the emails of this category as value.
+    '''
+
+    with open('All', 'w') as w:
+        for category in categories:
+            for email in categories[category]:
+                w.write(email + '\n')
+
+
 if __name__ == '__main__':
     emails = []
     for email in os.listdir('./texts'):
@@ -67,4 +81,5 @@ if __name__ == '__main__':
             emails.append(f.read())
 
     categories = classify_emails(emails)
+    save_texts_together(categories)
     save_texts(categories)
