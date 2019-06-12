@@ -4,7 +4,10 @@ categories_name = ['Αθλητισμός', 'Ελλάδα', 'Επιστήμη', '
                    'Οικονομία', 'Περιβάλλον', 'Πολιτική', 'Τέχνες', 'Υγεία', 'Άλλα']
 
 
-def build_model(categories_name):
+def build_model():
+    '''Create the language model for each topic by using the srilm toolkit.
+
+    '''
     for category in categories_name:
         if subprocess.call(['ngram-count -kndiscount -interpolate -text ./categories/' + category + ' -wbdiscount1 -wbdiscount2 -wbdiscount3 -lm ./categories/' + category + '.lm'], shell=True):
             sys.exit('Error in subprocess')
@@ -12,4 +15,4 @@ def build_model(categories_name):
 
 
 if __name__ == '__main__':
-    build_model(categories_name)
+    build_model()
