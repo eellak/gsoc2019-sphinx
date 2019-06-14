@@ -55,3 +55,9 @@ tmp/
 *~.nib
 local.properties
 .loadpath
+
+##########################
+## Python
+##########################
+__pycache__/
+*.pyc
