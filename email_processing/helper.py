@@ -1,10 +1,11 @@
 from alphabet_detector import AlphabetDetector
 import string
 import re
+import os
 
 '''
     This sript contains some helper functions
-    for extracting emails from a user's account.
+    for processing emails from a user's account.
 '''
 
 
@@ -79,3 +80,19 @@ def save_messages(body_messages, header_messages):
                     header_messages[i][0] + ' | ' + header_messages[i][1] + ' | ' + header_messages[i][2])
                 w1.write('\n')
                 w2.write(msg)
+
+
+def get_emails(dir):
+    '''Get emails from a specific directory and return them as a list.
+
+        Args:
+            dir: Directory that contains the emails in text files.
+        Returns:
+            emails: A list that contains the emails in string format.
+
+        '''
+    emails = []
+    for email in os.listdir(dir):
+        with open(dir + email, 'r') as f:
+            emails.append(f.read())
+    return emails
