@@ -1,6 +1,7 @@
 import requests
 import os
 from extraction import connect, read_emails, mime2str
+from helper import get_emails
 
 
 def classify(text):
@@ -75,11 +76,7 @@ def save_texts_together(categories):
 
 
 if __name__ == '__main__':
-    emails = []
-    for email in os.listdir('./texts'):
-        with open('./texts/' + email, 'r') as f:
-            emails.append(f.read())
-
+    emails = get_emails('./texts/')
     categories = classify_emails(emails)
     save_texts_together(categories)
     save_texts(categories)

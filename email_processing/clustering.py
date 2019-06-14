@@ -5,21 +5,36 @@ import matplotlib.pyplot as plt
 import os
 import numpy as np
 from sklearn.cluster import KMeans
+import spacy
+
+
+def get_spacy_vec(emails):
+    nlp = spacy.load('el_core_news_md')
+    X = []
+    for email in emails:
+        doc = nlp(email)
+        X.append(doc.vector)
+    return X
+
+
+def get_tfidf(emails):
+    # Compute tf idf vectorizer of emails.
+    tf = TfidfVectorizer()
+    # Or fit_transform together
+    emails_fitted = tf.fit(emails)
+    emails_transformed = emails_fitted.transform(emails)
+    return emails_transformed
 
 
 if __name__ == '__main__':
     # Get emails
     emails = get_emails('./texts/')
 
-    # Compute tf idf vectorizer of emails.
-    tf = TfidfVectorizer()
-    # Or fit_transform together
-    emails_fitted = tf.fit(emails)
-    emails_transformed = emails_fitted.transform(emails)
-    idf = tf.idf_
-    feature_names = np.array(tf.get_feature_names())
-    sorted_by_idf = np.argsort(tf.idf_)
-    print("Features with lowest idf:\n{}".format(
-        feature_names[sorted_by_idf[:3]]))
-    print("\nFeatures with highest idf:\n{}".format(
-        feature_names[sorted_by_idf[-3:]]))
+    X1 = get_spacy_vec(emails)
+    X2 = get_tfidf(emails)
+
+    n_clusters = 3
+    clf = KMeans(n_clusters=n_clusters, max_iter=100,
+                 init='k-means++', n_init=1)
+    labels = clf.fit_predict(X2)
+    print(labels)
