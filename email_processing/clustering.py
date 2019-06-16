@@ -44,23 +44,32 @@ def get_tfidf(emails):
 
 
 def get_optimal_clusters(X):
-    '''Run k-means and search for the omptimal
-        number of clusters by using the Elbow Criterion.
+    '''Run k-means and search for the omptimal number of clusters
+        by using the Elbow Criterion and silhouette metric.
 
         Args:
             X: A list that contains the vectors of the emails.
         '''
 
     sse = []
-    for k in range(1, len(X)):
+    silhouette = []
+    for k in range(2, len(X)):
         clf = KMeans(n_clusters=k)
         clf = clf.fit(X)
         sse.append(clf.inertia_)
+        silhouette.append(silhouette_score(X, clf.labels_))
 
-    plt.plot(range(1, len(X)), sse, 'bx-')
+    # Plot sum of Sum_of_squared_errors,
+    plt.plot(range(2, len(X)), sse, 'bx-')
     plt.xlabel('k')
     plt.ylabel('Sum_of_squared_error')
     plt.title('Elbow Method For Optimal k')
+    plt.show()
+
+    # Plot silhouette scores.
+    plt.plot(range(2, len(X)), silhouette, 'bx-')
+    plt.xlabel('k')
+    plt.ylabel('silhouette score')
     plt.show()
 
 
