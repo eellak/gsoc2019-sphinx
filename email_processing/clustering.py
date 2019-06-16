@@ -1,11 +1,8 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 from helper import get_emails
-from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
+from kmeans import get_optimal_clusters, run_kmeans, save_clusters
 import os
 import numpy as np
-from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score
 import spacy
 
 
@@ -43,43 +40,19 @@ def get_tfidf(emails):
     return emails_transformed
 
 
-def get_optimal_clusters(X):
-    '''Run k-means and search for the omptimal number of clusters
-        by using the Elbow Criterion and silhouette metric.
-
-        Args:
-            X: A list that contains the vectors of the emails.
-        '''
-
-    sse = []
-    silhouette = []
-    for k in range(2, len(X)):
-        clf = KMeans(n_clusters=k)
-        clf = clf.fit(X)
-        sse.append(clf.inertia_)
-        silhouette.append(silhouette_score(X, clf.labels_))
-
-    # Plot sum of Sum_of_squared_errors,
-    plt.plot(range(2, len(X)), sse, 'bx-')
-    plt.xlabel('k')
-    plt.ylabel('Sum_of_squared_error')
-    plt.title('Elbow Method For Optimal k')
-    plt.show()
-
-    # Plot silhouette scores.
-    plt.plot(range(2, len(X)), silhouette, 'bx-')
-    plt.xlabel('k')
-    plt.ylabel('silhouette score')
-    plt.show()
-
-
 if __name__ == '__main__':
     # Get emails
     emails = get_emails('./texts/')
 
-    # Get representation of emails.
+    # Get vector representation of emails.
     X_spacy = get_spacy(emails)
     # X_tfidf = get_tfidf(emails)
 
     # Find the optimal number of clusters
-    get_optimal_clusters(X_spacy)
+    # get_optimal_clusters(X_spacy)
+
+    # Run k-means with the optimal number of clusters
+    labels = run_kmeans(X_spacy, 3)
+
+    # Save clusters in separate folders.
+    save_clusters(emails, labels)
