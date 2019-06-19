@@ -58,17 +58,23 @@ def get_tfidf(emails):
     return emails_transformed
 
 
-def find_knee(sse):
+def find_knee(sse, min_cl):
     '''Find optimal number of clusters using the elbow method. More info here: https://github.com/arvkevi/kneed
 
         Args:
             sse: A list that contains the sum of squared errors.
+            min_cl: Minimum number of clusters
         Returns:
             n_clusters: Optimal number of clusters
 
         '''
-    k = range(2, len(sse) + 2)
+    k = range(min_cl, len(sse) + min_cl)
     kneedle = KneeLocator(list(k), sse, curve='convex',
                           direction='decreasing')
     n_clusters = kneedle.knee
     return n_clusters
+
+
+def silhouette_analysis(silhouette):
+    # Not implemented yet.
+    return

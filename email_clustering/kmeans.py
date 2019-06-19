@@ -6,20 +6,22 @@ import matplotlib.pyplot as plt
 from numpy import sqrt
 
 
-def get_metrics(X, plot):
+def get_metrics(X, plot, min_cl, max_cl):
     '''Run k-means and keep sum of squared errors and silhouette coefficients
         for each number of clusters (2 to n_samples-1).
 
         Args:
             X: A list that contains the vectors of the emails.
             plot: If True plot the metrics.
+            min_cl: Minimum number of clusters (at least 2).
+            max_cl: Maximum number of clusters (up to n_samples-1)
         Returns:
             sse: A list that contains the sum of squared erros per cluster.
             silhouette: A list that contains the silhouette score per cluster.
 
         '''
 
-    ks = range(2, len(X) - 1)
+    ks = range(min_cl, max_cl)
     sse = []
     silhouette = []
     for k in ks:

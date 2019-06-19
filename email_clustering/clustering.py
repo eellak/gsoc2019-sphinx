@@ -1,7 +1,8 @@
 import os
 from kmeans import get_metrics, run_kmeans, save_clusters
-from helper import get_emails, get_spacy, get_tfidf, find_knee
+from helper import get_emails, get_spacy, get_tfidf, find_knee, silhouette_analysis
 import argparse
+import sys
 
 if __name__ == '__main__':
     # Create an argument parser
@@ -27,6 +28,12 @@ if __name__ == '__main__':
     optional.add_argument(
         '--method', help="Method for choosing optimal number of clusters", choices=['elbow', 'silhouette'], default='elbow')
 
+    optional.add_argument(
+        '--min_cl', help="Minimum number of clusters (only if n_clusters is not defined)", type=int, default=2)
+
+    optional.add_argument(
+        '--max_cl', help="Maximum number of clusters (only if n_clusters is not defined)", type=int)
+
     args = parser.parse_args()
     input = args.input
     output = args.output
@@ -34,6 +41,8 @@ if __name__ == '__main__':
     plot = args.plot
     n_clusters = args.n_clusters
     method = args.method
+    min_cl = args.min_cl
+    max_cl = args.max_cl
 
     if not input.endswith('/'):
         input = input + '/'
@@ -42,6 +51,16 @@ if __name__ == '__main__':
     # Get emails
     emails = get_emails(input)
 
+    # Max number of clusters is always n_samples-1 if not specified
+    if max_cl is None:
+        max_cl = len(emails) - 1
+    # Min number of clusters is greater than 1.
+    if min_cl < 2:
+        sys.exit('Minimum number of clusters should be greater than 1.')
+    if max_cl > len(emails) - 1:
+        sys.exit('Maximum number of clusters should be less than n_samples.')
+    if min_cl > max_cl:
+        sys.exit('Minumum number of clusters should be less than maximum')
     # Get vector representation of emails.
     if vector_type == 'spacy':
         X = get_spacy(emails)
@@ -49,14 +68,14 @@ if __name__ == '__main__':
         X = get_tfidf(emails)
 
     if n_clusters == -1:
-        # Get metrics in different number of clusters.
-        sse, silhouette = get_metrics(X, plot)
+        # Get metrics in different number of clusters (range [min_cl, max_cl]).
+        sse, silhouette = get_metrics(X, plot, min_cl, max_cl)
         if method == 'elbow':
-            n_clusters = find_knee(sse)
+            n_clusters = find_knee(sse, min_cl)
         else:
-            exit()
+            n_clusters = silhouette_analysis(silhouette)
     # Run k-means with given number of clusters.
     labels = run_kmeans(X, n_clusters)
 
-    # Save clusters in separate folders.
+    # Save clusters in given folders.
     save_clusters(emails, labels, output)
