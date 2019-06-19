@@ -1,9 +1,26 @@
-from sklearn.feature_extraction.text import TfidfVectorizer
-from helper import get_emails
-from kmeans import get_optimal_clusters, run_kmeans, save_clusters
 import os
 import numpy as np
 import spacy
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+
+def get_emails(dir):
+    '''Get emails from a specific directory and return them as a list.
+
+        Args:
+            dir: Directory that contains the emails in text files.
+        Returns:
+            emails: A list that contains the emails in string format.
+
+        '''
+    if not os.path.exists(dir):
+        sys.exit('Email folder does not exist')
+
+    emails = []
+    for email in os.listdir(dir):
+        with open(dir + email, 'r') as f:
+            emails.append(f.read())
+    return emails
 
 
 def get_spacy(emails):
@@ -38,21 +55,3 @@ def get_tfidf(emails):
     emails_transformed = emails_fitted.transform(emails)
     # Or fit_transform together
     return emails_transformed
-
-
-if __name__ == '__main__':
-    # Get emails
-    emails = get_emails('./texts/')
-
-    # Get vector representation of emails.
-    X_spacy = get_spacy(emails)
-    # X_tfidf = get_tfidf(emails)
-
-    # Find the optimal number of clusters
-    # get_optimal_clusters(X_spacy)
-
-    # Run k-means with the optimal number of clusters
-    labels = run_kmeans(X_spacy, 3)
-
-    # Save clusters in separate folders.
-    save_clusters(emails, labels)
