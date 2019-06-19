@@ -8,7 +8,7 @@ from numpy import sqrt
 
 def get_metrics(X, plot):
     '''Run k-means and keep sum of squared errors and silhouette coefficients
-        for each number of clusters.
+        for each number of clusters (2 to n_samples-1).
 
         Args:
             X: A list that contains the vectors of the emails.

@@ -1,6 +1,6 @@
 import os
 from kmeans import get_metrics, run_kmeans, save_clusters
-from helper import get_emails, get_spacy, get_tfidf
+from helper import get_emails, get_spacy, get_tfidf, find_knee
 import argparse
 
 if __name__ == '__main__':
@@ -24,12 +24,16 @@ if __name__ == '__main__':
     optional.add_argument(
         '--plot', help="Plot sum of squared errors and silhouette scores (only if n_clusters is not defined)", type=bool, default=False)
 
+    optional.add_argument(
+        '--method', help="Method for choosing optimal number of clusters", choices=['elbow', 'silhouette'], default='elbow')
+
     args = parser.parse_args()
     input = args.input
     output = args.output
     vector_type = args.vector_type
     plot = args.plot
     n_clusters = args.n_clusters
+    method = args.method
 
     if not input.endswith('/'):
         input = input + '/'
@@ -45,11 +49,14 @@ if __name__ == '__main__':
         X = get_tfidf(emails)
 
     if n_clusters == -1:
-        # Find the optimal number of clusters
-
-    else:
-        # Run k-means with given number of clusters.
-        labels = run_kmeans(X, n_clusters)
+        # Get metrics in different number of clusters.
+        sse, silhouette = get_metrics(X, plot)
+        if method == 'elbow':
+            n_clusters = find_knee(sse)
+        else:
+            exit()
+    # Run k-means with given number of clusters.
+    labels = run_kmeans(X, n_clusters)
 
     # Save clusters in separate folders.
     save_clusters(emails, labels, output)

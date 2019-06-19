@@ -2,6 +2,7 @@ import os
 import numpy as np
 import spacy
 from sklearn.feature_extraction.text import TfidfVectorizer
+from kneed import KneeLocator
 
 
 def get_emails(dir):
@@ -55,3 +56,19 @@ def get_tfidf(emails):
     emails_transformed = emails_fitted.transform(emails)
     # Or fit_transform together
     return emails_transformed
+
+
+def find_knee(sse):
+    '''Find optimal number of clusters using the elbow method. More info here: https://github.com/arvkevi/kneed
+
+        Args:
+            sse: A list that contains the sum of squared errors.
+        Returns:
+            n_clusters: Optimal number of clusters
+
+        '''
+    k = range(2, len(sse) + 2)
+    kneedle = KneeLocator(list(k), sse, curve='convex',
+                          direction='decreasing')
+    n_clusters = kneedle.knee
+    return n_clusters
