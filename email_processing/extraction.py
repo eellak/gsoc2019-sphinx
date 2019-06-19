@@ -12,14 +12,17 @@ from email.header import decode_header
 from email.iterators import typed_subpart_iterator
 import chardet
 from bs4 import BeautifulSoup
+import argparse
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
 
-def connect():
+def connect(reload):
     '''Open the default browser and ask the user for authentication reading his emails.
 
+        Args:
+            reload: If true, ignore any token already available.
         Returns:
             service: A recourse object. All calls will be done through this object.
 
@@ -28,7 +31,7 @@ def connect():
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    if os.path.exists('token.pickle'):
+    if not reload and os.path.exists('token.pickle'):
         with open('token.pickle', 'rb') as token:
             creds = pickle.load(token)
     # If there are no (valid) credentials available, let the user log in.
@@ -192,9 +195,35 @@ def mime2str(msg):
 
 
 if __name__ == '__main__':
+    # Create an argument parser
+    parser = argparse.ArgumentParser(description='''
+        Tool for extracting emails from a user's account
+    ''')
+    required = parser.add_argument_group('required arguments')
+    optional = parser.add_argument_group('optional arguments')
+
+    required.add_argument('--out', help="Output directory", required=True)
+    optional.add_argument(
+        '--reload', help="If true, remove any existing account.", type=bool,
+        default=False)
+    optional.add_argument(
+        '--info', help="If true, create an info file containing the headers.", type=bool,
+        default=False)
+
+    args = parser.parse_args()
+    out = args.out
+    reload = args.reload
+    info = args.info
+    if not out.endswith('/'):
+        out = out + '/'
+
+    print('Connecting to the gmail account...')
     # Connect to the Gmail API.
-    service = connect()
+    service = connect(reload)
+    print('Reading emails...')
     # Get the body and the header of the sent messages.
     body, headers = read_emails(service)
+    print('Saving emails...')
     # Save messages in txt files.
-    save_messages(body, headers)
+    save_messages(body, headers, out, info)
+    print(len(body), 'emails have been fetched successfully')

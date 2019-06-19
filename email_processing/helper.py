@@ -2,6 +2,7 @@ from alphabet_detector import AlphabetDetector
 import string
 import re
 import os
+import sys
 
 '''
     This sript contains some helper functions
@@ -63,23 +64,32 @@ def process_text(text):
     return ' '.join(tokens)
 
 
-def save_messages(body_messages, header_messages):
+def save_messages(body_messages, header_messages, out, info):
     '''Save messages in separate files and keeps an info file with the headers.
 
         Args:
             body_messages: A list of strings that contains the body of the messages.
             header_messages: A list of strings that contains the header of the messages.
+            out: The directory to store the emails.
+            info: If true, a file that contains the headers is saved too.
 
         '''
+    # If output directory does not exist, create it.
+    if not os.path.exists(out):
+        os.makedirs(out)
+
     # Keep an info file that contains the sender, the
     # receiver and the subject of the message.
-    with open('info', 'w') as w1:
-        for i, msg in enumerate(body_messages):
-            with open('./texts/email_' + str(i), 'w') as w2:
+    if info:
+        with open('./' + out + 'info', 'w') as w1:
+            for i, msg in enumerate(body_messages):
                 w1.write(
                     header_messages[i][0] + ' | ' + header_messages[i][1] + ' | ' + header_messages[i][2])
                 w1.write('\n')
-                w2.write(msg)
+
+    for i, msg in enumerate(body_messages):
+        with open('./' + out + 'email_' + str(i), 'w') as w2:
+            w2.write(msg)
 
 
 def get_emails(dir):
@@ -91,6 +101,10 @@ def get_emails(dir):
             emails: A list that contains the emails in string format.
 
         '''
+    # If input directory does not exist, exit with error.
+    if not os.path.exists(dir):
+        sys.exit('Email folder does not exist')
+
     emails = []
     for email in os.listdir(dir):
         with open(dir + email, 'r') as f:

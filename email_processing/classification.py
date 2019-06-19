@@ -2,6 +2,7 @@ import requests
 import os
 from extraction import connect, read_emails, mime2str
 from helper import get_emails
+import argparse
 
 
 def classify(text):
@@ -46,7 +47,7 @@ def classify_emails(emails):
     return categories
 
 
-def save_texts(categories):
+def save_texts(categories, output):
     '''Save the emails of each category in a txt file in order to build the
         topic-specific language model.
 
@@ -54,29 +55,42 @@ def save_texts(categories):
             categories: A dictionary that has the category name in Greek as key and a
                 list with the emails of this category as value.
     '''
+    # If output directory does not exist, create it.
+    if not os.path.exists(output):
+        os.makedirs(output)
 
     for category in categories:
-        with open('./categories/' + category, 'w') as w:
+        with open('./' + output + category, 'w') as w:
             for email in categories[category]:
                 w.write(email + '\n')
 
-
-def save_texts_together(categories):
-    '''Save all the emails in one file.
-
-        Args:
-            categories: A dictionary that has the category name in Greek as key and a
-                list with the emails of this category as value.
-    '''
-
-    with open('All', 'w') as w:
+    with open('./' + output + 'General', 'w') as w:
         for category in categories:
             for email in categories[category]:
                 w.write(email + '\n')
 
 
 if __name__ == '__main__':
-    emails = get_emails('./texts/')
+    # Create an argument parser
+    parser = argparse.ArgumentParser(description='''
+        Classify emails in predefined categories. More info on the clasifier here: https://github.com/eellak/nlpbuddy/wiki/Category-prediction
+    ''')
+    required = parser.add_argument_group('required arguments')
+    optional = parser.add_argument_group('optional arguments')
+
+    required.add_argument('--input', help="Input directory", required=True)
+    required.add_argument('--output', help="Output directory", required=True)
+
+    args = parser.parse_args()
+    output = args.output
+    input = args.input
+
+    if not input.endswith('/'):
+        input = input + '/'
+    if not output.endswith('/'):
+        output = output + '/'
+
+    emails = get_emails('./' + input)
     categories = classify_emails(emails)
-    save_texts_together(categories)
-    save_texts(categories)
+
+    save_texts(categories, output)
