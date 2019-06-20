@@ -75,6 +75,15 @@ def find_knee(sse, min_cl):
     return n_clusters
 
 
-def silhouette_analysis(silhouette):
-    # Not implemented yet.
-    return
+def silhouette_analysis(silhouette, min_cl):
+    '''Find optimal number of clusters using the silhouette method.
+
+        Args:
+            sse: A list that contains the silhouette scores.
+            min_cl: Minimum number of clusters
+        Returns:
+            n_clusters: Optimal number of clusters
+
+        '''
+    n_clusters = silhouette.index(max(silhouette))
+    return n_clusters + min_cl

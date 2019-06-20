@@ -73,7 +73,7 @@ if __name__ == '__main__':
         if method == 'elbow':
             n_clusters = find_knee(sse, min_cl)
         else:
-            n_clusters = silhouette_analysis(silhouette)
+            n_clusters = silhouette_analysis(silhouette, min_cl)
     # Run k-means with given number of clusters.
     labels = run_kmeans(X, n_clusters)
 
