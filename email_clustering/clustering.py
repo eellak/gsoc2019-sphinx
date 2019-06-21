@@ -1,6 +1,6 @@
 import os
 from kmeans import get_metrics, run_kmeans, save_clusters
-from helper import get_emails, get_spacy, get_tfidf, find_knee, silhouette_analysis
+from helper import get_emails, get_spacy, get_tfidf, find_knee, silhouette_analysis, cluster2text
 import argparse
 import sys
 
@@ -26,7 +26,7 @@ if __name__ == '__main__':
         '--plot', help="Plot sum of squared errors and silhouette scores (only if n_clusters is not defined)", type=bool, default=False)
 
     optional.add_argument(
-        '--method', help="Method for choosing optimal number of clusters", choices=['elbow', 'silhouette'], default='elbow')
+        '--method', help="Method for choosing optimal number of clusters", choices=['elbow', 'silhouette'], default='silhouette')
 
     optional.add_argument(
         '--min_cl', help="Minimum number of clusters (only if n_clusters is not defined)", type=int, default=2)
@@ -79,3 +79,7 @@ if __name__ == '__main__':
 
     # Save clusters in given folders.
     save_clusters(emails, labels, output)
+
+    # Save in each cluster a file that contains all the emails of it.
+    # It will be used in the languge model.
+    cluster2text(output, n_clusters)

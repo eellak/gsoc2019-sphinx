@@ -3,6 +3,7 @@ import numpy as np
 import spacy
 from sklearn.feature_extraction.text import TfidfVectorizer
 from kneed import KneeLocator
+import sys
 
 
 def get_emails(dir):
@@ -87,3 +88,13 @@ def silhouette_analysis(silhouette, min_cl):
         '''
     n_clusters = silhouette.index(max(silhouette))
     return n_clusters + min_cl
+
+
+def cluster2text(out, n_clusters):
+    for i in range(n_clusters):
+        cluster_path = './' + out + 'cluster_' + str(i)
+        with open(os.path.join(cluster_path, 'corpus'), 'w') as w:
+            for email in os.listdir(cluster_path):
+                with open(os.path.join(cluster_path, email), 'r') as r:
+                    w.write(r.read())
+                    w.write('\n')
