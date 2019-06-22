@@ -7,6 +7,7 @@
 
 import sys
 import os
+import argparse
 
 
 # Search for a specific word in the
@@ -21,32 +22,46 @@ def searchDic(word, dict):
     return False
 
 
-if len(sys.argv) != 3:
-    sys.exit("Wrong number of parameters!")
+if __name__ == '__main__':
+    # Create an argument parser
+    parser = argparse.ArgumentParser(description='''
+        Tool that finds out of dictionary words from a given transcription
+    ''')
 
-# Read dictionary and transcription file.
-dict = sys.argv[1]
-file = sys.argv[2]
-if not os.path.isfile(dict) or not os.path.isfile(file):
-    sys.exit("Wrong arguments")
+    required = parser.add_argument_group('required arguments')
+    optional = parser.add_argument_group('optional arguments')
 
-# Keep track of missing words, to avoid duplicates.
-missing = []
+    required.add_argument('--dict', help="Path of dictionary", required=True)
+    required.add_argument(
+        '--input', help="Path of input transcription (should be in Sphinx format)", required=True)
+    required.add_argument(
+        '--output', help="File to write the missing words", required=True)
 
-with open(file, 'r') as f, open('missing-words.txt', 'w') as w:
-    for line in f:
-        # Some Greek texts have \xa0 (Unicode representing spaces)
-        # so remove it, before splitting on spaces.
-        line = line.replace(u'\xa0', u' ')
-        words = line.split(' ')
-        # Last word is the identifires of the transcription, so
-        # don't care about it.
-        print('Searching for transcription: ' + words[-1])
-        for word in words[:len(words)-1]:
-            if word:
-                if (not searchDic(word, dict)) and (word not in missing):
-                    w.write(word + '\n')
-                    print(word)
-                    missing.append(word)
+    args = parser.parse_args()
+    input = args.input
+    output = args.output
+    dict = args.dict
 
-print('OK')
+    if not os.path.isfile(dict) or not os.path.isfile(input):
+        sys.exit("Wrong arguments")
+
+    # Keep track of missing words, to avoid duplicates.
+    missing = []
+
+    with open(input, 'r') as f, open(output, 'w') as w:
+        for line in f:
+            # Some Greek texts have \xa0 (Unicode representing spaces)
+            # so remove it, before splitting on spaces.
+            line = line.replace(u'\xa0', u' ')
+            words = line.split(' ')
+            # Last word is the identity of the transcription, so
+            # don't care about it.
+            print('Searching for transcription: ' + words[-1].split('\n'))
+            for word in words[:len(words) - 1]:
+                if word:
+                    if (not searchDic(word, dict)) and (word not in missing):
+                        print(word)
+                        w.write(word + '\n')
+                        missing.append(word)
+
+    print('OK')
