@@ -98,3 +98,23 @@ def cluster2text(out, n_clusters):
                 with open(os.path.join(cluster_path, email), 'r') as r:
                     w.write(r.read())
                     w.write('\n')
+
+
+def closest_cluster(centers, point):
+    '''Find the cluster that a point belongs.
+
+        Args:
+            centers: The coordinates of the centers of the clusters
+            point: The coordinates of the point (vector representation of a text)
+        Returns:
+            min_cluster: Closest cluster to the point.
+
+        '''
+    min_distance = np.linalg.norm(centers[0] - point)
+    min_cluster = 0
+    for i in range(1, len(centers)):
+        cur_distance = np.linalg.norm(centers[i] - point)
+        if cur_distance < min_distance:
+            min_distance = cur_distance
+            min_cluster = i
+    return min_cluster
