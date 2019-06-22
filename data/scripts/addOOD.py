@@ -4,25 +4,38 @@
 import sys
 import subprocess
 import os
+import argparse
 
-if len(sys.argv) != 3:
-    sys.exit("Wrong number of parameters!")
+if __name__ == '__main__':
+    # Create an argument parser
+    parser = argparse.ArgumentParser(description='''
+        Tool that generates phonemes for out of dictionary words and adds them in the dictionary
+    ''')
 
-# Read phonetisaurus trained model and dictionary to expand.
-model = sys.argv[1]
-dict = sys.argv[2]
+    required = parser.add_argument_group('required arguments')
+    optional = parser.add_argument_group('optional arguments')
 
-if not os.path.isfile(model) and not os.path.isfile(dict):
-    sys.exit("Wrong arguments")
+    required.add_argument('--model', help="Phonetisaurus model", required=True)
+    required.add_argument(
+        '--input', help="Path of missing words file.", required=True)
+    required.add_argument(
+        '--dict', help="Path of the dictionary", required=True)
 
-print("Generating phonemes...")
-if subprocess.call(['phonetisaurus-apply --model ' + model + ' --word_list missing-words.txt > missing-words-phonemes.txt'], shell=True):
-    sys.exit('error in subprocess')
+    args = parser.parse_args()
+    model = args.model
+    dict = args.dict
+    input = args.input
 
-print("Copy generated phonemes to given dictionary...")
-# Open file with the missing words and the generated phonemes.
-with open('missing-words-phonemes.txt', 'r') as r, open(dict, 'a') as w:
-    for line in r:
-        w.write(line)
+    if not os.path.isfile(model) or not os.path.isfile(dict) or not os.path.isfile(input):
+        sys.exit("Wrong arguments")
 
-print('OK')
+    print("Generating phonemes...")
+    if subprocess.call(['phonetisaurus-apply --model ' + model + ' --word_list ' + input + ' > missing-words-phonemes.txt'], shell=True):
+        sys.exit('error in subprocess')
+    print("Copy generated phonemes to given dictionary...")
+    # Open file with the missing words and the generated phonemes.
+    with open('missing-words-phonemes.txt', 'r') as r, open(dict, 'a') as w:
+        for line in r:
+            w.write(line)
+
+    print('OK')
