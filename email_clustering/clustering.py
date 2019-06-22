@@ -1,6 +1,6 @@
 import os
 from kmeans import get_metrics, run_kmeans, save_clusters
-from helper import get_emails, get_spacy, get_tfidf, find_knee, silhouette_analysis, cluster2text
+from helper import get_emails, get_spacy, get_tfidf, find_knee, silhouette_analysis, cluster2text, closest_cluster
 import argparse
 import sys
 
@@ -75,7 +75,7 @@ if __name__ == '__main__':
         else:
             n_clusters = silhouette_analysis(silhouette, min_cl)
     # Run k-means with given number of clusters.
-    labels = run_kmeans(X, n_clusters)
+    labels, centers = run_kmeans(X, n_clusters)
 
     # Save clusters in given folders.
     save_clusters(emails, labels, output)

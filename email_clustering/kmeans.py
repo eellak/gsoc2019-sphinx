@@ -60,7 +60,7 @@ def run_kmeans(X, n_clusters):
     # Run k-means usign n_clusters
     clf = KMeans(n_clusters=n_clusters)
     labels = clf.fit_predict(X)
-    return labels
+    return labels, clf.cluster_centers_
 
 
 def save_clusters(emails, labels, out):
