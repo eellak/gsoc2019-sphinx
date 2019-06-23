@@ -3,6 +3,7 @@ from kmeans import get_metrics, run_kmeans, save_clusters
 from helper import get_emails, get_spacy, get_tfidf, find_knee, silhouette_analysis, cluster2text, closest_cluster
 import argparse
 import sys
+import pickle
 
 if __name__ == '__main__':
     # Create an argument parser
@@ -83,3 +84,8 @@ if __name__ == '__main__':
     # Save in each cluster a file that contains all the emails of it.
     # It will be used in the languge model.
     cluster2text(output, n_clusters)
+
+    # Save centers in a pickle, in order to classify
+    # other emails.
+    with open(output + 'centers.pickle', 'wb') as f:
+        pickle.dump(centers, f)
