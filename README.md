@@ -13,7 +13,7 @@ In the modern era of Big Data, many dictation systems have already been implemen
 
 ## Timeline
 
-A detailed timeline follows, organized by [GSoC timeline](https://developers.google.com/open-source/gsoc/timeline). More details can be found in [Project](https://github.com/eellak/gsoc2019-sphinx/projects/1).
+A detailed timeline follows, organized by [GSoC timeline](https://developers.google.com/open-source/gsoc/timeline). More details can be found in [Project](https://github.com/eellak/gsoc2019-sphinx/projects/1) and [Wiki](https://github.com/eellak/gsoc2019-sphinx/wiki).
 
 - __Student application work (Mar 25 - Apr 09)__
   
@@ -23,38 +23,26 @@ A detailed timeline follows, organized by [GSoC timeline](https://developers.goo
   - [g2p-seq2seq](https://github.com/cmusphinx/g2p-seq2seq)
   - [WebSocket](https://blog.teamtreehouse.com/an-introduction-to-websockets)
   - [Spacy](https://spacy.io/)
+  - [scikit-learn](https://scikit-learn.org/)
   - [React](https://reactjs.org/tutorial/tutorial.html)
 
-- __Community Bonding Period (May 6 - May 26)__
+- __Community Bonding Period (May 6 - May 26)__ :heavy_check_mark:
   - Get to know my mentors better and discuss the project more extensively.
   - Implementation of the baseline part of the ASR system based on the default acoustic and language model, that can be found [here](https://www.dropbox.com/sh/fl6698yfuam54ch/AABx4hHs4P5kFVBGJQQZN_Voa?dl=0).
-  - Search for speech datasets (recordings along with their transcriptions) and organize them in order to be in Sphinx standard form. More details [here](data).
+  - Search for speech datasets (recordings along with their transcriptions) and organize them in order to be in Sphinx standard form.
   - Implementation of a domain specific and a merged (specific + default) language model for each dataset.
-  - Evaluation of these models in both datasets. Using the default acoustic model and dictionary, the results are:
-    - Paramythi
-    
-      | Language model  | Accuracy |
-      | :---:  | :---: |
-      | default  | 59.55%  |
-      | specific  | 51.99%  |
-      | merged  | 65.04%  |
-      
-    - Radio
-    
-      | Language model  | Accuracy |
-      | :---:  | :---: |
-      | default  | 53.28%  |
-      | specific  | 53.92%  |
-      | merged  | 66.03%  |
+  - Evaluation of these models in both datasets. Using the default acoustic model and dictionary, the results are [here](https://github.com/eellak/gsoc2019-sphinx/wiki/Datasets-and-Adaptation).
 
-- __Phase 1 (May 27 - Jun 28)__
-  - Extension of the the default dictionary using [g2p-seq2seq](https://github.com/cmusphinx/g2p-seq2seq).
-  - Adaption of the acoustic model in both datasets and evaluation.
+
+- __Phase 1 (May 27 - Jun 28)__ :heavy_check_mark:
+  - Extension of the the default dictionary using [Phonetisaurus](https://github.com/AdolfVonKleist/Phonetisaurus).
+  - Adaptation of the acoustic model in all datasets and evaluation.
   - Implementation of a system that extracts the emails from a user's account.
-  - Implementation of the personalized acoustic model, based on user's dictation commands.
+  - Email classification.
+  - Email clustering.
+  - Create a personal email dataset for evaluation.
 
 - __Phase 2 (Jun 29 - Jul 26)__
-  - Email classification.
   - Implementation of domain-specific language models.
   - Implementation of the correction system.
   - Integration of special dictation commands.
