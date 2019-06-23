@@ -118,3 +118,12 @@ def closest_cluster(centers, point):
             min_distance = cur_distance
             min_cluster = i
     return min_cluster
+
+
+def get_emails_from_transcription(file):
+    emails = []
+    with open(file, 'r') as f:
+        for email in f:
+            emails.append(email.rsplit(' ', 1)[0])
+
+    return emails
