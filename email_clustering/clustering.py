@@ -1,6 +1,6 @@
 import os
 from kmeans import get_metrics, run_kmeans, save_clusters
-from helper import get_emails, get_spacy, get_tfidf, find_knee, silhouette_analysis, cluster2text, closest_cluster
+from helper import get_emails, get_spacy, get_tfidf, find_knee, silhouette_analysis, cluster2text, closest_cluster, closest_point
 import argparse
 import sys
 import pickle
@@ -14,8 +14,10 @@ if __name__ == '__main__':
     required = parser.add_argument_group('required arguments')
     optional = parser.add_argument_group('optional arguments')
 
-    required.add_argument('--input', help="Input directory", required=True)
-    required.add_argument('--output', help="Ouput directory", required=True)
+    required.add_argument(
+        '--input', help="Input directory", required=True)
+    required.add_argument(
+        '--output', help="Ouput directory", required=True)
 
     optional.add_argument(
         '--vector_type', help="Vector representation to be used", choices=['spacy', 'tf-idf'], default='spacy')
@@ -35,6 +37,9 @@ if __name__ == '__main__':
     optional.add_argument(
         '--max_cl', help="Maximum number of clusters (only if n_clusters is not defined)", type=int)
 
+    optional.add_argument(
+        '--samples', help="If set, a file that contains a representative email for each cluster is saved", action='store_true')
+
     args = parser.parse_args()
     input = args.input
     output = args.output
@@ -44,6 +49,7 @@ if __name__ == '__main__':
     method = args.method
     min_cl = args.min_cl
     max_cl = args.max_cl
+    samples = args.samples
 
     if not input.endswith('/'):
         input = input + '/'
@@ -59,7 +65,8 @@ if __name__ == '__main__':
     if min_cl < 2:
         sys.exit('Minimum number of clusters should be greater than 1.')
     if max_cl > len(emails) - 1:
-        sys.exit('Maximum number of clusters should be less than n_samples.')
+        sys.exit(
+            'Maximum number of clusters should be less than n_samples.')
     if min_cl > max_cl:
         sys.exit('Minumum number of clusters should be less than maximum')
     # Get vector representation of emails.
@@ -82,10 +89,17 @@ if __name__ == '__main__':
     save_clusters(emails, labels, output)
 
     # Save in each cluster a file that contains all the emails of it.
-    # It will be used in the languge model.
+    # It will be used in the language model.
     cluster2text(output, n_clusters)
 
     # Save centers in a pickle, in order to classify
     # other emails.
     with open(output + 'centers.pickle', 'wb') as f:
         pickle.dump(centers, f)
+
+    if samples:
+        with open(os.path.join(output + 'samples'), 'w') as w:
+            for i in range(n_clusters):
+                w.write('Cluster ' + str(i) + '\n')
+                w.write(emails[closest_point(centers[i], X)])
+                w.write('\n')

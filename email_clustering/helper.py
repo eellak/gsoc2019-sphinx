@@ -127,3 +127,23 @@ def get_emails_from_transcription(file):
             emails.append(email.rsplit(' ', 1)[0])
 
     return emails
+
+
+def closest_point(center, X):
+    '''Find the point of X that is closer in center.
+
+        Args:
+            center: The coordinates of the center
+            point: The coordinates of the points (vector representation of emails)
+        Returns:
+            min_point: Index of the closest point to the cluster
+
+        '''
+    min_distance = np.linalg.norm(center - X[0])
+    min_point = 0
+    for i in range(1, len(X)):
+        cur_distance = np.linalg.norm(center - X[i])
+        if cur_distance < min_distance:
+            min_distance = cur_distance
+            min_point = i
+    return min_point
