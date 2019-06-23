@@ -73,7 +73,7 @@ def save_texts(categories, output):
 if __name__ == '__main__':
     # Create an argument parser
     parser = argparse.ArgumentParser(description='''
-        Classify emails in predefined categories. More info on the clasifier here: https://github.com/eellak/nlpbuddy/wiki/Category-prediction
+        Classify emails in predefined categories. More info on the classifier here: https://github.com/eellak/nlpbuddy/wiki/Category-prediction
     ''')
     required = parser.add_argument_group('required arguments')
     optional = parser.add_argument_group('optional arguments')
