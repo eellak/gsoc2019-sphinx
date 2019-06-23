@@ -26,7 +26,7 @@ A detailed timeline follows, organized by [GSoC timeline](https://developers.goo
   - [scikit-learn](https://scikit-learn.org/)
   - [React](https://reactjs.org/tutorial/tutorial.html)
 
-- __Community Bonding Period (May 6 - May 26)__
+- __Community Bonding Period (May 6 - May 26)__ :heavy_check_mark:
   - Get to know my mentors better and discuss the project more extensively.
   - Implementation of the baseline part of the ASR system based on the default acoustic and language model, that can be found [here](https://www.dropbox.com/sh/fl6698yfuam54ch/AABx4hHs4P5kFVBGJQQZN_Voa?dl=0).
   - Search for speech datasets (recordings along with their transcriptions) and organize them in order to be in Sphinx standard form.
@@ -34,7 +34,7 @@ A detailed timeline follows, organized by [GSoC timeline](https://developers.goo
   - Evaluation of these models in both datasets. Using the default acoustic model and dictionary, the results are [here](https://github.com/eellak/gsoc2019-sphinx/wiki/Datasets-and-Adaptation).
 
 
-- __Phase 1 (May 27 - Jun 28)__
+- __Phase 1 (May 27 - Jun 28)__ :heavy_check_mark:
   - Extension of the the default dictionary using [Phonetisaurus](https://github.com/AdolfVonKleist/Phonetisaurus).
   - Adaptation of the acoustic model in all datasets and evaluation.
   - Implementation of a system that extracts the emails from a user's account.
