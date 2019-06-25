@@ -77,7 +77,8 @@ def save_clusters(emails, labels, out):
         os.makedirs(out)
 
     for i, email in enumerate(emails):
-        path = './' + out + 'cluster_' + str(labels[i]) + '/email_' + str(i)
+        path = './' + out + 'cluster_' + \
+            str(labels[i]) + '/email_' + str(i)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, 'w') as f:
             f.write(email)
