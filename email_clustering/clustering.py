@@ -1,9 +1,13 @@
 import os
 from kmeans import get_metrics, run_kmeans, save_clusters
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
 from helper import get_emails, get_spacy, get_tfidf, find_knee, silhouette_analysis, cluster2text, closest_cluster, closest_point
+from helper import sort_coo, extract_topn_from_vector
 import argparse
 import sys
 import pickle
+from stop_words import STOP_WORDS
 
 if __name__ == '__main__':
     # Create an argument parser
@@ -40,6 +44,9 @@ if __name__ == '__main__':
     optional.add_argument(
         '--samples', help="If set, a file that contains a representative email for each cluster is saved", action='store_true')
 
+    optional.add_argument(
+        '--keywords', help="If set, get some keywords for each cluster", action='store_true')
+
     args = parser.parse_args()
     input = args.input
     output = args.output
@@ -50,6 +57,7 @@ if __name__ == '__main__':
     min_cl = args.min_cl
     max_cl = args.max_cl
     samples = args.samples
+    keywords = args.keywords
 
     if not input.endswith('/'):
         input = input + '/'
@@ -103,3 +111,19 @@ if __name__ == '__main__':
                 w.write('Cluster ' + str(i) + '\n')
                 w.write(emails[closest_point(centers[i], X)])
                 w.write('\n')
+
+    if keywords:
+        cv = CountVectorizer(stop_words=STOP_WORDS)
+        tfidf = TfidfTransformer(smooth_idf=True, use_idf=True)
+        for i in range(n_clusters):
+            emails_cluster = [emails[j]
+                              for j in range(len(emails)) if labels[j] == i]
+            word_count_vector = cv.fit_transform(emails_cluster)
+            tfidf.fit(word_count_vector)
+            feature_names = cv.get_feature_names()
+            tf_idf_vector = tfidf.transform(
+                cv.transform(emails_cluster))
+            sorted_items = sort_coo(tf_idf_vector.tocoo())
+            keywords = extract_topn_from_vector(
+                feature_names, sorted_items, 10)
+            print(keywords)
