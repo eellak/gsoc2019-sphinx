@@ -30,7 +30,7 @@ if __name__ == '__main__':
         '--n_clusters', help="Number of clusters to be used (if not set, automatically choose one)", type=int, default=-1)
 
     optional.add_argument(
-        '--plot', help="Plot sum of squared errors and silhouette scores (only if n_clusters is not defined)", type=bool, default=False)
+        '--plot', help="Plot sum of squared errors and silhouette scores (only if n_clusters is not defined)", action='store_true')
 
     optional.add_argument(
         '--method', help="Method for choosing optimal number of clusters", choices=['elbow', 'silhouette'], default='silhouette')
