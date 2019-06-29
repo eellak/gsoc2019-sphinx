@@ -106,6 +106,7 @@ if __name__ == '__main__':
         pickle.dump(centers, f)
 
     if samples:
+        # Save the closest email in each center.
         with open(os.path.join(output + 'samples'), 'w') as w:
             for i in range(n_clusters):
                 w.write('Cluster ' + str(i) + '\n')
@@ -113,6 +114,9 @@ if __name__ == '__main__':
                 w.write('\n')
 
     if keywords:
+        # We want to keep some representative words for each cluster
+        # in order to identify the topic it represents. So we take
+        # the words with the heighest tf-idf metric in each cluster.
         cv = CountVectorizer(stop_words=STOP_WORDS)
         tfidf = TfidfTransformer(smooth_idf=True, use_idf=True)
         for i in range(n_clusters):
