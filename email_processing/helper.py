@@ -3,6 +3,8 @@ import string
 import re
 import os
 import sys
+import nltk
+from nltk.tokenize import sent_tokenize
 
 '''
     This sript contains some helper functions
@@ -51,17 +53,22 @@ def process_text(text):
                     out += word + ' '
 
     # Break line in sentences.
-    out.replace("\r", "").replace(".", ".\n")
-    # split into tokens by white space
-    tokens = out.split()
-    # remove punctuation from each token
+    out = out.replace('\r', '')
+    sentences = sent_tokenize(out)
     table = str.maketrans('', '', string.punctuation)
-    tokens = [w.translate(table) for w in tokens]
-    # remove remaining tokens that are not alphabetic
-    tokens = [word for word in tokens if word.isalpha()]
-    # make lower case
-    tokens = [word.lower() for word in tokens]
-    return ' '.join(tokens)
+    out_clean = []
+    for sent in sentences:
+        # split into tokens by white space
+        tokens = sent.split()
+        # remove punctuation from each token
+        tokens = [w.translate(table) for w in tokens]
+        # remove remaining tokens that are not alphabetic
+        tokens = [word for word in tokens if word.isalpha()]
+        # make lower case
+        tokens = [word.lower() for word in tokens]
+        if tokens:
+            out_clean.append(' '.join(tokens))
+    return out_clean
 
 
 def save_messages(body_messages, header_messages, out, info):
@@ -89,7 +96,8 @@ def save_messages(body_messages, header_messages, out, info):
 
     for i, msg in enumerate(body_messages):
         with open('./' + out + 'email_' + str(i), 'w') as w2:
-            w2.write(msg)
+            for sent in msg:
+                w2.write(sent + '\n')
 
 
 def get_emails(dir):

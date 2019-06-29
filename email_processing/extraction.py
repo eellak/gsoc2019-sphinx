@@ -75,7 +75,8 @@ def read_emails(service, limit=100, save_raw=False):
             userId='me', id=message['id'], format='raw').execute()
         raw_msg = msg_dict['raw']
         # Convert message encoding from base64 to iso-8859-7.
-        string_message = str(base64.urlsafe_b64decode(raw_msg), "ISO-8859-7")
+        string_message = str(
+            base64.urlsafe_b64decode(raw_msg), "ISO-8859-7")
         # Convert current message to mime format.
         mime_msg = email.message_from_string(string_message)
         # Convert current message from mime to string.
@@ -184,7 +185,7 @@ def mime2str(msg):
     # Clean the text.
     clean_text = process_text(text_without_html)
     # Keep message and its header only if it contains some text in the body.
-    if clean_text and not clean_text.isspace():
+    if clean_text:
         headers = [get_header(msg["from"]), get_header(
             msg["to"]), get_header(msg["subject"])]
 
@@ -202,10 +203,10 @@ if __name__ == '__main__':
     required = parser.add_argument_group('required arguments')
     optional = parser.add_argument_group('optional arguments')
 
-    required.add_argument('--out', help="Output directory", required=True)
+    required.add_argument(
+        '--out', help="Output directory", required=True)
     optional.add_argument(
-        '--reload', help="If true, remove any existing account.", type=bool,
-        default=False)
+        '--reload', help="If true, remove any existing account.", action='store_true')
     optional.add_argument(
         '--info', help="If true, create an info file containing the headers.", type=bool,
         default=False)
