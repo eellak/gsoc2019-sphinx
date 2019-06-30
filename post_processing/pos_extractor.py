@@ -1,6 +1,8 @@
 from helper import get_emails
 import argparse
 import spacy
+import pickle
+import os
 
 
 def get_pos(emails):
@@ -27,9 +29,11 @@ if __name__ == '__main__':
 
     required.add_argument(
         '--input', help="Input directory", required=True)
-
+    required.add_argument(
+        '--output', help="Output pickle file that holds the pos tagging of the corpus", required=True)
     args = parser.parse_args()
     input = args.input
+    output = args.output
 
     if not input.endswith('/'):
         input = input + '/'
@@ -37,3 +41,6 @@ if __name__ == '__main__':
     emails = get_emails(input)
 
     pos = get_pos(emails)
+    # Pickling pos
+    with open(output + '.pkl', "wb") as fp:
+        pickle.dump(pos, fp)
