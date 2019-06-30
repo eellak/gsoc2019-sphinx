@@ -125,9 +125,10 @@ def silhouette_analysis(silhouette, min_cl):
 def cluster2text(out, n_clusters):
     for i in range(n_clusters):
         cluster_path = './' + out + 'cluster_' + str(i)
+        email_path = './' + out + 'cluster_' + str(i) + '/data'
         with open(os.path.join(cluster_path, 'corpus'), 'w') as w:
-            for email in os.listdir(cluster_path):
-                with open(os.path.join(cluster_path, email), 'r') as r:
+            for email in os.listdir(email_path):
+                with open(os.path.join(email_path, email), 'r') as r:
                     w.write(r.read())
                     w.write('\n')
 

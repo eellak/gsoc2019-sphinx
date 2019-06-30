@@ -28,7 +28,7 @@ if __name__ == '__main__':
     optional = parser.add_argument_group('optional arguments')
 
     required.add_argument(
-        '--input', help="Input directory", required=True)
+        '--input', help="Input directory that contains the email data", required=True)
     required.add_argument(
         '--output', help="Output pickle file that holds the pos tagging of the corpus", required=True)
     args = parser.parse_args()
