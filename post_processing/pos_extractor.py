@@ -2,6 +2,21 @@ from helper import get_emails
 import argparse
 import spacy
 
+
+def get_pos(emails):
+    pos_tagging = []
+    nlp = spacy.load('el_core_news_sm')
+    for email in emails:
+        for sentence in email.split('\n'):
+            sentence_tag = []
+            doc = nlp(sentence)
+            for token in doc:
+                sentence_tag.append((token.text, token.pos_))
+            if sentence_tag:
+                pos_tagging.append(sentence_tag)
+    return pos_tagging
+
+
 if __name__ == '__main__':
     # Create an argument parser
     parser = argparse.ArgumentParser(description='''
@@ -20,12 +35,5 @@ if __name__ == '__main__':
         input = input + '/'
 
     emails = get_emails(input)
-    nlp = spacy.load('el_core_news_sm')
 
-    for email in emails:
-        for sentence in email.split('\n'):
-            doc = nlp(sentence)
-            print(sentence)
-            for token in doc:
-                print(token.pos_, end=' ')
-            print()
+    pos = get_pos(emails)
