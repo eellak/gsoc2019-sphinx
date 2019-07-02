@@ -56,6 +56,27 @@ def get_emails(dir):
     return emails
 
 
+def get_sentences(dir):
+    '''Get all the sentences of the emails from a specific directory and return them as a list.
+
+        Args:
+            dir: Directory that contains the emails in text files.
+        Returns:
+            emails: A list that contains the sentences of the emails in string format.
+
+        '''
+    if not os.path.exists(dir):
+        sys.exit('Email folder does not exist')
+
+    emails = []
+    for email in os.listdir(dir):
+        with open(dir + email, 'r') as f:
+            # Each line represents a sentence.
+            for line in f:
+                emails.append(line)
+    return emails
+
+
 def get_spacy(emails):
     '''Represent emails as vectors using the spacy Greek model.
 

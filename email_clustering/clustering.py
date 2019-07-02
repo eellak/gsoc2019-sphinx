@@ -3,7 +3,7 @@ from kmeans import get_metrics, run_kmeans, save_clusters
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from helper import get_emails, get_spacy, get_tfidf, find_knee, silhouette_analysis, cluster2text, closest_cluster, closest_point
-from helper import sort_coo, extract_topn_from_vector
+from helper import sort_coo, extract_topn_from_vector, get_sentences
 import argparse
 import sys
 import pickle
@@ -47,6 +47,9 @@ if __name__ == '__main__':
     optional.add_argument(
         '--keywords', help="If set, get some keywords for each cluster", action='store_true')
 
+    optional.add_argument(
+        '--sentence', help="If set, clustering is done using the sentences of the emails insted the entire emails", action='store_true')
+
     args = parser.parse_args()
     input = args.input
     output = args.output
@@ -58,13 +61,20 @@ if __name__ == '__main__':
     max_cl = args.max_cl
     samples = args.samples
     keywords = args.keywords
+    sentence = args.sentence
 
     if not input.endswith('/'):
         input = input + '/'
     if not output.endswith('/'):
         output = output + '/'
-    # Get emails
-    emails = get_emails(input)
+
+    if sentence:
+        # Get sentences of emails
+        emails = get_sentences(input)
+    else:
+        # Get emails
+        emails = get_emails(input)
+    print(emails)
 
     # Max number of clusters is always n_samples-1 if not specified
     if max_cl is None:
