@@ -1,21 +1,28 @@
-# A python script that creates 'test.fileids' file
+# A python script that creates 'fileids' file
 # for a certain dataset. This file contains the id
 # of each file in the dataset in the form dataset_{id}.
 
 import sys
+import argparse
 
-f = open("test.fileids", 'w')
+if __name__ == '__main__':
+    # Create an argument parser
+    parser = argparse.ArgumentParser(description='''
+        Tool for creating fileid file.
+    ''')
 
-name = raw_input("Give dataset: ")
-if (name != "radio" and name != "paramythi"):
-    sys.exit("Wrong dataset (should be either radio or paramythi)")
-name = name.strip('\n') + "_"
+    required = parser.add_argument_group('required arguments')
 
-n = int(input("Give number of examples: "))
+    required.add_argument(
+        '--name', help="Basename of the sound files", required=True)
 
-for i in range(n):
-    if name == "radio_":
-        f.write(name + format(i, '02d') + '\n')
-    if name == "paramythi_":
-        f.write("Paramythi_horis_onoma_" + format(i, '04d') + '\n')
-f.close()
+    required.add_argument(
+        '--total', help="Total number of files", required=True, type=int)
+
+    args = parser.parse_args()
+    name = args.name
+    total = args.total
+
+    with open("fileids", 'w') as f:
+        for i in range(total):
+            f.write(name + '_' + str(i) + '\n')
