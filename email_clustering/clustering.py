@@ -74,7 +74,6 @@ if __name__ == '__main__':
     else:
         # Get emails
         emails = get_emails(input)
-    print(emails)
 
     # Max number of clusters is always n_samples-1 if not specified
     if max_cl is None:

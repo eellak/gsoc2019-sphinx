@@ -76,9 +76,12 @@ def save_clusters(emails, labels, out):
     if not os.path.exists(out):
         os.makedirs(out)
 
+    total_str = str(len(emails))
     for i, email in enumerate(emails):
+        # Add leading zeros in order to have all names in the right order.
+        i_zeroed = str(i).rjust(len(total_str), '0')
         path = './' + out + 'cluster_' + \
-            str(labels[i]) + '/data/email_' + str(i)
+            str(labels[i]) + '/data/email_' + i_zeroed
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, 'w') as f:
             f.write(email)
