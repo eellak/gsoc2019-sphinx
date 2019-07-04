@@ -94,8 +94,11 @@ def save_messages(body_messages, header_messages, out, info):
                     header_messages[i][0] + ' | ' + header_messages[i][1] + ' | ' + header_messages[i][2])
                 w1.write('\n')
 
+    total_str = str(len(body_messages))
     for i, msg in enumerate(body_messages):
-        with open('./' + out + 'email_' + str(i), 'w') as w2:
+        # Add leading zeros in order to have all names in the right order.
+        i_zeroed = str(i).rjust(len(total_str), '0')
+        with open('./' + out + 'email_' + i_zeroed, 'w') as w2:
             for sent in msg:
                 w2.write(sent + '\n')
 
