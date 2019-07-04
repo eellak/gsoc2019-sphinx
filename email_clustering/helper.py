@@ -5,6 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from kneed import KneeLocator
 import sys
 from stop_words import STOP_WORDS
+import re
 
 
 def sort_coo(coo_matrix):
@@ -174,12 +175,15 @@ def closest_cluster(centers, point):
     return min_cluster
 
 
-def get_emails_from_transcription(file):
+def get_emails_from_transcription(file, has_id):
     emails = []
     with open(file, 'r') as f:
         for email in f:
-            emails.append(email.rsplit(' ', 1)[0])
-
+            if has_id:
+                # Remove id from each email.
+                emails.append(re.sub(r'\([^)]*\)$', '', email))
+            else:
+                emails.append(email.strip(' '))
     return emails
 
 

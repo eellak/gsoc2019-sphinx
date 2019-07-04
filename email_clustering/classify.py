@@ -16,17 +16,20 @@ if __name__ == '__main__':
         '--input', help="Input transriptions (one per line)", required=True)
     required.add_argument(
         '--centers', help="Pickle file that contains the centers", required=True)
+    optional.add_argument(
+        '--has_id', help="If set, each email contains an id in the end", action='store_true')
 
     args = parser.parse_args()
     input = args.input
     centers_path = args.centers
+    has_id = args.has_id
 
     # Read centers
     with open(centers_path, 'rb') as f:
         centers = pickle.load(f)
 
     # Get emails to classify
-    emails = get_emails_from_transcription(input)
+    emails = get_emails_from_transcription(input, has_id)
     # Represent them as vectors
     vectors = get_spacy(emails)
     for vec in vectors:
