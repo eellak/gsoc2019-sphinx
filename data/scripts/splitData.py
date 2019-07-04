@@ -51,11 +51,12 @@ if __name__ == '__main__':
         os.makedirs('test/wav')
     wav_path = os.path.join(wav, name) + '_'
     for id in range(total):
+        id_zeroed = str(id).rjust(len(str(total)), '0')
         if id in train:
-            shutil.copy2(wav_path + str(id) + '.wav',
+            shutil.copy2(wav_path + str(id_zeroed) + '.wav',
                          os.path.join('train', 'wav'))
         if id in test:
-            shutil.copy2(wav_path + str(id) + '.wav',
+            shutil.copy2(wav_path + str(id_zeroed) + '.wav',
                          os.path.join('test', 'wav'))
 
     # Split data files
@@ -65,11 +66,12 @@ if __name__ == '__main__':
         os.makedirs('test/data')
     data_path = os.path.join(data, name) + '_'
     for id in range(total):
+        id_zeroed = str(id).rjust(len(str(total)), '0')
         if id in train:
-            shutil.copy2(data_path + str(id),
+            shutil.copy2(data_path + str(id_zeroed),
                          os.path.join('train', 'data'))
         if id in test:
-            shutil.copy2(data_path + str(id),
+            shutil.copy2(data_path + str(id_zeroed),
                          os.path.join('test', 'data'))
 
     # Split id file
