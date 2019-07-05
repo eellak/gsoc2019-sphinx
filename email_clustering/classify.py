@@ -18,8 +18,6 @@ if __name__ == '__main__':
         '--centers', help="Pickle file that contains the centers", required=True)
     required.add_argument(
         '--ids', help="Ids of the transcriptions", required=True)
-    required.add_argument(
-        '--n_clusters', help="Number of clusters", required=True, type=int)
     optional.add_argument(
         '--has_id', help="If set, each email contains his id in the end", action='store_true')
     optional.add_argument(
@@ -29,7 +27,6 @@ if __name__ == '__main__':
     input = args.input
     centers_path = args.centers
     ids_path = args.ids
-    n_clusters = args.n_clusters
     has_id = args.has_id
     save = args.save
 
@@ -47,10 +44,10 @@ if __name__ == '__main__':
     # Represent them as vectors
     vectors = get_spacy(emails)
 
-    labels = {k: [] for k in range(n_clusters)}
+    labels = {}
     for i, vec in enumerate(vectors):
         cluster = closest_cluster(centers, vec)
-        labels[cluster].append(ids[i])
+        labels[ids[i]] = cluster
 
     # Save labels in pickle format
     if save:
