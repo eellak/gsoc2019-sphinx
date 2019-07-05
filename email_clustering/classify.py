@@ -18,11 +18,14 @@ if __name__ == '__main__':
         '--centers', help="Pickle file that contains the centers", required=True)
     optional.add_argument(
         '--has_id', help="If set, each email contains an id in the end", action='store_true')
+    optional.add_argument(
+        '--save', help="If set, save labels in pickle format", action='store_true')
 
     args = parser.parse_args()
     input = args.input
     centers_path = args.centers
     has_id = args.has_id
+    save = args.save
 
     # Read centers
     with open(centers_path, 'rb') as f:
@@ -32,6 +35,13 @@ if __name__ == '__main__':
     emails = get_emails_from_transcription(input, has_id)
     # Represent them as vectors
     vectors = get_spacy(emails)
+    labels = []
     for vec in vectors:
         cluster = closest_cluster(centers, vec)
+        labels.append(cluster)
         print(cluster)
+
+    # Save labels in pickle format
+    if save:
+        with open('labels.pickle', 'wb') as f:
+            pickle.dump(labels, f)
