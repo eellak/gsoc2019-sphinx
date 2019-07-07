@@ -23,6 +23,9 @@ if __name__ == '__main__':
     name = args.name
     total = args.total
 
+    total_str = str(60)
+
     with open("fileids", 'w') as f:
         for i in range(total):
-            f.write(name + '_' + str(i) + '\n')
+            i_zeroed = str(i).rjust(len(total_str), '0')
+            f.write(name + '_' + str(i_zeroed) + '\n')
