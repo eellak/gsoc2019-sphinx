@@ -13,6 +13,7 @@ if __name__ == '__main__':
     ''')
 
     required = parser.add_argument_group('required arguments')
+    optional = parser.add_argument_group('optional argument')
     required.add_argument(
         '--wav', help="Folder that contains the sound files", required=True)
     required.add_argument(
@@ -31,9 +32,9 @@ if __name__ == '__main__':
         '--transcription', help="Transription file that contains one email per line", required=True)
     required.add_argument(
         '--clusters', help="Path of the clusters that have been created", required=True)
-
     optional.add_argument(
-        '--merged', help="Use merged language models", action=store_true)
+        '--merged', help="Use merged language models", action='store_true')
+
     args = parser.parse_args()
     wav = args.wav
     ids = args.ids
@@ -99,9 +100,6 @@ if __name__ == '__main__':
                 w.write(line)
 
     # Decode each cluster separately
-    if not os.path.exists(os.path.join(output, 'hypothesis')):
-        os.makedirs(os.path.join(output, 'hypothesis'))
-
     for i in range(n_clusters):
         wav_path = output + '/cluster_' + str(i) + '/wav'
         id_path = output + '/cluster_' + str(i) + '/fileids'

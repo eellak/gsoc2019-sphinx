@@ -31,13 +31,14 @@ if __name__ == '__main__':
     required = parser.add_argument_group('required arguments')
     optional = parser.add_argument_group('optional arguments')
 
-    required.add_argument('--dict', help="Path of dictionary", required=True)
+    required.add_argument(
+        '--dict', help="Path of dictionary", required=True)
     required.add_argument(
         '--input', help="Path of input transcription (should be in Sphinx format)", required=True)
     required.add_argument(
         '--output', help="Path of output file", required=True)
     optional.add_argument(
-        '--print_missing', help="If True, prints missing words")
+        '--print_missing', help="If True, prints missing words", action='store_true')
 
     args = parser.parse_args()
     input = args.input
@@ -59,7 +60,8 @@ if __name__ == '__main__':
             words = line.split(' ')
             # Last word is the identity of the transcription, so
             # don't care about it.
-            print('Searching for transcription: ' + words[-1].strip('\n'))
+            print('Searching for transcription: ' +
+                  words[-1].strip('\n'))
             for word in words[:len(words) - 1]:
                 if word:
                     if (not searchDic(word, dict)) and (word not in missing):

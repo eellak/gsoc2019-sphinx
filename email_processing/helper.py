@@ -55,13 +55,15 @@ def process_text(text):
     # Break line in sentences.
     out = out.replace('\r', '')
     sentences = sent_tokenize(out)
-    table = str.maketrans('', '', string.punctuation)
+    table = str.maketrans(string.punctuation,
+                          ' ' * len(string.punctuation))
+    sentences = [sent.translate(table) for sent in sentences]
     out_clean = []
     for sent in sentences:
         # split into tokens by white space
         tokens = sent.split()
         # remove punctuation from each token
-        tokens = [w.translate(table) for w in tokens]
+        # tokens = [w.translate(table) for w in tokens]
         # remove remaining tokens that are not alphabetic
         tokens = [word for word in tokens if word.isalpha()]
         # make lower case
