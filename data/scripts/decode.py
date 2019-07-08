@@ -34,6 +34,12 @@ if __name__ == '__main__':
         '--clusters', help="Path of the clusters that have been created", required=True)
     optional.add_argument(
         '--merged', help="Use merged language models", action='store_true')
+    optional.add_argument(
+        '--acoustic', help="If set, adapt acoustic model too", action='store_true')
+    optional.add_argument(
+        '--mllr_path', help="If acoustic is true, this is the path to the mllr matrix")
+    optional.add_argument(
+        '--map_path', help="If acoustic is true, this is the path to the map folder")
 
     args = parser.parse_args()
     wav = args.wav
@@ -46,6 +52,9 @@ if __name__ == '__main__':
     transcription = args.transcription
     clusters = args.clusters
     merged = args.merged
+    acoustic = args.acoustic
+    mllr_path = args.mllr_path
+    map_path = args.map_path
 
     if not wav.endswith('/'):
         wav = wav + '/'
@@ -107,10 +116,30 @@ if __name__ == '__main__':
             lm_path = clusters + '/cluster_' + str(i) + '/merged.lm'
             hyp_path = output + '/cluster_' + str(i) + '/merged.hyp'
         else:
-            lm_path = clusters + '/cluster_' + str(i) + '/specific.lm'
+            lm_path = clusters + '/cluster_' + str(i) + '/model.lm'
             hyp_path = output + '/cluster_' + str(i) + '/specific.hyp'
         command = 'pocketsphinx_batch  -adcin yes  -cepdir ' + wav_path + ' -cepext .wav  -ctl ' + id_path + ' -lm ' + lm_path + \
             ' -dict ' + dic + ' -hmm ' + hmm + ' -hyp ' + hyp_path
         print(command)
         if subprocess.call([command], shell=True):
             sys.exit('Error in cluster ' + str(i))
+
+        if acoustic:
+            hyp_mllr_path = output + \
+                '/cluster_' + str(i) + '/mllr.hyp'
+            if mllr_path is not None:
+                command = 'pocketsphinx_batch  -adcin yes  -cepdir ' + wav_path + ' -cepext .wav  -ctl ' + id_path + ' -lm ' + lm_path + \
+                    ' -dict ' + dic + ' -hmm ' + hmm + \
+                    ' -mllr ' + mllr_path + ' -hyp ' + hyp_mllr_path
+                print(command)
+                if subprocess.call([command], shell=True):
+                    sys.exit('Error in cluster ' + str(i))
+
+            hyp_map_path = output + \
+                '/cluster_' + str(i) + '/map.hyp'
+            if map_path is not None:
+                command = 'pocketsphinx_batch  -adcin yes  -cepdir ' + wav_path + ' -cepext .wav  -ctl ' + id_path + ' -lm ' + lm_path + \
+                    ' -dict ' + dic + ' -hmm ' + map_path + ' -hyp ' + hyp_map_path
+                print(command)
+                if subprocess.call([command], shell=True):
+                    sys.exit('Error in cluster ' + str(i))

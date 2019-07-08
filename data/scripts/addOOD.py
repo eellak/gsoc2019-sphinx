@@ -15,7 +15,8 @@ if __name__ == '__main__':
     required = parser.add_argument_group('required arguments')
     optional = parser.add_argument_group('optional arguments')
 
-    required.add_argument('--model', help="Phonetisaurus model", required=True)
+    required.add_argument(
+        '--model', help="Phonetisaurus model", required=True)
     required.add_argument(
         '--input', help="Path of missing words file.", required=True)
     required.add_argument(
@@ -34,8 +35,8 @@ if __name__ == '__main__':
         sys.exit('error in subprocess')
     print("Copy generated phonemes to given dictionary...")
     # Open file with the missing words and the generated phonemes.
-    with open('missing-words-phonemes.txt', 'r') as r, open(dict, 'a') as w:
+    with open('missing-phonemes', 'r') as r, open(dict, 'a') as w:
         for line in r:
-            w.write(line)
+            w.write(line.replace('\t', ' '))
 
     print('OK')
