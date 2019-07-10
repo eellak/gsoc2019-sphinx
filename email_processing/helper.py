@@ -5,6 +5,7 @@ import os
 import sys
 import nltk
 from nltk.tokenize import sent_tokenize
+from convert_num import converter
 
 '''
     This sript contains some helper functions
@@ -18,7 +19,7 @@ def process_text(text):
         Args:
             text: A string containing the text.
         Returns:
-            out: A string containing the only lowercase alphabetic characters.
+            out: A string containing the clean text.
 
         '''
     out = ""
@@ -30,6 +31,7 @@ def process_text(text):
     # Regex that matches lines that contain the date of the message.
     date = re.compile('.*-.*-.*:.*')
     lines = text.split('\n')
+    # Remove useless lines.
     for i in range(len(lines)):
         # If line is in the form yyyy-mm-dd hh:mm, remove it.
         if date.match(lines[i]) is not None:
@@ -51,9 +53,18 @@ def process_text(text):
             for word in lines[i].split(' '):
                 if ad.only_alphabet_chars(word, "GREEK"):
                     out += word + ' '
-
+                # Keep dot after non-Greek word.
+                elif word.strip().endswith('.'):
+                    out += '. '
+        out += '\n'
     # Break line in sentences.
     out = out.replace('\r', '')
+    # Set salutation as a separate sentence.
+    lines = out.split('\n')
+    if lines[0].strip('\n').strip().endswith(',') and (len(lines[1].strip('\n').strip()) == 0 or lines[1].isupper()):
+        lines[0] = lines[0].strip('\n').strip()[:-1] + '.'
+    out = '\n'.join(lines)
+
     sentences = sent_tokenize(out)
     table = str.maketrans(string.punctuation,
                           ' ' * len(string.punctuation))
@@ -62,14 +73,17 @@ def process_text(text):
     for sent in sentences:
         # split into tokens by white space
         tokens = sent.split()
-        # remove punctuation from each token
-        # tokens = [w.translate(table) for w in tokens]
         # remove remaining tokens that are not alphabetic
-        tokens = [word for word in tokens if word.isalpha()]
+        toks = []
+        for token in tokens:
+            if token.isdigit():
+                toks.append(converter(token))
+            elif token.isalpha():
+                toks.append(token)
         # make lower case
-        tokens = [word.lower() for word in tokens]
-        if tokens:
-            out_clean.append(' '.join(tokens))
+        toks = [word.lower() for word in toks]
+        if toks:
+            out_clean.append(' '.join(toks))
     return out_clean
 
 
