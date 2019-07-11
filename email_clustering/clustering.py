@@ -48,7 +48,7 @@ if __name__ == '__main__':
         '--keywords', help="If set, get some keywords for each cluster", action='store_true')
 
     optional.add_argument(
-        '--sentence', help="If set, clustering is done using the sentences of the emails insted the entire emails", action='store_true')
+        '--sentence', help="If set, clustering is done using the sentences of the emails instead of the entire emails", action='store_true')
 
     args = parser.parse_args()
     input = args.input
@@ -75,9 +75,9 @@ if __name__ == '__main__':
         # Get emails
         emails = get_emails(input)
 
-    # Max number of clusters is always n_samples-1 if not specified
+    # Max number of clusters is always n_samples/2 if not specified
     if max_cl is None:
-        max_cl = len(emails) - 1
+        max_cl = len(emails) // 2
     # Min number of clusters is greater than 1.
     if min_cl < 2:
         sys.exit('Minimum number of clusters should be greater than 1.')

@@ -208,8 +208,7 @@ if __name__ == '__main__':
     optional.add_argument(
         '--reload', help="If true, remove any existing account.", action='store_true')
     optional.add_argument(
-        '--info', help="If true, create an info file containing the headers.", type=bool,
-        default=False)
+        '--info', help="If true, create an info file containing the headers.", action='store_true')
 
     args = parser.parse_args()
     out = args.out

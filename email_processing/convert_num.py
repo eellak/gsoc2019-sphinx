@@ -55,7 +55,7 @@ rep = OrderedDict([('one thousand', u'χίλια'),
 
 
 def converter(num):
-    '''Converts a number to text.
+    '''Converts a number to Greek text.
 
         Args:
             num: A string representing a number.

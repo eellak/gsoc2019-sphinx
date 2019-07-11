@@ -73,10 +73,11 @@ def process_text(text):
     for sent in sentences:
         # split into tokens by white space
         tokens = sent.split()
-        # remove remaining tokens that are not alphabetic
+        # remove remaining tokens that are not alphabetic or numeric.
         toks = []
         for token in tokens:
             if token.isdigit():
+                # Convert numeric tokens in Greek text.
                 toks.append(converter(token))
             elif token.isalpha():
                 toks.append(token)
@@ -110,11 +111,11 @@ def save_messages(body_messages, header_messages, out, info):
                     header_messages[i][0] + ' | ' + header_messages[i][1] + ' | ' + header_messages[i][2])
                 w1.write('\n')
 
-    total_str = str(len(body_messages))
+    total_str = str(len(body_messages) - 1)
     for i, msg in enumerate(body_messages):
         # Add leading zeros in order to have all names in the right order.
         i_zeroed = str(i).rjust(len(total_str), '0')
-        with open('./' + out + 'email_' + i_zeroed, 'w') as w2:
+        with open('./' + out + 'data_' + i_zeroed, 'w') as w2:
             for sent in msg:
                 w2.write(sent + '\n')
 
