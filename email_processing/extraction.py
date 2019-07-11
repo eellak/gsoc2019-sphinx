@@ -209,11 +209,14 @@ if __name__ == '__main__':
         '--reload', help="If true, remove any existing account.", action='store_true')
     optional.add_argument(
         '--info', help="If true, create an info file containing the headers.", action='store_true')
+    optional.add_argument(
+        '--sentence', help="If true, save each sentence of the emails in separate files.", action='store_true')
 
     args = parser.parse_args()
     out = args.out
     reload = args.reload
     info = args.info
+    sentence = args.sentence
     if not out.endswith('/'):
         out = out + '/'
 
@@ -225,5 +228,5 @@ if __name__ == '__main__':
     body, headers = read_emails(service)
     print('Saving emails...')
     # Save messages in txt files.
-    save_messages(body, headers, out, info)
+    save_messages(body, headers, out, info, sentence)
     print(len(body), 'emails have been fetched successfully')

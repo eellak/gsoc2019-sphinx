@@ -88,7 +88,7 @@ def process_text(text):
     return out_clean
 
 
-def save_messages(body_messages, header_messages, out, info):
+def save_messages(body_messages, header_messages, out, info, sentence):
     '''Save messages in separate files and keeps an info file with the headers.
 
         Args:
@@ -96,6 +96,7 @@ def save_messages(body_messages, header_messages, out, info):
             header_messages: A list of strings that contains the header of the messages.
             out: The directory to store the emails.
             info: If true, a file that contains the headers is saved too.
+            sentence: If true, save each sentence in a separate file.
 
         '''
     # If output directory does not exist, create it.
@@ -111,13 +112,29 @@ def save_messages(body_messages, header_messages, out, info):
                     header_messages[i][0] + ' | ' + header_messages[i][1] + ' | ' + header_messages[i][2])
                 w1.write('\n')
 
-    total_str = str(len(body_messages) - 1)
-    for i, msg in enumerate(body_messages):
-        # Add leading zeros in order to have all names in the right order.
-        i_zeroed = str(i).rjust(len(total_str), '0')
-        with open('./' + out + 'data_' + i_zeroed, 'w') as w2:
+    if sentence:
+        # Compute total number of sentences.
+        total = 0
+        for body in body_messages:
+            for sent in body:
+                total += 1
+        total_str = str(len(str(total)) - 1)
+        i = 0
+        for msg in body_messages:
             for sent in msg:
-                w2.write(sent + '\n')
+                # Add leading zeros in order to have all names in the right order.
+                i_zeroed = str(i).rjust(len(total_str), '0')
+                with open('./' + out + 'data_' + i_zeroed, 'w') as w2:
+                    w2.write(sent + '\n')
+                i += 1
+    else:
+        total_str = str(len(body_messages) - 1)
+        for i, msg in enumerate(body_messages):
+            # Add leading zeros in order to have all names in the right order.
+            i_zeroed = str(i).rjust(len(total_str), '0')
+            with open('./' + out + 'data_' + i_zeroed, 'w') as w2:
+                for sent in msg:
+                    w2.write(sent + '\n')
 
 
 def get_emails(dir):
