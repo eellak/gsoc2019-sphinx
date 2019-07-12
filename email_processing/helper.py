@@ -118,7 +118,7 @@ def save_messages(body_messages, header_messages, out, info, sentence):
         for body in body_messages:
             for sent in body:
                 total += 1
-        total_str = str(len(str(total)) - 1)
+        total_str = str(total - 1)
         i = 0
         for msg in body_messages:
             for sent in msg:
