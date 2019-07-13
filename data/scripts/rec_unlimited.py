@@ -13,15 +13,8 @@ import soundfile as sf
 import numpy
 
 
-def record(dev, samplerate, channels, filename, subtype):
+def record(samplerate, channels, filename):
     try:
-        if samplerate is None:
-            device_info = sd.query_devices(dev, 'input')
-            # soundfile expects an int, sounddevice provides a float:
-            samplerate = int(device_info['default_samplerate'])
-        if filename is None:
-            filename = tempfile.mktemp(prefix='delme_rec_unlimited_',
-                                       suffix='.wav', dir='')
         q = queue.Queue()
 
         def callback(indata, frames, time, status):
@@ -29,10 +22,11 @@ def record(dev, samplerate, channels, filename, subtype):
             if status:
                 print(status, file=sys.stderr)
             q.put(indata.copy())
+
         # Make sure the file is opened before recording anything:
         with sf.SoundFile(filename, mode='x', samplerate=samplerate,
-                          channels=channels, subtype=subtype) as file:
-            with sd.InputStream(samplerate=samplerate, device=dev,
+                          channels=channels) as file:
+            with sd.InputStream(samplerate=samplerate,
                                 channels=channels, callback=callback):
                 print('Recording...')
                 print('press Ctrl+C to stop the recording')

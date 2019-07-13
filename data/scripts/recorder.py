@@ -2,6 +2,7 @@ import argparse
 import sys
 import os
 from rec_unlimited import record
+import time
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='''
@@ -17,22 +18,23 @@ if __name__ == "__main__":
         '--input', help="Folder that contains the input transcriptions", required=True)
     required.add_argument(
         '--name', help="Name of the dataset (name format should be name_{id})", required=True)
-    required.add_argument(
-        '--total', help="Total number of files", required=True)
 
     args = parser.parse_args()
     out = args.output
     inp = args.input
     name = args.name
-    total = args.total
 
     if not out.endswith('/'):
         out = out + '/'
     if not inp.endswith('/'):
         inp = inp + '/'
+
+    if not os.path.exists(out):
+        os.makedirs(out)
+
     for text in sorted(os.listdir(inp)):
         while True:
-            print("Type n to record next file, q to quit")
+            print('Type n to record ' + text + ', q to quit')
             ans = input()
             if ans == "n":
                 break  # stops the loop
@@ -40,6 +42,7 @@ if __name__ == "__main__":
                 sys.exit("Exiting...")
         with open(os.path.join(inp, text), 'r') as f:
             print(f.read())
-            print('Recording..')
-            record(None, 16000, 1, os.path.join(
-                out, text + '.wav'), None)
+            time.sleep(3)
+            wav_path = os.path.join(out, text + '.wav')
+            if not os.path.exists(wav_path):
+                record(16000, 1, wav_path)
