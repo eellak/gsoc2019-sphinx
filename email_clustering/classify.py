@@ -18,6 +18,8 @@ if __name__ == '__main__':
         '--centers', help="Pickle file that contains the centers", required=True)
     required.add_argument(
         '--ids', help="Ids of the transcriptions", required=True)
+    required.add_argument(
+        '--metric', help="Metric to be used for finding closest cluster", choices=['euclidean', 'cosine'], default='cosine', required=True)
     optional.add_argument(
         '--has_id', help="If set, each email contains his id in the end", action='store_true')
     optional.add_argument(
@@ -29,6 +31,7 @@ if __name__ == '__main__':
     ids_path = args.ids
     has_id = args.has_id
     save = args.save
+    metric = args.metric
 
     # Read centers
     with open(centers_path, 'rb') as f:
@@ -46,7 +49,7 @@ if __name__ == '__main__':
 
     labels = {}
     for i, vec in enumerate(vectors):
-        cluster = closest_cluster(centers, vec)
+        cluster = closest_cluster(centers, vec, metric)
         labels[ids[i]] = cluster
 
     # Save labels in pickle format

@@ -155,20 +155,29 @@ def cluster2text(out, n_clusters):
                     w.write('\n')
 
 
-def closest_cluster(centers, point):
+def closest_cluster(centers, point, metric):
     '''Find the cluster that a point belongs.
 
         Args:
             centers: The coordinates of the centers of the clusters
             point: The coordinates of the point (vector representation of a text)
+            metric: Metric to be used (euclidean or cosine)
         Returns:
             min_cluster: Closest cluster to the point.
 
         '''
-    min_distance = np.linalg.norm(centers[0] - point)
+    if metric == 'euclidean':
+        min_distance = np.linalg.norm(centers[0] - point)
+    else:
+        min_distance = np.dot(centers[0], point) / \
+            (np.linalg.norm(centers[0]) * np.linalg.norm(point))
     min_cluster = 0
     for i in range(1, len(centers)):
-        cur_distance = np.linalg.norm(centers[i] - point)
+        if metric == 'euclidean':
+            cur_distance = np.linalg.norm(centers[i] - point)
+        else:
+            cur_distance = np.dot(centers[i], point) / \
+                (np.linalg.norm(centers[i]) * np.linalg.norm(point))
         if cur_distance < min_distance:
             min_distance = cur_distance
             min_cluster = i
