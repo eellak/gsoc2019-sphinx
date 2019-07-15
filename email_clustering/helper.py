@@ -224,7 +224,8 @@ def get_trained_vec(emails, path, name):
     else:
         model = FastText.load(path)
     X = []
+    # Represent a sentence as the mean value of its word vectors.
     for email in emails:
-        X.append(np.sum([model.wv[tok]
-                         for tok in email.strip('\n').split(' ')], axis=0))
+        X.append(np.mean([model.wv[tok]
+                          for tok in email.strip('\n').split(' ') if tok in model.wv], axis=0))
     return X

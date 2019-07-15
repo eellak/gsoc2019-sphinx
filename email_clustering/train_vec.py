@@ -3,6 +3,7 @@ from gensim.models import Word2Vec
 import argparse
 from helper import get_sentences
 import os
+from multiprocessing import cpu_count
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='''
@@ -49,9 +50,9 @@ if __name__ == '__main__':
         else:
             sg = 0
         model = FastText(sent_token, sg=sg, hs=1, size=vec_size,
-                         workers=4)
+                         workers=cpu_count())
         model.save(os.path.join(output, algorithm + '.model'))
     else:
         model = Word2Vec(sent_token, size=vec_size,
-                         window=5, min_count=1, workers=4)
+                         window=5, min_count=1, workers=cpu_count())
         model.save(os.path.join(output, type + '.model'))

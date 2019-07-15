@@ -1,6 +1,6 @@
 import os
 import argparse
-from helper import closest_cluster, get_spacy, get_emails_from_transcription
+from helper import closest_cluster, get_spacy, get_emails_from_transcription, get_trained_vec
 import pickle
 
 if __name__ == '__main__':
@@ -19,7 +19,11 @@ if __name__ == '__main__':
     required.add_argument(
         '--ids', help="Ids of the transcriptions", required=True)
     required.add_argument(
-        '--metric', help="Metric to be used for finding closest cluster", choices=['euclidean', 'cosine'], default='cosine', required=True)
+        '--metric', help="Metric to be used for finding closest cluster", choices=['euclidean', 'cosine'], default='euclidean', required=True)
+    optional.add_argument(
+        '--vector_type', help="Vector representation to be used", choices=['spacy', 'cbow', 'skipgram', 'word2vec'], default='spacy')
+    optional.add_argument(
+        '--vector_path', help="If cbow, fasttext or word2vec is selected, give the path of the trained embeddings")
     optional.add_argument(
         '--has_id', help="If set, each email contains his id in the end", action='store_true')
     optional.add_argument(
@@ -32,6 +36,8 @@ if __name__ == '__main__':
     has_id = args.has_id
     save = args.save
     metric = args.metric
+    vector_type = args.vector_type
+    vector_path = args.vector_path
 
     # Read centers
     with open(centers_path, 'rb') as f:
@@ -45,7 +51,14 @@ if __name__ == '__main__':
     # Get emails to classify
     emails = get_emails_from_transcription(input, has_id)
     # Represent them as vectors
-    vectors = get_spacy(emails)
+    if vector_type == "spacy":
+        vectors = get_spacy(emails)
+    elif vector_type == 'cbow':
+        vectors = get_trained_vec(emails, vector_path, 'cbow')
+    elif vector_type == 'skipgram':
+        vectors = get_trained_vec(emails, vector_path, 'skipgram')
+    else:
+        vectors = get_trained_vec(emails, vector_path, 'word2vec')
 
     labels = {}
     for i, vec in enumerate(vectors):

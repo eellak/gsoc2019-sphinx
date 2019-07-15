@@ -25,7 +25,10 @@ if __name__ == '__main__':
         '--output', help="Ouput directory", required=True)
 
     optional.add_argument(
-        '--vector_type', help="Vector representation to be used", choices=['spacy', 'tf-idf', 'cbow', 'skipgram', 'word2vec'], default='spacy')
+        '--vector_type', help="Vector representation to be used", choices=['spacy', 'tfidf', 'cbow', 'skipgram', 'word2vec'], default='spacy')
+
+    optional.add_argument(
+        '--vector_path', help="If cbow, fasttext or word2vec is selected, give the path of the trained embeddings")
 
     optional.add_argument(
         '--n_clusters', help="Number of clusters to be used (if not set, automatically choose one)", type=int, default=-1)
@@ -50,9 +53,6 @@ if __name__ == '__main__':
 
     optional.add_argument(
         '--sentence', help="If set, clustering is done using the sentences of the emails instead of the entire emails", action='store_true')
-
-    optional.add_argument(
-        '--vector_path', help="If cbow, fasttext or word2vec is selected, give the path of the trained embeddings")
 
     args = parser.parse_args()
     input = args.input
@@ -94,7 +94,7 @@ if __name__ == '__main__':
     # Get vector representation of emails.
     if vector_type == 'spacy':
         X = get_spacy(emails)
-    elif vector_type == 'tf-idf':
+    elif vector_type == 'tfidf':
         X = get_tfidf(emails)
     elif vector_type == 'cbow':
         X = get_trained_vec(emails, vector_path, 'cbow')
