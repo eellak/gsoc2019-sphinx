@@ -6,6 +6,8 @@ from kneed import KneeLocator
 import sys
 from stop_words import STOP_WORDS
 import re
+from gensim.models import Word2Vec
+from gensim.models.fasttext import FastText
 
 
 def sort_coo(coo_matrix):
@@ -214,3 +216,15 @@ def closest_point(center, X):
             min_distance = cur_distance
             min_point = i
     return min_point
+
+
+def get_trained_vec(emails, path, name):
+    if name == 'word2vec':
+        model = Word2Vec.load(path)
+    else:
+        model = FastText.load(path)
+    X = []
+    for email in emails:
+        X.append(np.sum([model.wv[tok]
+                         for tok in email.strip('\n').split(' ')], axis=0))
+    return X

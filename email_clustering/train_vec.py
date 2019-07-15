@@ -5,7 +5,6 @@ from helper import get_sentences
 import os
 
 if __name__ == '__main__':
-    # Create an argument parser
     parser = argparse.ArgumentParser(description='''
         Tool for training different kind of embeddings on email corpus
     ''')
@@ -44,12 +43,11 @@ if __name__ == '__main__':
     for sent in sentences:
         sent_token.append(sent.strip('\n').split(' '))
 
-    if algorithm == "skip-gram":
-        sg = 1
-    else:
-        sg = 0
-
     if type == "fasttext":
+        if algorithm == "skip-gram":
+            sg = 1
+        else:
+            sg = 0
         model = FastText(sent_token, sg=sg, hs=1, size=vec_size,
                          workers=4)
         model.save(os.path.join(output, algorithm + '.model'))
