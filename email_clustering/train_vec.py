@@ -50,9 +50,9 @@ if __name__ == '__main__':
         else:
             sg = 0
         model = FastText(sent_token, sg=sg, hs=1, size=vec_size,
-                         workers=cpu_count())
+                         workers=cpu_count(), iter=100)
         model.save(os.path.join(output, algorithm + '.model'))
     else:
         model = Word2Vec(sent_token, size=vec_size,
-                         window=5, min_count=1, workers=cpu_count())
+                         window=5, min_count=1, workers=cpu_count(), iter=100)
         model.save(os.path.join(output, type + '.model'))

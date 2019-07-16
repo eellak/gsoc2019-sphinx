@@ -1,6 +1,6 @@
 import os
 import argparse
-from helper import closest_cluster, get_spacy, get_emails_from_transcription, get_trained_vec
+from helper import closest_cluster, get_spacy, get_emails_from_transcription, get_trained_vec, get_trained_doc
 import pickle
 
 if __name__ == '__main__':
@@ -21,7 +21,7 @@ if __name__ == '__main__':
     required.add_argument(
         '--metric', help="Metric to be used for finding closest cluster", choices=['euclidean', 'cosine'], default='euclidean', required=True)
     optional.add_argument(
-        '--vector_type', help="Vector representation to be used", choices=['spacy', 'cbow', 'skipgram', 'word2vec'], default='spacy')
+        '--vector_type', help="Vector representation to be used", choices=['spacy', 'cbow', 'skipgram', 'word2vec', 'doc2vec'], default='spacy')
     optional.add_argument(
         '--vector_path', help="If cbow, fasttext or word2vec is selected, give the path of the trained embeddings")
     optional.add_argument(
@@ -53,6 +53,8 @@ if __name__ == '__main__':
     # Represent them as vectors
     if vector_type == "spacy":
         vectors = get_spacy(emails)
+    elif vector_type == 'doc2vec':
+        vectors = get_trained_doc(emails, vector_path)
     elif vector_type == 'cbow':
         vectors = get_trained_vec(emails, vector_path, 'cbow')
     elif vector_type == 'skipgram':

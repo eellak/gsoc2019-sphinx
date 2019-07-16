@@ -8,6 +8,8 @@ from stop_words import STOP_WORDS
 import re
 from gensim.models import Word2Vec
 from gensim.models.fasttext import FastText
+from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+from nltk.tokenize import word_tokenize
 
 
 def sort_coo(coo_matrix):
@@ -228,4 +230,13 @@ def get_trained_vec(emails, path, name):
     for email in emails:
         X.append(np.mean([model.wv[tok]
                           for tok in email.strip('\n').split(' ') if tok in model.wv], axis=0))
+    return X
+
+
+def get_trained_doc(emails, path):
+    model = Doc2Vec.load(path)
+    X = []
+    for email in emails:
+        test_data = word_tokenize(email.lower())
+        X.append(model.infer_vector(test_data))
     return X

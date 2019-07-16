@@ -8,7 +8,7 @@ import argparse
 import sys
 import pickle
 from stop_words import STOP_WORDS
-from helper import get_trained_vec
+from helper import get_trained_vec, get_trained_doc
 
 if __name__ == '__main__':
     # Create an argument parser
@@ -25,10 +25,10 @@ if __name__ == '__main__':
         '--output', help="Ouput directory", required=True)
 
     optional.add_argument(
-        '--vector_type', help="Vector representation to be used", choices=['spacy', 'tfidf', 'cbow', 'skipgram', 'word2vec'], default='spacy')
+        '--vector_type', help="Vector representation to be used", choices=['spacy', 'tfidf', 'cbow', 'skipgram', 'word2vec', 'doc2vec'], default='spacy')
 
     optional.add_argument(
-        '--vector_path', help="If cbow, fasttext or word2vec is selected, give the path of the trained embeddings")
+        '--vector_path', help="If cbow, fasttext, word2vec or doc2vec is selected, give the path of the trained embeddings")
 
     optional.add_argument(
         '--n_clusters', help="Number of clusters to be used (if not set, automatically choose one)", type=int, default=-1)
@@ -94,6 +94,8 @@ if __name__ == '__main__':
     # Get vector representation of emails.
     if vector_type == 'spacy':
         X = get_spacy(emails)
+    elif vector_type == 'doc2vec':
+        X = get_trained_doc(emails, vector_path)
     elif vector_type == 'tfidf':
         X = get_tfidf(emails)
     elif vector_type == 'cbow':
