@@ -19,7 +19,7 @@ def process_text(text):
         Args:
             text: A string containing the text.
         Returns:
-            out: A string containing the clean text.
+            out_clean: A string containing the clean text.
 
         '''
     out = ""

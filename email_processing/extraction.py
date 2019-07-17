@@ -198,13 +198,14 @@ def mime2str(msg):
 if __name__ == '__main__':
     # Create an argument parser
     parser = argparse.ArgumentParser(description='''
-        Tool for extracting emails from a user's account
+        Tool for extracting sent emails from a user's account
     ''')
+
     required = parser.add_argument_group('required arguments')
     optional = parser.add_argument_group('optional arguments')
 
     required.add_argument(
-        '--out', help="Output directory", required=True)
+        '--output', help="Output directory", required=True)
     optional.add_argument(
         '--reload', help="If true, remove any existing account.", action='store_true')
     optional.add_argument(
@@ -213,12 +214,13 @@ if __name__ == '__main__':
         '--sentence', help="If true, save each sentence of the emails in separate files.", action='store_true')
 
     args = parser.parse_args()
-    out = args.out
+    output = args.output
     reload = args.reload
     info = args.info
     sentence = args.sentence
-    if not out.endswith('/'):
-        out = out + '/'
+
+    if not output.endswith('/'):
+        output = output + '/'
 
     print('Connecting to the gmail account...')
     # Connect to the Gmail API.
@@ -228,5 +230,5 @@ if __name__ == '__main__':
     body, headers = read_emails(service)
     print('Saving emails...')
     # Save messages in txt files.
-    save_messages(body, headers, out, info, sentence)
+    save_messages(body, headers, output, info, sentence)
     print(len(body), 'emails have been fetched successfully')
