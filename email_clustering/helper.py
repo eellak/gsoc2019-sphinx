@@ -10,6 +10,7 @@ from gensim.models.fasttext import FastText
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 from nltk.tokenize import word_tokenize
 import scipy
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 def sort_coo(coo_matrix):
@@ -174,25 +175,26 @@ def closest_cluster(centers, point, metric):
             point: The coordinates of the point (vector representation of a text)
             metric: Metric to be used (euclidean or cosine)
         Returns:
-            min_cluster: Closest cluster to the point.
+            cluster: Closest cluster to the point.
 
         '''
+    cluster = 0
     if metric == 'euclidean':
         min_distance = np.linalg.norm(centers[0] - point)
-    else:
-        min_distance = np.dot(centers[0], point) / \
-            (np.linalg.norm(centers[0]) * np.linalg.norm(point))
-    min_cluster = 0
-    for i in range(1, len(centers)):
-        if metric == 'euclidean':
+        for i in range(1, len(centers)):
             cur_distance = np.linalg.norm(centers[i] - point)
-        else:
-            cur_distance = np.dot(centers[i], point) / \
-                (np.linalg.norm(centers[i]) * np.linalg.norm(point))
-        if cur_distance < min_distance:
-            min_distance = cur_distance
-            min_cluster = i
-    return min_cluster
+            if cur_distance < min_distance:
+                min_distance = cur_distance
+                cluster = i
+    else:
+        min_distance = cosine_similarity([centers[0]], [point])[0][0]
+        for i in range(1, len(centers)):
+            cur_distance = cosine_similarity(
+                [centers[i]], [point])[0][0]
+            if cur_distance > min_distance:
+                min_distance = cur_distance
+                cluster = i
+    return cluster
 
 
 def get_emails_from_transcription(file, has_id):
@@ -221,8 +223,7 @@ def closest_point(center, X, metric):
     if metric == 'euclidean':
         min_distance = np.linalg.norm(center - X[0])
     else:
-        min_distance = np.dot(center, X[0]) / \
-            (np.linalg.norm(center) * np.linalg.norm(X[0]))
+        min_distance = cosine_similarity([center], [X[0]])
     min_point = 0
     # If X contains tfidf values, it is not a normal list.
     if scipy.sparse.issparse(X):
@@ -233,8 +234,7 @@ def closest_point(center, X, metric):
         if metric == 'euclidean':
             cur_distance = np.linalg.norm(center - X[i])
         else:
-            cur_distance = np.dot(center, X[i]) / \
-                (np.linalg.norm(center) * np.linalg.norm(X[i]))
+            cur_distance = cosine_similarity([center], [X[i]])
         if cur_distance < min_distance:
             min_distance = cur_distance
             min_point = i
