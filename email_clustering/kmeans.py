@@ -4,11 +4,16 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score, silhouette_samples
 import matplotlib.pyplot as plt
 from numpy import sqrt
+from kneed import KneeLocator
+from multiprocessing import cpu_count
+import logging
+
+logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 
 def get_metrics(X, plot, min_cl, max_cl):
     '''Run k-means and keep sum of squared errors and silhouette coefficients
-        for each number of clusters (2 to n_samples-1).
+        for each number of clusters.
 
         Args:
             X: A list that contains the vectors of the emails.
@@ -25,7 +30,9 @@ def get_metrics(X, plot, min_cl, max_cl):
     sse = []
     silhouette = []
     for k in ks:
-        clf = KMeans(n_clusters=k)
+        clf = KMeans(n_clusters=k, n_jobs=cpu_count(),
+                     n_init=10 * cpu_count())
+        logging.info(clf)
         clf = clf.fit(X)
         sse.append(clf.inertia_)
         silhouette.append(silhouette_score(X, clf.labels_))
@@ -42,6 +49,7 @@ def get_metrics(X, plot, min_cl, max_cl):
         plt.plot(ks, silhouette, 'bx-')
         plt.xlabel('k')
         plt.ylabel('Silhouette score')
+        plt.title('Silhouette Method for Optimal k')
         plt.show()
 
     return sse, silhouette
@@ -58,9 +66,41 @@ def run_kmeans(X, n_clusters):
 
         '''
     # Run k-means usign n_clusters
-    clf = KMeans(n_clusters=n_clusters)
+    clf = KMeans(n_clusters=n_clusters, n_jobs=cpu_count(),
+                 n_init=10 * cpu_count())
     labels = clf.fit_predict(X)
     return labels, clf.cluster_centers_
+
+
+def find_knee(sse, min_cl):
+    '''Find optimal number of clusters using the elbow method. More info here: https://github.com/arvkevi/kneed
+
+        Args:
+            sse: A list that contains the sum of squared errors.
+            min_cl: Minimum number of clusters
+        Returns:
+            n_clusters: Optimal number of clusters
+
+        '''
+    k = range(min_cl, len(sse) + min_cl)
+    kneedle = KneeLocator(list(k), sse, curve='convex',
+                          direction='decreasing')
+    n_clusters = kneedle.knee
+    return n_clusters
+
+
+def silhouette_analysis(silhouette, min_cl):
+    '''Find optimal number of clusters using the silhouette method.
+
+        Args:
+            sse: A list that contains the silhouette scores.
+            min_cl: Minimum number of clusters
+        Returns:
+            n_clusters: Optimal number of clusters
+
+        '''
+    n_clusters = silhouette.index(max(silhouette))
+    return n_clusters + min_cl
 
 
 def save_clusters(emails, labels, out):

@@ -2,7 +2,6 @@ import os
 import numpy as np
 import spacy
 from sklearn.feature_extraction.text import TfidfVectorizer
-from kneed import KneeLocator
 import sys
 from stop_words import STOP_WORDS
 import re
@@ -10,6 +9,7 @@ from gensim.models import Word2Vec
 from gensim.models.fasttext import FastText
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 from nltk.tokenize import word_tokenize
+import scipy
 
 
 def sort_coo(coo_matrix):
@@ -18,7 +18,7 @@ def sort_coo(coo_matrix):
 
 
 def extract_topn_from_vector(feature_names, sorted_items, topn=10):
-    """get the feature names and tf-idf score of top n items"""
+    ''' Get the feature names and tf-idf score of top n items'''
 
     # use only topn items from vector
     sorted_items = sorted_items[:topn]
@@ -56,7 +56,7 @@ def get_emails(dir):
 
     emails = []
     for email in os.listdir(dir):
-        with open(dir + email, 'r') as f:
+        with open(os.path.join(dir, email), 'r') as f:
             emails.append(f.read())
     return emails
 
@@ -75,10 +75,10 @@ def get_sentences(dir):
 
     emails = []
     for email in os.listdir(dir):
-        with open(dir + email, 'r') as f:
+        with open(os.path.join(dir, email), 'r') as f:
             # Each line represents a sentence.
             for line in f:
-                emails.append(line)
+                emails.append(line.strip('\n'))
     return emails
 
 
@@ -100,7 +100,7 @@ def get_spacy(emails):
 
 
 def get_tfidf(emails):
-    '''Represent emails as vectors using the tf-idf.
+    '''Represent emails as vectors using the tf-idf vectorizer.
 
         Args:
             emails: A list that contains the emails in string format.
@@ -113,45 +113,52 @@ def get_tfidf(emails):
     tf = TfidfVectorizer()
     emails_fitted = tf.fit(emails)
     emails_transformed = emails_fitted.transform(emails)
-    # Or fit_transform together
     return emails_transformed
 
 
-def find_knee(sse, min_cl):
-    '''Find optimal number of clusters using the elbow method. More info here: https://github.com/arvkevi/kneed
+def get_trained_vec(emails, path, name):
+    '''Represent emails as vectors using a trained word vector model (word2vec, cbow or skipgram).
 
         Args:
-            sse: A list that contains the sum of squared errors.
-            min_cl: Minimum number of clusters
+            emails: A list that contains the emails in string format.
         Returns:
-            n_clusters: Optimal number of clusters
+            X: A list that contains the vector of each email.
 
         '''
-    k = range(min_cl, len(sse) + min_cl)
-    kneedle = KneeLocator(list(k), sse, curve='convex',
-                          direction='decreasing')
-    n_clusters = kneedle.knee
-    return n_clusters
+    # Load corresponding model.
+    if name == 'word2vec':
+        model = Word2Vec.load(path)
+    else:
+        model = FastText.load(path)
+    X = []
+    # Represent a sentence as the mean value of its word vectors.
+    for email in emails:
+        X.append(np.mean([model.wv[tok]
+                          for tok in email.strip('\n').split(' ') if tok in model.wv], axis=0))
+    return X
 
 
-def silhouette_analysis(silhouette, min_cl):
-    '''Find optimal number of clusters using the silhouette method.
+def get_trained_doc(emails, path):
+    '''Represent emails as vectors using a trained doc2vec model.
 
         Args:
-            sse: A list that contains the silhouette scores.
-            min_cl: Minimum number of clusters
+            emails: A list that contains the emails in string format.
         Returns:
-            n_clusters: Optimal number of clusters
+            X: A list that contains the vector of each email.
 
         '''
-    n_clusters = silhouette.index(max(silhouette))
-    return n_clusters + min_cl
+    model = Doc2Vec.load(path)
+    X = []
+    for email in emails:
+        test_data = word_tokenize(email.lower())
+        X.append(model.infer_vector(test_data))
+    return X
 
 
 def cluster2text(out, n_clusters):
     for i in range(n_clusters):
-        cluster_path = './' + out + 'cluster_' + str(i)
-        email_path = './' + out + 'cluster_' + str(i) + '/data'
+        cluster_path = os.path.join(out, 'cluster_' + str(i))
+        email_path = os.path.join(out, 'cluster_' + str(i) + '/data')
         with open(os.path.join(cluster_path, 'corpus'), 'w') as w:
             for email in os.listdir(email_path):
                 with open(os.path.join(email_path, email), 'r') as r:
@@ -200,43 +207,35 @@ def get_emails_from_transcription(file, has_id):
     return emails
 
 
-def closest_point(center, X):
+def closest_point(center, X, metric):
     '''Find the point of X that is closer in center.
 
         Args:
             center: The coordinates of the center
             point: The coordinates of the points (vector representation of emails)
+            metric: Metric to be used
         Returns:
             min_point: Index of the closest point to the cluster
 
         '''
-    min_distance = np.linalg.norm(center - X[0])
+    if metric == 'euclidean':
+        min_distance = np.linalg.norm(center - X[0])
+    else:
+        min_distance = np.dot(center, X[0]) / \
+            (np.linalg.norm(center) * np.linalg.norm(X[0]))
     min_point = 0
-    for i in range(1, len(X)):
-        cur_distance = np.linalg.norm(center - X[i])
+    # If X contains tfidf values, it is not a normal list.
+    if scipy.sparse.issparse(X):
+        total = X.shape[0]
+    else:
+        total = len(X)
+    for i in range(1, total):
+        if metric == 'euclidean':
+            cur_distance = np.linalg.norm(center - X[i])
+        else:
+            cur_distance = np.dot(center, X[i]) / \
+                (np.linalg.norm(center) * np.linalg.norm(X[i]))
         if cur_distance < min_distance:
             min_distance = cur_distance
             min_point = i
     return min_point
-
-
-def get_trained_vec(emails, path, name):
-    if name == 'word2vec':
-        model = Word2Vec.load(path)
-    else:
-        model = FastText.load(path)
-    X = []
-    # Represent a sentence as the mean value of its word vectors.
-    for email in emails:
-        X.append(np.mean([model.wv[tok]
-                          for tok in email.strip('\n').split(' ') if tok in model.wv], axis=0))
-    return X
-
-
-def get_trained_doc(emails, path):
-    model = Doc2Vec.load(path)
-    X = []
-    for email in emails:
-        test_data = word_tokenize(email.lower())
-        X.append(model.infer_vector(test_data))
-    return X

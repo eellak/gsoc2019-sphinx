@@ -18,10 +18,12 @@ if __name__ == '__main__':
         '--centers', help="Pickle file that contains the centers", required=True)
     required.add_argument(
         '--ids', help="Ids of the transcriptions", required=True)
-    required.add_argument(
-        '--metric', help="Metric to be used for finding closest cluster", choices=['euclidean', 'cosine'], default='euclidean', required=True)
+    optional.add_argument(
+        '--metric', help="Metric to be used for finding closest cluster", choices=['euclidean', 'cosine'], default='euclidean')
     optional.add_argument(
         '--vector_type', help="Vector representation to be used", choices=['spacy', 'cbow', 'skipgram', 'word2vec', 'doc2vec'], default='spacy')
+    optional.add_argument(
+        '--output', help="If set, name of the pickle output", default='labels.pickle')
     optional.add_argument(
         '--vector_path', help="If cbow, fasttext or word2vec is selected, give the path of the trained embeddings")
     optional.add_argument(
@@ -38,6 +40,7 @@ if __name__ == '__main__':
     metric = args.metric
     vector_type = args.vector_type
     vector_path = args.vector_path
+    output = args.output
 
     # Read centers
     with open(centers_path, 'rb') as f:
@@ -69,5 +72,5 @@ if __name__ == '__main__':
 
     # Save labels in pickle format
     if save:
-        with open('labels.pickle', 'wb') as f:
+        with open(output, 'wb') as f:
             pickle.dump(labels, f)

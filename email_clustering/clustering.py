@@ -1,19 +1,23 @@
 import os
-from kmeans import get_metrics, run_kmeans, save_clusters
+from kmeans import get_metrics, run_kmeans, save_clusters, find_knee, silhouette_analysis
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
-from helper import get_emails, get_spacy, get_tfidf, find_knee, silhouette_analysis, cluster2text, closest_cluster, closest_point
+from helper import get_emails, get_spacy, get_tfidf,  cluster2text, closest_cluster, closest_point
 from helper import sort_coo, extract_topn_from_vector, get_sentences
 import argparse
 import sys
 import pickle
 from stop_words import STOP_WORDS
 from helper import get_trained_vec, get_trained_doc
+import logging
+
+logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 if __name__ == '__main__':
-    # Create an argument parser
     parser = argparse.ArgumentParser(description='''
-        Tool for clustering email
+        Tool for clustering emails using k-means allgorithm. It supports:
+        a) Various word vectors, such as spacy, tfidf, cbow, skip-gram, word2vec and doc2vec.
+        b) Automatic selection of number of clusters using either silhouette or elbow method.
     ''')
 
     required = parser.add_argument_group('required arguments')
@@ -25,13 +29,16 @@ if __name__ == '__main__':
         '--output', help="Ouput directory", required=True)
 
     optional.add_argument(
+        '--metric', help="Metric to be used for distance between points", choices=['euclidean', 'cosine'], default='euclidean')
+
+    optional.add_argument(
         '--vector_type', help="Vector representation to be used", choices=['spacy', 'tfidf', 'cbow', 'skipgram', 'word2vec', 'doc2vec'], default='spacy')
 
     optional.add_argument(
         '--vector_path', help="If cbow, fasttext, word2vec or doc2vec is selected, give the path of the trained embeddings")
 
     optional.add_argument(
-        '--n_clusters', help="Number of clusters to be used (if not set, automatically choose one)", type=int, default=-1)
+        '--n_clusters', help="Number of clusters to be used (if not set, automatically choose one)", type=int)
 
     optional.add_argument(
         '--plot', help="Plot sum of squared errors and silhouette scores (only if n_clusters is not defined)", action='store_true')
@@ -49,7 +56,7 @@ if __name__ == '__main__':
         '--samples', help="If set, a file that contains a representative email for each cluster is saved", action='store_true')
 
     optional.add_argument(
-        '--keywords', help="If set, get some keywords for each cluster", action='store_true')
+        '--keywords', help="If set, print some keywords for each cluster", action='store_true')
 
     optional.add_argument(
         '--sentence', help="If set, clustering is done using the sentences of the emails instead of the entire emails", action='store_true')
@@ -57,6 +64,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     input = args.input
     output = args.output
+    metric = args.metric
     vector_type = args.vector_type
     plot = args.plot
     n_clusters = args.n_clusters
@@ -74,9 +82,11 @@ if __name__ == '__main__':
         output = output + '/'
 
     if sentence:
+        logging.info('Reading sentences of emails...')
         # Get sentences of emails
         emails = get_sentences(input)
     else:
+        logging.info('Reading emails...')
         # Get emails
         emails = get_emails(input)
 
@@ -91,6 +101,9 @@ if __name__ == '__main__':
             'Maximum number of clusters should be less than n_samples.')
     if min_cl > max_cl:
         sys.exit('Minumum number of clusters should be less than maximum')
+
+    logging.info(
+        'Get {} as vector representation...'.format(vector_type))
     # Get vector representation of emails.
     if vector_type == 'spacy':
         X = get_spacy(emails)
@@ -105,13 +118,18 @@ if __name__ == '__main__':
     else:
         X = get_trained_vec(emails, vector_path, 'word2vec')
 
-    if n_clusters == -1:
+    if n_clusters is None:
+        logging.info(
+            'Compute number of clusters using {} method...'.format(method))
         # Get metrics in different number of clusters (range [min_cl, max_cl]).
         sse, silhouette = get_metrics(X, plot, min_cl, max_cl)
         if method == 'elbow':
             n_clusters = find_knee(sse, min_cl)
         else:
             n_clusters = silhouette_analysis(silhouette, min_cl)
+
+    logging.info(
+        'Run k-means with {} number of clusters...'.format(n_clusters))
     # Run k-means with given number of clusters.
     labels, centers = run_kmeans(X, n_clusters)
 
@@ -124,7 +142,7 @@ if __name__ == '__main__':
 
     # Save centers in a pickle, in order to classify
     # other emails.
-    with open(output + 'centers.pickle', 'wb') as f:
+    with open(os.path.join(output, 'centers.pickle'), 'wb') as f:
         pickle.dump(centers, f)
 
     if samples:
@@ -132,7 +150,7 @@ if __name__ == '__main__':
         with open(os.path.join(output + 'samples'), 'w') as w:
             for i in range(n_clusters):
                 w.write('Cluster ' + str(i) + '\n')
-                w.write(emails[closest_point(centers[i], X)])
+                w.write(emails[closest_point(centers[i], X, metric)])
                 w.write('\n')
 
     if keywords:
@@ -151,5 +169,5 @@ if __name__ == '__main__':
                 cv.transform(emails_cluster))
             sorted_items = sort_coo(tf_idf_vector.tocoo())
             keywords = extract_topn_from_vector(
-                feature_names, sorted_items, 10)
-            print(keywords)
+                feature_names, sorted_items, 5)
+            logging.info(keywords)
