@@ -29,10 +29,10 @@ if __name__ == '__main__':
         '--output', help="Ouput directory", required=True)
 
     optional.add_argument(
-        '--metric', help="Metric to be used for distance between points", choices=['euclidean', 'cosine'], default='euclidean')
+        '--metric', help="Metric to be used for distance between points", choices=['euclidean', 'cosine'], default='cosine')
 
     optional.add_argument(
-        '--vector_type', help="Vector representation to be used", choices=['spacy', 'tfidf', 'cbow', 'skipgram', 'word2vec', 'doc2vec'], default='spacy')
+        '--vector_type', help="Vector representation to be used", choices=['spacy', 'cbow', 'skipgram', 'word2vec', 'doc2vec'], default='spacy')
 
     optional.add_argument(
         '--vector_path', help="If cbow, fasttext, word2vec or doc2vec is selected, give the path of the trained embeddings")
@@ -109,8 +109,6 @@ if __name__ == '__main__':
         X = get_spacy(emails)
     elif vector_type == 'doc2vec':
         X = get_trained_doc(emails, vector_path)
-    elif vector_type == 'tfidf':
-        X = get_tfidf(emails)
     elif vector_type == 'cbow':
         X = get_trained_vec(emails, vector_path, 'cbow')
     elif vector_type == 'skipgram':

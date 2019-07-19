@@ -19,8 +19,9 @@ if __name__ == '__main__':
         '--size', help="Dimensionality of word vectors", required=True, type=int)
     required.add_argument('--type', help="Choose between FastText and Word2Vec",
                           choices=['fasttext', 'word2vec'], required=True)
+
     optional.add_argument(
-        '--algorithm', help="Training algorithm to be used when choosing fasttext embeddings", choices=['skip-gram', 'cbow'], default='skip-gram')
+        '--algorithm', help="Training algorithm to be used when choosing fasttext embeddings", choices=['skipgram', 'cbow'], default='skipgram')
     required.add_argument(
         '--output', help="Output directory", required=True)
 
@@ -35,9 +36,9 @@ if __name__ == '__main__':
         input = input + '/'
     if not output.endswith('/'):
         output = output + '/'
+
     if not os.path.exists(output):
         os.makedirs(output)
-
     sentences = get_sentences(input)
 
     sent_token = []
@@ -45,7 +46,7 @@ if __name__ == '__main__':
         sent_token.append(sent.strip('\n').split(' '))
 
     if type == "fasttext":
-        if algorithm == "skip-gram":
+        if algorithm == "skipgram":
             sg = 1
         else:
             sg = 0
@@ -54,5 +55,5 @@ if __name__ == '__main__':
         model.save(os.path.join(output, algorithm + '.model'))
     else:
         model = Word2Vec(sent_token, size=vec_size,
-                         window=5, min_count=1, workers=cpu_count(), iter=100)
+                         window=3, workers=cpu_count(), iter=100)
         model.save(os.path.join(output, type + '.model'))

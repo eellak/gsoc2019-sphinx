@@ -35,7 +35,7 @@ def extract_topn_from_vector(feature_names, sorted_items, topn=10):
         feature_vals.append(feature_names[idx])
 
     # create a tuples of feature,score
-    #results = zip(feature_vals,score_vals)
+    # results = zip(feature_vals,score_vals)
     results = {}
     for idx in range(len(feature_vals)):
         results[feature_vals[idx]] = score_vals[idx]
@@ -109,7 +109,6 @@ def get_tfidf(emails):
             X: A list that contains the tf-idf of the emails.
 
         '''
-
     # Compute tf idf vectorizer of emails.
     tf = TfidfVectorizer()
     emails_fitted = tf.fit(emails)
@@ -178,34 +177,43 @@ def closest_cluster(centers, point, metric):
             cluster: Closest cluster to the point.
 
         '''
-    cluster = 0
+    cluster_id = 0
     if metric == 'euclidean':
-        min_distance = np.linalg.norm(centers[0] - point)
+        distance = np.linalg.norm(centers[0] - point)
         for i in range(1, len(centers)):
             cur_distance = np.linalg.norm(centers[i] - point)
-            if cur_distance < min_distance:
-                min_distance = cur_distance
-                cluster = i
+            if cur_distance < distance:
+                distance = cur_distance
+                cluster_id = i
     else:
-        min_distance = cosine_similarity([centers[0]], [point])[0][0]
+        distance = cosine_similarity([centers[0]], [point])[0][0]
         for i in range(1, len(centers)):
             cur_distance = cosine_similarity(
                 [centers[i]], [point])[0][0]
-            if cur_distance > min_distance:
-                min_distance = cur_distance
-                cluster = i
-    return cluster
+            if cur_distance > distance:
+                distance = cur_distance
+                cluster_id = i
+    return cluster_id
 
 
 def get_emails_from_transcription(file, has_id):
+    '''Read emails from a transcription file (one per line).
+
+        Args:
+            file: Path to the transription file.
+            has_id: If true, the file contains the id of the email at the end of each line (Sphinx format).
+        Returns:
+            emails: A list the contains the emails.
+        '''
     emails = []
     with open(file, 'r') as f:
         for email in f:
             if has_id:
                 # Remove id from each email.
-                emails.append(re.sub(r'\([^)]*\)$', '', email))
+                emails.append(
+                    re.sub(r'\([^)]*\)$', '', email).strip('\n').strip(' '))
             else:
-                emails.append(email.strip(' '))
+                emails.append(email.strip('\n').strip(' '))
     return emails
 
 
@@ -221,21 +229,20 @@ def closest_point(center, X, metric):
 
         '''
     if metric == 'euclidean':
-        min_distance = np.linalg.norm(center - X[0])
+        distance = np.linalg.norm(center - X[0])
     else:
-        min_distance = cosine_similarity([center], [X[0]])
+        distance = cosine_similarity([center], [X[0]])[0][0]
     min_point = 0
-    # If X contains tfidf values, it is not a normal list.
-    if scipy.sparse.issparse(X):
-        total = X.shape[0]
-    else:
-        total = len(X)
+    total = len(X)
     for i in range(1, total):
         if metric == 'euclidean':
             cur_distance = np.linalg.norm(center - X[i])
+            if cur_distance < distance:
+                distance = cur_distance
+                min_point = i
         else:
-            cur_distance = cosine_similarity([center], [X[i]])
-        if cur_distance < min_distance:
-            min_distance = cur_distance
-            min_point = i
+            cur_distance = cosine_similarity([center], [X[i]])[0][0]
+            if cur_distance > distance:
+                distance = cur_distance
+                min_point = i
     return min_point

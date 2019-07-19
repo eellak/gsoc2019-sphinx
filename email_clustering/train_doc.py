@@ -59,5 +59,4 @@ if __name__ == '__main__':
         # fix the learning rate, no decay
         model.min_alpha = model.alpha
 
-    model.save("d2v.model")
-    print("Model Saved")
+    model.save(os.path.join(output, 'doc2vec.model'))
