@@ -13,7 +13,8 @@ if __name__ == '__main__':
 
     required = parser.add_argument_group('required arguments')
 
-    required.add_argument('--input', help="Input transcription", required=True)
+    required.add_argument(
+        '--input', help="Input transcription", required=True)
     required.add_argument(
         '--output', help="Output transcription containing the fillers", required=True)
 

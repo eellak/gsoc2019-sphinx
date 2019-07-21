@@ -23,7 +23,7 @@ if __name__ == '__main__':
     name = args.name
     total = args.total
 
-    total_str = str(60)
+    total_str = str(total - 1)
 
     with open("fileids", 'w') as f:
         for i in range(total):

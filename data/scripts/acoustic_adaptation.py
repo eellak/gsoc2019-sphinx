@@ -3,6 +3,9 @@ import os
 import argparse
 import subprocess
 import shutil
+import logging
+
+logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 
 def copytree(src, dst, symlinks=False, ignore=None):
@@ -38,7 +41,6 @@ if __name__ == '__main__':
         '--output', help="Output directory", required=True)
     required.add_argument(
         '--sphinxtrain', help="Sphinxtrain installation folder", required=True)
-
     required.add_argument(
         '--adaptation', help="Type of adaptation: map or mllr (default: both of them)")
 
@@ -61,7 +63,7 @@ if __name__ == '__main__':
     if not sphinxtrain.endswith('/'):
         sphinxtrain = sphinxtrain + '/'
 
-    print('Generate acoustic model features from recordings')
+    logging.info('Generate acoustic model features from recordings')
     feat_params = os.path.join(hmm, 'feat.params')
     mfc_path = os.path.join(output, 'mfc')
     generate_command = 'sphinx_fe -argfile ' + feat_params + ' -samprate 16000 -c ' + \
@@ -69,20 +71,19 @@ if __name__ == '__main__':
     if subprocess.call([generate_command], shell=True):
         sys.exit('Error in subprocess')
 
-    print('Collect statistics from the adaptation data')
-
+    logging.info('Collect statistics from the adaptation data')
     # Copy bw, map_adapt and mk_s2sendump scripts.
     shutil.copy2(sphinxtrain + 'bw', output)
     shutil.copy2(sphinxtrain + 'map_adapt', output)
     shutil.copy2(sphinxtrain + 'mk_s2sendump', output)
 
-    mdef_path = os.path.join(hmm, 'mdef')
+    mdef_path = os.path.join(hmm, 'mdef.txt')
     counts_path = os.path.join(output, 'counts')
     os.makedirs(counts_path)
     feature_path = os.path.join(hmm, 'feature_transform')
     bw_command = './' + output + 'bw -hmmdir ' + hmm + ' -cepdir ' + mfc_path + ' -moddeffn ' + mdef_path + ' -ts2cbfn .cont. -feat 1s_c_d_dd -cmn batch -agc none \
                         -dictfn ' + dic + ' -ctlfn ' + ids + ' -lsnfn ' + transcriptions + ' -accumdir ' + counts_path + ' -lda ' + feature_path + ' -varnorm no -cmninit 40,3,-1'
-    print(bw_command)
+    logging.info(bw_command)
     if subprocess.call([bw_command], shell=True):
         sys.exit('Error in subprocess')
 
@@ -93,8 +94,8 @@ if __name__ == '__main__':
     mllr_command = './' + output + 'mllr_solve -meanfn ' + means_path + ' -varfn ' + variance_path + \
         ' -outmllrfn ' + mllr_path + ' -accumdir ' + counts_path
     if adaptation is None or adaptation == "mllr":
-        print('Generate mllr transformation')
-        print(mllr_command)
+        logging.info('Generate mllr transformation')
+        logging.info(mllr_command)
         if subprocess.call([mllr_command], shell=True):
             sys.exit('Error in subprocess')
 
@@ -102,11 +103,11 @@ if __name__ == '__main__':
         hmm_map = os.path.join(output, 'map')
         os.makedirs(hmm_map)
         copytree(hmm, hmm_map)
-        map_command = './' + output + 'map_adapt -moddeffn ' + hmm + '/mdef.txt -ts2cbfn .cont. -meanfn ' + \
-            hmm + '/means -varfn ' + hmm + '/variances -mixwfn ' + hmm + '/mixture_weights -tmatfn ' + hmm + '/transition_matrices \
+        map_command = './' + output + 'map_adapt -moddeffn ' + mdef_path + ' -ts2cbfn .cont. -meanfn ' + \
+            means_path + ' -varfn ' + variance_path + ' -mixwfn ' + hmm + '/mixture_weights -tmatfn ' + hmm + '/transition_matrices \
             -accumdir ' + counts_path + ' -mapmeanfn ' + hmm_map + '/means -mapvarfn ' + hmm_map + '/variances -mapmixwfn ' + hmm_map + \
             '/mixture_weights -maptmatfn ' + hmm_map + '/transition_matrices'
-        print('Generate map adaptation')
-        print(map_command)
+        logging.info('Generate map adaptation')
+        logging.info(map_command)
         if subprocess.call([map_command], shell=True):
             sys.exit('Error in subprocess')

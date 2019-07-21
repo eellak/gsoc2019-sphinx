@@ -8,6 +8,9 @@
 import sys
 import os
 import argparse
+import logging
+
+logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 
 # Search for a specific word in the
@@ -60,14 +63,14 @@ if __name__ == '__main__':
             words = line.split(' ')
             # Last word is the identity of the transcription, so
             # don't care about it.
-            print('Searching for transcription: ' +
-                  words[-1].strip('\n'))
+            logging.info('Searching for transcription: ' +
+                         words[-1].strip('\n'))
             for word in words[:len(words) - 1]:
                 if word:
                     if (not searchDic(word, dict)) and (word not in missing):
                         if print_missing:
-                            print(word)
+                            logging.info(word)
                         w.write(word + '\n')
                         missing.append(word)
 
-    print('OK')
+    logging.info('OK')

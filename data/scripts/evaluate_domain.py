@@ -28,7 +28,7 @@ if __name__ == '__main__':
     lines = []
     accuracies = []
     total_accuracy = 0
-    for cluster in os.listdir(input):
+    for cluster in sorted(os.listdir(input)):
         cluster_path = os.path.join(input, cluster)
         trans = os.path.join(cluster_path, 'transription')
         merged = os.path.join(cluster_path, 'merged.hyp')
