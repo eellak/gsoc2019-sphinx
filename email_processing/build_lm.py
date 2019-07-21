@@ -1,4 +1,8 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import subprocess
+import sys
 
 categories_name = ['Αθλητισμός', 'Ελλάδα', 'Επιστήμη', 'Κόσμος',
                    'Οικονομία', 'Περιβάλλον', 'Πολιτική', 'Τέχνες', 'Υγεία', 'Άλλα']

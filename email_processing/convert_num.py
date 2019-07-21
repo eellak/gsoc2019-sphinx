@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from num2words import num2words
 import re
 from collections import OrderedDict

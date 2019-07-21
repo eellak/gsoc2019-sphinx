@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from __future__ import print_function
 from helper import process_text, save_messages
 import urllib

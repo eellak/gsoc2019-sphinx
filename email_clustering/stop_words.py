@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 # Stop words
 # Link to greek stop words: https://www.translatum.gr/forum/index.php?topic=3550.0?topic=3550.0
 # Link of script: https://github.com/eellak/gsoc2018-spacy

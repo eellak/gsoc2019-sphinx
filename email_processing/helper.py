@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from alphabet_detector import AlphabetDetector
 import string
 import re
