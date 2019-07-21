@@ -20,20 +20,30 @@ def pos2str(pos):
     return pos_str, text_str
 
 
-def closest_string(x, corpus):
-    '''Computes the closest string of x based on the Levenshtein dictance.
+def closest_sentence(x, x_pos, corpus, corpus_pos, w=0.5):
+    '''Computes the closest seentence of x based on the Levenshtein dictance fo both
+        the words and the POS tagging.
 
         Args:
-            x: The string from which the closest string we search.
-            corpus: A list of possible closest strings.
+            x: The sentence from which the closest sentence we search.
+            corpus: A list of possible closest sentences.
+            w: Weight between words and POS tag.
         Returns:
-            closest: The closest string from x.
-            dist: The dictance from the closest string.
+            closest: The closest sentence from x.
+            dist_word: The dictance from the closest sentence.
+            dist_pos: The pos distance from the closest sentence.
         '''
-    distances = [editdistance.eval(x, elem) for elem in corpus]
-    min_dist = min(distances)
-    closest = corpus[distances.index(min_dist)]
-    return closest, min_dist
+    word_distances = [editdistance.eval(x, elem) for elem in corpus]
+    pos_distances = [editdistance.eval(
+        x_pos, elem) for elem in corpus_pos]
+    total_distances = [word_distances[i] * w + pos_distances[i]
+                       * (1 - w) for i in range(len(word_distances))]
+    min_dist = min(total_distances)
+    idx = total_distances.index(min_dist)
+    closest = corpus[idx]
+    dist_word = word_distances[idx]
+    dist_pos = pos_distances[idx]
+    return closest, dist_word, dist_pos
 
 
 def get_emails(dir):
