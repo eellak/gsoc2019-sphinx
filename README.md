@@ -52,8 +52,10 @@ A detailed timeline follows, organized by [GSoC timeline](https://developers.goo
   - Implementation of the UI.
   - Integration of special dictation commands.
   - Playback of the email to the user.
-  
  
+The whole model as a block diagram follows:
+
+<img src="https://github.com/eellak/gsoc2019-sphinx/blob/master/docs/pics/model2.png"/> 
 
 ## People
 - Google Summer of Code 2019 Student: Panagiotis Antoniadis ([PanosAntoniadis](https://github.com/PanosAntoniadis))
