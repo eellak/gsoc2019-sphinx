@@ -5,34 +5,9 @@ import pickle
 import os
 import logging
 from nltk.util import ngrams
+from helper import get_pos_doc, get_pos_sentence
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
-
-
-def get_pos_doc(doc):
-    tags_doc = []
-    for tok in doc:
-        tags_doc.append(tok.pos_)
-    return " ".join(tags_doc)
-
-
-def get_pos_sentence(sentences, size):
-    tags_corpus = {}
-    nlp = spacy.load('el_core_news_sm')
-    if size is None:
-        for sent in sentences:
-            doc = nlp(sent)
-            tags_corpus[sent] = get_pos_doc(doc)
-    else:
-        for sent in sentences:
-            n_grams = ngrams(sent.split(), size)
-            for n_gram in list(n_grams):
-                n_gram_text = ' '.join(n_gram)
-                doc = nlp(n_gram_text)
-                if n_gram_text not in tags_corpus:
-                    tags_corpus[n_gram_text] = get_pos_doc(doc)
-    return tags_corpus
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='''

@@ -1,27 +1,10 @@
 import os
 import editdistance
+from sklearn.metrics.pairwise import cosine_similarity
 
 
-def pos2str(pos):
-    '''Each POS tag of a sentence is in form [(word1, pos1), ..., (wordN, posN)]. This function
-        converts this form into two strings that contain the word and the pos sequence.
-
-        Args:
-            pos: A list of sentences in above form.
-        Returns:
-            pos_str: A list of strings that contains each sequence of pos tags separated by space.
-            text_str: A list of strings that contains each sentence.
-        '''
-    pos_str = []
-    text_str = []
-    for sentence in pos:
-        text_str.append(' '.join(elem[0] for elem in sentence))
-        pos_str.append(' '.join(elem[1] for elem in sentence))
-    return pos_str, text_str
-
-
-def closest_sentence(x, x_pos, corpus, corpus_pos, w=0.5):
-    '''Computes the closest seentence of x based on the Levenshtein dictance fo both
+def closest_pos_sentence(x, x_pos, corpus, w=0.5):
+    '''Computes the closest sentence of x based on the Levenshtein dictance for both
         the words and the POS tagging.
 
         Args:
@@ -33,34 +16,110 @@ def closest_sentence(x, x_pos, corpus, corpus_pos, w=0.5):
             dist_word: The dictance from the closest sentence.
             dist_pos: The pos distance from the closest sentence.
         '''
-    word_distances = [editdistance.eval(x, elem) for elem in corpus]
-    pos_distances = [editdistance.eval(
-        x_pos, elem) for elem in corpus_pos]
-    total_distances = [word_distances[i] * w + pos_distances[i]
-                       * (1 - w) for i in range(len(word_distances))]
-    min_dist = min(total_distances)
-    idx = total_distances.index(min_dist)
-    closest = corpus[idx]
-    dist_word = word_distances[idx]
-    dist_pos = pos_distances[idx]
-    return closest, dist_word, dist_pos
+    distance = 100000
+    min_sent = None
+    pos_dist = None
+    word_dist = None
+    for elem in corpus:
+        curr_word_dist = editdistance.eval(x, elem)
+        curr_pos_dict = editdistance.eval(x_pos, corpus[elem])
+        curr_total_dist = curr_word_dist * w + curr_pos_dict * (1 - w)
+        if curr_total_dist < distance:
+            distance = curr_total_dist
+            min_sent = elem
+            pos_dist = curr_pos_dict
+            word_dist = curr_word_dist
+    return min_sent, word_dist, pos_dist
 
 
-def get_emails(dir):
-    '''Get emails from a specific directory and return them as a list.
+def closest_semantic_sentence(x, x_vec, corpus, w=0.5):
+    '''Computes the closest sentence of x based on the Levenshtein dictance for both
+        the words and the semantic vectors.
+
+        Args:
+            x: The sentence from which the closest sentence we search.
+            corpus: A list of possible closest sentences.
+            w: Weight between words and POS tag.
+        Returns:
+            closest: The closest sentence from x.
+            dist_word: The dictance from the closest sentence.
+            dist_pos: The similatiry from the closest sentence.
+        '''
+    distance = 100000
+    min_sent = None
+    vec_dist = None
+    word_dist = None
+    for elem in corpus:
+        curr_word_dist = editdistance.eval(x, elem)
+        curr_vec_dict = 1 - cosine_similarity([x_vec], [corpus[elem]])[0][0]
+        curr_total_dist = curr_word_dist * w + curr_vec_dict * (1 - w)
+        if curr_total_dist < distance:
+            distance = curr_total_dist
+            min_sent = elem
+            vec_dist = curr_vec_dict
+            word_dist = curr_word_dist
+    return min_sent, word_dist, vec_dist
+
+
+def get_sentences(dir):
+    '''Get all the sentences of the emails from a specific directory and return them as a list.
 
         Args:
             dir: Directory that contains the emails in text files.
         Returns:
-            emails: A list that contains the emails in string format.
+            emails: A list that contains the sentences of the emails in string format.
 
         '''
-    # If input directory does not exist, exit with error.
     if not os.path.exists(dir):
         sys.exit('Email folder does not exist')
 
     emails = []
     for email in os.listdir(dir):
-        with open(dir + email, 'r') as f:
-            emails.append(f.read())
+        with open(os.path.join(dir, email), 'r') as f:
+            # Each line represents a sentence.
+            for line in f:
+                emails.append(line.strip('\n'))
     return emails
+
+
+def get_pos_doc(doc):
+    tags_doc = []
+    for tok in doc:
+        tags_doc.append(tok.pos_)
+    return " ".join(tags_doc)
+
+
+def get_pos_sentence(sentences, size):
+    tags_corpus = {}
+    nlp = spacy.load('el_core_news_sm')
+    if size is None:
+        for sent in sentences:
+            doc = nlp(sent)
+            tags_corpus[sent] = get_pos_doc(doc)
+    else:
+        for sent in sentences:
+            n_grams = ngrams(sent.split(), size)
+            for n_gram in list(n_grams):
+                n_gram_text = ' '.join(n_gram)
+                doc = nlp(n_gram_text)
+                if n_gram_text not in tags_corpus:
+                    tags_corpus[n_gram_text] = get_pos_doc(doc)
+    return tags_corpus
+
+
+def get_vec(sentences, size):
+    vectors = {}
+    nlp = spacy.load('el_core_news_md')
+    if size is None:
+        for sent in sentences:
+            doc = nlp(sent)
+            vectors[sent] = doc.vector
+    else:
+        for sent in sentences:
+            n_grams = ngrams(sent.split(), size)
+            for n_gram in list(n_grams):
+                n_gram_text = ' '.join(n_gram)
+                doc = nlp(n_gram_text)
+                if n_gram_text not in vectors:
+                    vectors[n_gram_text] = doc.vector
+    return vectors

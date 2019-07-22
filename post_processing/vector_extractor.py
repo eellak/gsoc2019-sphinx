@@ -5,27 +5,9 @@ import pickle
 import os
 import logging
 from nltk.util import ngrams
+from helper import get_vec
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
-
-
-def get_vec(sentences, size):
-    vectors = {}
-    nlp = spacy.load('el_core_news_md')
-    if size is None:
-        for sent in sentences:
-            doc = nlp(sent)
-            vectors[sent] = doc.vector
-    else:
-        for sent in sentences:
-            n_grams = ngrams(sent.split(), size)
-            for n_gram in list(n_grams):
-                n_gram_text = ' '.join(n_gram)
-                doc = nlp(n_gram_text)
-                if n_gram_text not in vectors:
-                    vectors[n_gram_text] = doc.vector
-    return vectors
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='''
