@@ -42,14 +42,17 @@ A detailed timeline follows, organized by [GSoC timeline](https://developers.goo
   - Email clustering.
   - Create a personal email dataset for evaluation.
 
-- __Phase 2 (Jun 29 - Jul 26)__
+- __Phase 2 (Jun 29 - Jul 26)__ :heavy_check_mark:
+  - Improve email clustering. 
   - Implementation of domain-specific language models.
-  - Implementation of the correction system.
-  - Integration of special dictation commands.
+  - Evaluation of all implemented models in real email speech dataset of my mentor.
+  - Implementation of the first part of the correction system.
  
 - __Phase 3 (Jul 27 - Aug 26)__
   - Implementation of the UI.
+  - Integration of special dictation commands.
   - Playback of the email to the user.
+  
  
 
 ## People
