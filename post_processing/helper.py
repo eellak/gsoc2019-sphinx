@@ -2,6 +2,7 @@ import os
 import editdistance
 from sklearn.metrics.pairwise import cosine_similarity
 import re
+from nltk.util import ngrams
 
 
 def closest_pos_sentence(x, x_pos, corpus, w=0.5):
@@ -60,6 +61,21 @@ def closest_semantic_sentence(x, x_vec, corpus, w=0.5):
             vec_dist = curr_vec_dict
             word_dist = curr_word_dist
     return min_sent, word_dist, vec_dist
+
+
+def closest_sentence(x, corpus):
+    distance = 100000
+    min_sent = None
+    for elem in corpus:
+        if elem == x:
+            continue
+        curr_dist = editdistance.eval(x, elem)
+        if curr_dist < distance:
+            distance = curr_dist
+            min_sent = [elem]
+        elif curr_dist == distance:
+            min_sent.append(elem)
+    return min_sent, distance
 
 
 def get_sentences(dir):
@@ -145,3 +161,12 @@ def get_hypothesis(file, has_id):
             else:
                 emails.append(email.strip('\n').strip(' '))
     return emails
+
+
+def get_ngrams(sentences, n):
+    corpus = []
+    for size in n:
+        for sent in sentences:
+            corpus.extend([" ".join(ngram)
+                           for ngram in ngrams(sent.split(), size)])
+    return corpus

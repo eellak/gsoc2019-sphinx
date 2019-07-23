@@ -25,7 +25,7 @@ if __name__ == '__main__':
         '--n', help="Size of n-gram", required=True, type=int)
 
     required.add_argument(
-        '--threshold', help="Threshold for error detection (%100)", required=True, type=float)
+        '--threshold', help="Threshold for error detection", required=True, type=float)
 
     args = parser.parse_args()
     input = args.input
@@ -41,15 +41,25 @@ if __name__ == '__main__':
     lm = models[0]
     # For each sentence find words that have low propability
     # and keep a score of them.
+    errors = []
     for sent in sentences:
         words = sent.split()
         scores = dict(zip(words, [0] * len(words)))
-        n_grams = ngrams(words, n)
-        for n_gram in list(n_grams):
+        n_grams = list(ngrams(words, n))
+        for n_gram in n_grams:
             prop = lm.p(n_gram)
             if prop < threshold:
                 for word in n_gram:
                     scores[word] += 1
-        for word in words:
-            if scores[word] > 1:
-                print(word)
+        sent_errors = [0]
+        for n_gram in n_grams:
+            if scores[n_gram[1]] > 1:
+                sent_errors.append(1)
+            else:
+                sent_errors.append(0)
+        sent_errors.append(0)
+
+        errors.append(sent_errors)
+
+    print(sentences)
+    print(errors)
