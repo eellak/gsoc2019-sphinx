@@ -15,15 +15,19 @@ if __name__ == '__main__':
         '--input', help="Input directory that contains the clusters", required=True)
     optional.add_argument(
         '--mix', help="If set, create a merged lm with the given model")
+    optional.add_argument(
+        '--weight', help="If set, mix the two language models based on this weight", default=0.5)
 
     args = parser.parse_args()
     input = args.input
     mix = args.mix
+    weight = args.weight
+
     for cluster in os.listdir(input):
         cluster_path = os.path.join(input, cluster)
         if os.path.isdir(cluster_path):
             if subprocess.call(['ngram-count -kndiscount -interpolate -text ' + os.path.join(cluster_path, 'corpus') + ' -wbdiscount1 -wbdiscount2 -wbdiscount3 -lm ' + os.path.join(cluster_path, 'model.lm')], shell=True):
                 sys.exit('Error in subprocess')
             if mix is not None:
-                if subprocess.call(['ngram -lm ' + mix + ' -mix-lm ' + os.path.join(cluster_path, 'model.lm') + ' -lambda 0.5 -write-lm ' + os.path.join(cluster_path, 'merged.lm')], shell=True):
+                if subprocess.call(['ngram -lm ' + mix + ' -mix-lm ' + os.path.join(cluster_path, 'model.lm') + ' -lambda ' + weight + ' -write-lm ' + os.path.join(cluster_path, 'merged.lm')], shell=True):
                     sys.exit('Error in subprocess')
