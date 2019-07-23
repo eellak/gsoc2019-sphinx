@@ -10,7 +10,7 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='''
-        Not ready yet
+        Tool for detecting error words in ASR output
     ''')
     required = parser.add_argument_group('required arguments')
     optional = parser.add_argument_group('optional arguments')
@@ -39,12 +39,17 @@ if __name__ == '__main__':
     models = arpa.loadf(lm)
     # ARPA files may contain several models.
     lm = models[0]
-
+    # For each sentence find words that have low propability
+    # and keep a score of them.
     for sent in sentences:
-        print(sent)
-        n_grams = ngrams(sent.split(), n)
+        words = sent.split()
+        scores = dict(zip(words, [0] * len(words)))
+        n_grams = ngrams(words, n)
         for n_gram in list(n_grams):
             prop = lm.p(n_gram)
             if prop < threshold:
-                print(n_gram)
-                print(prop)
+                for word in n_gram:
+                    scores[word] += 1
+        for word in words:
+            if scores[word] > 1:
+                print(word)
