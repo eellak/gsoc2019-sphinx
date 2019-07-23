@@ -1,6 +1,7 @@
 import os
 import editdistance
 from sklearn.metrics.pairwise import cosine_similarity
+import re
 
 
 def closest_pos_sentence(x, x_pos, corpus, w=0.5):
@@ -123,3 +124,24 @@ def get_vec(sentences, size):
                 if n_gram_text not in vectors:
                     vectors[n_gram_text] = doc.vector
     return vectors
+
+
+def get_hypothesis(file, has_id):
+    '''Read emails from a hypothesis file (one per line).
+
+        Args:
+            file: Path to the hypothesis file.
+            has_id: If true, the file contains the id of the email at the end of each line (Sphinx format).
+        Returns:
+            emails: A list the contains the emails.
+        '''
+    emails = []
+    with open(file, 'r') as f:
+        for email in f:
+            if has_id:
+                # Remove id from each email.
+                emails.append(
+                    re.sub(r'\([^)]*\)$', '', email).strip('\n').strip(' '))
+            else:
+                emails.append(email.strip('\n').strip(' '))
+    return emails
