@@ -46,9 +46,10 @@ A detailed timeline follows, organized by [GSoC timeline](https://developers.goo
   - Improve email clustering. 
   - Implementation of domain-specific language models.
   - Evaluation of all implemented models in real email speech dataset of my mentor.
-  - Implementation of the first part of the correction system.
+  - Implementation of the error detector of the correction system.
  
 - __Phase 3 (Jul 27 - Aug 26)__
+  - Implementation of the error corrector of the correction system.
   - Implementation of the UI.
   - Integration of special dictation commands.
   - Playback of the email to the user.
