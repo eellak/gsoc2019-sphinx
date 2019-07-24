@@ -5,18 +5,19 @@ import arpa
 from nltk.util import ngrams
 from helper import get_hypothesis
 import logging
+from termcolor import colored
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='''
-        Tool for detecting error words in ASR output
+        Tool for detecting error words in ASR output based on ngrams of a corpus
     ''')
     required = parser.add_argument_group('required arguments')
     optional = parser.add_argument_group('optional arguments')
 
     required.add_argument(
-        '--input', help="Input file that contains one sentence per line", required=True)
+        '--input', help="Input file that contains the asr output (one sentence per line)", required=True)
 
     required.add_argument(
         '--lm', help="Input language model", required=True)
@@ -27,12 +28,17 @@ if __name__ == '__main__':
     required.add_argument(
         '--threshold', help="Threshold for error detection", required=True, type=float)
 
+    optional.add_argument(
+        '--print_words', help="If set, print the errors words with different color", action='store_true')
+
     args = parser.parse_args()
     input = args.input
     lm = args.lm
     n = args.n
     threshold = args.threshold / 100
+    print_words = args.print_words
 
+    # Get sentences of asr output.
     sentences = get_hypothesis(input, True)
 
     # Reading input language model.
@@ -61,5 +67,13 @@ if __name__ == '__main__':
 
         errors.append(sent_errors)
 
-    print(sentences)
-    print(errors)
+    # Print error words in a readable format.
+    if print_words:
+        for i, sent in enumerate(sentences):
+            words = sent.split()
+            for j, word in enumerate(words):
+                if errors[i][j]:
+                    print(colored(word, 'red'), end=" ")
+                else:
+                    print(word, end=" ")
+            print()
