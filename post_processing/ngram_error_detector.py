@@ -6,6 +6,7 @@ from nltk.util import ngrams
 from helper import get_hypothesis
 import logging
 from termcolor import colored
+import pickle
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
@@ -31,12 +32,16 @@ if __name__ == '__main__':
     optional.add_argument(
         '--print_words', help="If set, print the errors words with different color", action='store_true')
 
+    optional.add_argument(
+        '--save', help="If set, save errors in pickle format", action='store_true')
+
     args = parser.parse_args()
     input = args.input
     lm = args.lm
     n = args.n
     threshold = args.threshold / 100
     print_words = args.print_words
+    save = args.save
 
     # Get sentences of asr output.
     sentences = get_hypothesis(input, True)
@@ -77,3 +82,9 @@ if __name__ == '__main__':
                 else:
                     print(word, end=" ")
             print()
+
+    if save:
+        with open('sentences.pkl', "wb") as fp:
+            pickle.dump(sentences, fp)
+        with open('errors.pkl', "wb") as fp:
+            pickle.dump(errors, fp)

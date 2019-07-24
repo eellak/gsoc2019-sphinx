@@ -6,7 +6,7 @@ from nltk.util import ngrams
 import spacy
 
 
-def closest_pos_sentence(x, x_pos, corpus, w=0.5):
+def closest_pos(x, x_pos, corpus, w=0.5):
     '''Computes the closest sentence of x based on the Levenshtein dictance for both
         the words and the POS tagging.
 
@@ -24,18 +24,22 @@ def closest_pos_sentence(x, x_pos, corpus, w=0.5):
     pos_dist = None
     word_dist = None
     for elem in corpus:
+        if elem == x:
+            continue
         curr_word_dist = editdistance.eval(x, elem)
         curr_pos_dict = editdistance.eval(x_pos, corpus[elem])
         curr_total_dist = curr_word_dist * w + curr_pos_dict * (1 - w)
         if curr_total_dist < distance:
             distance = curr_total_dist
-            min_sent = elem
+            min_sent = [elem]
             pos_dist = curr_pos_dict
             word_dist = curr_word_dist
+        elif curr_total_dist == distance and elem not in min_sent:
+            min_sent.append(elem)
     return min_sent, word_dist, pos_dist
 
 
-def closest_semantic_sentence(x, x_vec, corpus, w=0.5):
+def closest_vec(x, x_vec, corpus, w=0.5):
     '''Computes the closest sentence of x based on the Levenshtein dictance for both
         the words and the semantic vectors.
 
@@ -53,18 +57,22 @@ def closest_semantic_sentence(x, x_vec, corpus, w=0.5):
     vec_dist = None
     word_dist = None
     for elem in corpus:
+        if elem == x:
+            continue
         curr_word_dist = editdistance.eval(x, elem)
         curr_vec_dict = 1 - cosine_similarity([x_vec], [corpus[elem]])[0][0]
         curr_total_dist = curr_word_dist * w + curr_vec_dict * (1 - w)
         if curr_total_dist < distance:
             distance = curr_total_dist
-            min_sent = elem
+            min_sent = [elem]
             vec_dist = curr_vec_dict
             word_dist = curr_word_dist
+        elif curr_total_dist == distance and elem not in min_sent:
+            min_sent.append(elem)
     return min_sent, word_dist, vec_dist
 
 
-def closest_sentence(x, corpus):
+def closest_ngram(x, corpus):
     distance = 100000
     min_sent = None
     for elem in corpus:
