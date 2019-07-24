@@ -3,6 +3,7 @@ import editdistance
 from sklearn.metrics.pairwise import cosine_similarity
 import re
 from nltk.util import ngrams
+import spacy
 
 
 def closest_pos_sentence(x, x_pos, corpus, w=0.5):
@@ -73,7 +74,7 @@ def closest_sentence(x, corpus):
         if curr_dist < distance:
             distance = curr_dist
             min_sent = [elem]
-        elif curr_dist == distance:
+        elif curr_dist == distance and elem not in min_sent:
             min_sent.append(elem)
     return min_sent, distance
 
@@ -106,32 +107,24 @@ def get_pos_doc(doc):
     return " ".join(tags_doc)
 
 
-def get_pos_sentence(sentences, size):
-    tags_corpus = {}
+def get_pos_sentence(sentences, n):
+    tags = {}
     nlp = spacy.load('el_core_news_sm')
-    if size is None:
-        for sent in sentences:
-            doc = nlp(sent)
-            tags_corpus[sent] = get_pos_doc(doc)
-    else:
+    for size in n:
         for sent in sentences:
             n_grams = ngrams(sent.split(), size)
             for n_gram in list(n_grams):
                 n_gram_text = ' '.join(n_gram)
                 doc = nlp(n_gram_text)
-                if n_gram_text not in tags_corpus:
-                    tags_corpus[n_gram_text] = get_pos_doc(doc)
-    return tags_corpus
+                if n_gram_text not in tags:
+                    tags[n_gram_text] = get_pos_doc(doc)
+    return tags
 
 
-def get_vec(sentences, size):
+def get_vec(sentences, n):
     vectors = {}
     nlp = spacy.load('el_core_news_md')
-    if size is None:
-        for sent in sentences:
-            doc = nlp(sent)
-            vectors[sent] = doc.vector
-    else:
+    for size in n:
         for sent in sentences:
             n_grams = ngrams(sent.split(), size)
             for n_gram in list(n_grams):
@@ -140,6 +133,15 @@ def get_vec(sentences, size):
                 if n_gram_text not in vectors:
                     vectors[n_gram_text] = doc.vector
     return vectors
+
+
+def get_ngrams(sentences, n):
+    corpus = []
+    for size in n:
+        for sent in sentences:
+            corpus.extend([" ".join(ngram)
+                           for ngram in ngrams(sent.split(), size)])
+    return corpus
 
 
 def get_hypothesis(file, has_id):
@@ -161,12 +163,3 @@ def get_hypothesis(file, has_id):
             else:
                 emails.append(email.strip('\n').strip(' '))
     return emails
-
-
-def get_ngrams(sentences, n):
-    corpus = []
-    for size in n:
-        for sent in sentences:
-            corpus.extend([" ".join(ngram)
-                           for ngram in ngrams(sent.split(), size)])
-    return corpus

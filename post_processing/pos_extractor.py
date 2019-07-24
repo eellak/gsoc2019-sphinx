@@ -11,23 +11,24 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='''
-        Tool for extracting POS tagging of the sentences of the emails
+        Tool for extracting POS tagging from a given corpus
     ''')
     required = parser.add_argument_group('required arguments')
     optional = parser.add_argument_group('optional arguments')
 
     required.add_argument(
         '--input', help="Input directory that contains the email data (one sentence per line)", required=True)
+
+    required.add_argument(
+        '--n', help="Size of ngrams to consider", nargs='+', type=int, required=True)
+
     required.add_argument(
         '--output', help="Output pickle file that holds the pos tagging of the corpus", required=True)
 
-    optional.add_argument(
-        '--size', help="Size of the words sequence to consider. If not set, all the sentence is taken.", type=int)
-
     args = parser.parse_args()
     input = args.input
+    n = args.n
     output = args.output
-    size = args.size
 
     if not input.endswith('/'):
         input = input + '/'
@@ -36,7 +37,7 @@ if __name__ == '__main__':
     sentences = get_sentences(input)
 
     logging.info('Getting POS tagging of emails corpus...')
-    pos_corpus = get_pos_sentence(sentences, size)
+    pos_corpus = get_pos_sentence(sentences, n)
 
     # Pickling pos
     with open(output + '.pkl', "wb") as fp:
