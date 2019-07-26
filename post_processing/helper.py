@@ -23,8 +23,9 @@ def closest_pos(x, x_pos, corpus, w=0.5):
     min_sent = None
     pos_dist = None
     word_dist = None
+    first = x.split()[0]
     for elem in corpus:
-        if elem == x:
+        if first not in elem.split():
             continue
         curr_word_dist = editdistance.eval(x, elem)
         curr_pos_dict = editdistance.eval(x_pos, corpus[elem])
@@ -56,8 +57,9 @@ def closest_vec(x, x_vec, corpus, w=0.5):
     min_sent = None
     vec_dist = None
     word_dist = None
+    first = x.split()[0]
     for elem in corpus:
-        if elem == x:
+        if first not in elem.split():
             continue
         curr_word_dist = editdistance.eval(x, elem)
         curr_vec_dict = 1 - cosine_similarity([x_vec], [corpus[elem]])[0][0]
@@ -75,8 +77,9 @@ def closest_vec(x, x_vec, corpus, w=0.5):
 def closest_ngram(x, corpus):
     distance = 100000
     min_sent = None
+    first = x.split()[0]
     for elem in corpus:
-        if elem == x:
+        if first not in elem.split():
             continue
         curr_dist = editdistance.eval(x, elem)
         if curr_dist < distance:
