@@ -39,7 +39,7 @@ if __name__ == '__main__':
     input = args.input
     lm = args.lm
     n = args.n
-    threshold = args.threshold / 100
+    threshold = args.threshold
     print_words = args.print_words
     save = args.save
 

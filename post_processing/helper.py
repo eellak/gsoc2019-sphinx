@@ -37,6 +37,19 @@ def closest_pos(x, x_pos, corpus, w=0.5):
             word_dist = curr_word_dist
         elif curr_total_dist == distance and elem not in min_sent:
             min_sent.append(elem)
+
+    if min_sent == None:
+        for elem in corpus:
+            curr_word_dist = editdistance.eval(x, elem)
+            curr_pos_dict = editdistance.eval(x_pos, corpus[elem])
+            curr_total_dist = curr_word_dist * w + curr_pos_dict * (1 - w)
+            if curr_total_dist < distance:
+                distance = curr_total_dist
+                min_sent = [elem]
+                pos_dist = curr_pos_dict
+                word_dist = curr_word_dist
+            elif curr_total_dist == distance and elem not in min_sent:
+                min_sent.append(elem)
     return min_sent, word_dist, pos_dist
 
 
@@ -71,6 +84,20 @@ def closest_vec(x, x_vec, corpus, w=0.5):
             word_dist = curr_word_dist
         elif curr_total_dist == distance and elem not in min_sent:
             min_sent.append(elem)
+
+    if min_sent == None:
+        for elem in corpus:
+            curr_word_dist = editdistance.eval(x, elem)
+            curr_vec_dict = 1 - \
+                cosine_similarity([x_vec], [corpus[elem]])[0][0]
+            curr_total_dist = curr_word_dist * w + curr_vec_dict * (1 - w)
+            if curr_total_dist < distance:
+                distance = curr_total_dist
+                min_sent = [elem]
+                vec_dist = curr_vec_dict
+                word_dist = curr_word_dist
+            elif curr_total_dist == distance and elem not in min_sent:
+                min_sent.append(elem)
     return min_sent, word_dist, vec_dist
 
 
@@ -87,6 +114,14 @@ def closest_ngram(x, corpus):
             min_sent = [elem]
         elif curr_dist == distance and elem not in min_sent:
             min_sent.append(elem)
+    if min_sent == None:
+        for elem in corpus:
+            curr_dist = editdistance.eval(x, elem)
+            if curr_dist < distance:
+                distance = curr_dist
+                min_sent = [elem]
+            elif curr_dist == distance and elem not in min_sent:
+                min_sent.append(elem)
     return min_sent, distance
 
 
