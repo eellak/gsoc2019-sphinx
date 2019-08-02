@@ -61,3 +61,41 @@ local.properties
 ##########################
 __pycache__/
 *.pyc
+
+#pickle files
+*.pickle
+
+# dependencies
+angular-ui/node_modules/
+angular-ui/package-lock.json
+
+# angular compiled output
+angular-ui/dist
+angular-ui/tmp
+angular-ui/out-tsc
+
+# misc
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+testem.log
+/typings
+
+# e2e
+angular-ui/e2e/*.js
+angular-ui/e2e/*.map
+
+# Outputs
+angular-ui/jsconfig.json
+
+
+# Misc
+angular-ui/coverage/
+angular-ui/node_modules/
+angular-ui/tmp/
+angular-ui/npm-debug.log*
+angular-ui/yarn-error.log*
+angular-ui/.ng_pkg_build/
+
