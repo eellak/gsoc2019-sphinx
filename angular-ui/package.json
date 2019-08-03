@@ -19,6 +19,12 @@
     "@angular/platform-browser": "~8.2.0",
     "@angular/platform-browser-dynamic": "~8.2.0",
     "@angular/router": "~8.2.0",
+    "@types/bootstrap": "^4.3.1",
+    "@types/jquery": "^3.3.30",
+    "@types/jqueryui": "^1.12.7",
+    "bootstrap": "^3.4.1",
+    "jquery": "^3.4.1",
+    "jqueryui": "^1.11.1",
     "rxjs": "~6.4.0",
     "tslib": "^1.10.0",
     "zone.js": "~0.9.1"
