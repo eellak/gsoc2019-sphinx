@@ -1,5 +1,9 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import os
-from flask import Flask, redirect, request, url_for
+from flask import Flask, redirect, request, url_for, jsonify
+from flask_cors import CORS, cross_origin
 from flask_login import (
     LoginManager,
     current_user,
@@ -11,6 +15,14 @@ from user import User
 import requests
 from oauthlib.oauth2 import WebApplicationClient
 import json
+import email
+from helper import get_body, get_charset, get_header, mime2str
+from email.header import decode_header
+from email.iterators import typed_subpart_iterator
+import chardet
+from bs4 import BeautifulSoup
+import base64
+from flask_cors import CORS
 
 # Configuration
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
@@ -20,6 +32,8 @@ GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configura
 # Flask app setup
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
+app.config['JSON_AS_ASCII'] = False
+CORS(app)
 
 # User session management setup
 # https://flask-login.readthedocs.io/en/latest
@@ -51,6 +65,11 @@ def index():
         return '<a class="button" href="/login">Google Login</a>'
 
 
+@app.route("/a")
+def hello():
+    return jsonify({'text': 'Hello!'})
+
+
 def get_google_provider_cfg():
     return requests.get(GOOGLE_DISCOVERY_URL).json()
 
@@ -67,9 +86,12 @@ def login():
         authorization_endpoint,
         redirect_uri=request.base_url + "/callback",
         scope=["openid", "email", "profile",
-               'https://www.googleapis.com/auth/gmail.readonly'],
+               'https://www.googleapis.com/auth/gmail.readonly']
     )
-    return redirect(request_uri)
+    return jsonify(request_uri)
+
+
+clean_messages = []
 
 
 @app.route("/login/callback")
@@ -127,7 +149,11 @@ def callback():
 
     # Begin user session by logging the user in
     login_user(user)
+    return redirect('http://localhost:4200/')
 
+
+@app.route("/messages")
+def readMessages():
     read_endpoint = "https://www.googleapis.com/gmail/v1/users/userId/messages"
     uri, headers, body = client.add_token(read_endpoint)
     read_response = requests.get(
@@ -138,11 +164,17 @@ def callback():
         get_endpoint = "https://www.googleapis.com/gmail/v1/users/userId/messages/id"
         uri, headers, body = client.add_token(get_endpoint)
         get_response = requests.get(uri, headers=headers, data=body, params={
-            'userId': 'me', 'id': message['id']})
-        raw_msg = get_response.json()
-        print(raw_msg)
+            'userId': 'me', 'id': message['id'], 'format': 'raw'})
+        raw_msg = get_response.json().get("raw")
+        string_message = str(
+            base64.urlsafe_b64decode(raw_msg), "ISO-8859-7")
+        # Convert current message to mime format.
+        mime_msg = email.message_from_string(string_message)
+        # Convert current message from mime to string.
+        body, header = mime2str(mime_msg)
+        clean_messages.append(body)
     # Send user back to homepage
-    return redirect(url_for("index"))
+    return jsonify(clean_messages)
 
 
 @app.route("/logout")
@@ -153,4 +185,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    app.run(ssl_context="adhoc")
+    app.run()
