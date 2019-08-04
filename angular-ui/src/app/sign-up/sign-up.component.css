@@ -1,0 +1,9 @@
+.center_img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 20%;
+}
+.center_title {
+  text-align:center;
+}
