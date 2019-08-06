@@ -10,6 +10,13 @@ import { LanguageAdaptationComponent } from './language-adaptation/language-adap
 import { AcousticAdaptationComponent } from './acoustic-adaptation/acoustic-adaptation.component';
 import { DictationComponent } from './dictation/dictation.component';
 import { RoutingModule } from './routing/routing.module';
+import { LoaderComponent } from './loader/loader.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { LoaderService } from './loader.service';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { LoaderInterceptor } from './loader.interceptor';
+import { CookieService } from 'ngx-cookie-service';
+
 
 @NgModule({
   declarations: [
@@ -18,15 +25,17 @@ import { RoutingModule } from './routing/routing.module';
     MenuComponent,
     LanguageAdaptationComponent,
     AcousticAdaptationComponent,
-    DictationComponent
+    DictationComponent,
+    LoaderComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     RoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    MatProgressSpinnerModule
   ],
-  providers: [],
+  providers: [CookieService, LoaderService, { provide: HTTP_INTERCEPTORS, useClass: LoaderInterceptor, multi: true }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

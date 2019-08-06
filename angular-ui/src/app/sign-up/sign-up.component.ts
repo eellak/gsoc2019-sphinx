@@ -1,16 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from "@angular/common/http";
 import { ApiService } from '../api.service';
-
+import { DOCUMENT } from '@angular/common'
 
 @Component({
   selector: 'app-sign-up',
   templateUrl: './sign-up.component.html',
   styleUrls: ['./sign-up.component.css']
 })
+
 export class SignUpComponent implements OnInit {
-  url: any;
   messages: any;
+  user: any;
+  url: any;
 
   constructor(private apiService: ApiService) { }
 
@@ -21,9 +22,10 @@ export class SignUpComponent implements OnInit {
     this.apiService.getUrlService().subscribe((data) => {
       console.log(data);
       this.url = data;
-      window.location.href = this.url
+      document.location.href = this.url;
     })
   }
+
 
   getMessages() {
     this.apiService.getMessagesService().subscribe((data) => {
@@ -31,6 +33,5 @@ export class SignUpComponent implements OnInit {
       this.messages = data;
     })
   }
-
 
 }
