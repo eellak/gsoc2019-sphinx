@@ -16,7 +16,19 @@ import { LoaderService } from './loader.service';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { LoaderInterceptor } from './loader.interceptor';
 import { CookieService } from 'ngx-cookie-service';
+import { OAuthModule } from 'angular-oauth2-oidc';
+import {
+  GoogleApiModule,
+  NgGapiClientConfig,
+  NG_GAPI_CONFIG,
+} from "ng-gapi";
+import { UserService } from './UserService';
 
+let gapiClientConfig: NgGapiClientConfig = {
+  client_id: "301659838263-jcdvl8hovf52e7oa0rkruvq95ebcu9ah.apps.googleusercontent.com",
+  discoveryDocs: ["https://accounts.google.com/.well-known/openid-configuration"],
+  scope: "https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
+};
 
 @NgModule({
   declarations: [
@@ -33,9 +45,14 @@ import { CookieService } from 'ngx-cookie-service';
     AppRoutingModule,
     RoutingModule,
     HttpClientModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    OAuthModule.forRoot(),
+    GoogleApiModule.forRoot({
+      provide: NG_GAPI_CONFIG,
+      useValue: gapiClientConfig
+    })
   ],
-  providers: [CookieService, LoaderService, { provide: HTTP_INTERCEPTORS, useClass: LoaderInterceptor, multi: true }],
+  providers: [CookieService, LoaderService, { provide: HTTP_INTERCEPTORS, useClass: LoaderInterceptor, multi: true }, UserService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

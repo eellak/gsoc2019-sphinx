@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
-import { DOCUMENT } from '@angular/common'
+import { HttpHeaders, HttpParams } from '@angular/common/http';
+import { UserService } from '../UserService'
 
 @Component({
   selector: 'app-sign-up',
@@ -10,26 +11,24 @@ import { DOCUMENT } from '@angular/common'
 
 export class SignUpComponent implements OnInit {
   messages: any;
-  user: any;
-  url: any;
 
-  constructor(private apiService: ApiService) { }
+  constructor(private apiService: ApiService, private userService: UserService) {
+
+  }
 
   ngOnInit() {
   }
 
-  getAuth() {
-    this.apiService.getUrlService().subscribe((data) => {
-      console.log(data);
-      this.url = data;
-      document.location.href = this.url;
-    })
+
+  login() {
+    this.userService.signIn()
   }
 
-
   getMessages() {
-    this.apiService.getMessagesService().subscribe((data) => {
-      console.log(data);
+    let body = new HttpParams().set('token', UserService.SESSION_STORAGE_KEY);
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Content-Type', 'application/x-www-form-urlencoded');
+    this.apiService.getMessagesService(body, headers).subscribe((data) => {
       this.messages = data;
     })
   }

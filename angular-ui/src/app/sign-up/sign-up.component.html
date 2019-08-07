@@ -1,7 +1,7 @@
 <html>
 
 <head>
-  <meta name="google-signin-client_id" content="301659838263-09v8vjmar6eae1j1g6ipodtcn9sv81bf.apps.googleusercontent.com">
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
 </head>
 
 <body>
@@ -13,7 +13,7 @@
   <br>
   <br>
   <div class="btn white darken-4 col s10 m4 center_img">
-    <a (click)="getAuth()" style="text-transform:none">
+    <a (click)="login()" style="text-transform:none">
       <img width="20px" alt="Google &quot;G&quot; Logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
       Login with Google
     </a>
@@ -22,8 +22,10 @@
   <br>
   <br>
 
+
   <button (click)="getMessages()" class=emailButton>Read My Emails </button>
 
+  {{messages}}
   <!-- Compiled and minified CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
 
