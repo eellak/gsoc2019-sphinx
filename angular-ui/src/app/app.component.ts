@@ -11,10 +11,9 @@ export class AppComponent implements OnInit {
 
   constructor(private apiService: ApiService) { }
 
-  public ngOnInit(): void { }
-
-  getCookie() {
-    return this.apiService.getCookieService()
+  public ngOnInit(): void {
   }
+
+
 
 }

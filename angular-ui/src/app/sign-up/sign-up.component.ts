@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
 import { HttpHeaders, HttpParams } from '@angular/common/http';
-import { UserService } from '../UserService'
 import { DoCheck, KeyValueDiffers, KeyValueDiffer } from '@angular/core';
 import { GoogleAuthService } from 'ng-gapi';
 import GoogleUser = gapi.auth2.GoogleUser
+import { MyCookieService } from '../cookie.service'
 
 @Component({
   selector: 'app-sign-up',
@@ -20,14 +20,17 @@ export class SignUpComponent implements OnInit {
 
   differ: KeyValueDiffer<string, any>;
 
-  constructor(private differs: KeyValueDiffers, private apiService: ApiService, private googleAuth: GoogleAuthService) {
+  constructor(private differs: KeyValueDiffers, private apiService: ApiService, private googleAuth: GoogleAuthService, private cookieServ: MyCookieService) {
     this.differ = this.differs.find({}).create();
-
   }
 
   ngOnInit() {
     this.validToken = false
     this.SESSION_STORAGE_KEY = ""
+  }
+
+  getCurrCookie() {
+    return this.cookieServ.getCookie()
   }
 
   ngDoCheck() {
@@ -36,15 +39,15 @@ export class SignUpComponent implements OnInit {
       change.forEachChangedItem(item => {
         if (item['key'] === 'SESSION_STORAGE_KEY') {
           this.validToken = true;
-          this.getInfo()
+          this.getInfo(this.getCurrCookie())
         }
       });
     }
   }
 
 
-  getInfo(): void {
-    let body = new HttpParams().set('token', this.SESSION_STORAGE_KEY);
+  getInfo(cookie: string): void {
+    let body = new HttpParams().set('token', this.SESSION_STORAGE_KEY, ).set('cookie', cookie);
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/x-www-form-urlencoded');
     this.apiService.getInfoService(body, headers).subscribe((data) => {
@@ -61,7 +64,7 @@ export class SignUpComponent implements OnInit {
   }
 
   getMessages() {
-    let body = new HttpParams().set('token', this.SESSION_STORAGE_KEY);
+    let body = new HttpParams().set('token', this.SESSION_STORAGE_KEY).set('cookie', this.getCurrCookie());
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/x-www-form-urlencoded');
     this.apiService.getMessagesService(body, headers).subscribe((data) => {

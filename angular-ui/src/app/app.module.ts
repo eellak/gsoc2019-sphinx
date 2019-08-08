@@ -22,8 +22,9 @@ import {
   NgGapiClientConfig,
   NG_GAPI_CONFIG,
 } from "ng-gapi";
-import { UserService } from './UserService';
 import { CommonModule } from '@angular/common';
+import { MyCookieService } from './cookie.service';
+
 
 let gapiClientConfig: NgGapiClientConfig = {
   client_id: "301659838263-jcdvl8hovf52e7oa0rkruvq95ebcu9ah.apps.googleusercontent.com",
@@ -54,7 +55,7 @@ let gapiClientConfig: NgGapiClientConfig = {
       useValue: gapiClientConfig
     })
   ],
-  providers: [CookieService, LoaderService, { provide: HTTP_INTERCEPTORS, useClass: LoaderInterceptor, multi: true }, UserService],
+  providers: [CookieService, LoaderService, { provide: HTTP_INTERCEPTORS, useClass: LoaderInterceptor, multi: true }, MyCookieService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
