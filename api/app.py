@@ -22,11 +22,7 @@ import chardet
 from bs4 import BeautifulSoup
 import base64
 from flask_cors import CORS
-from database import db
-import string
-import random
-import urllib
-
+import database
 
 # Flask app setup
 app = Flask(__name__)
@@ -39,6 +35,7 @@ CORS(app)
 def getInfo():
     data = request.form
     token = data['token']
+    cookie = data['cookie']
     info_endpoint = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json"
     headers = {'Authorization': 'Bearer ' +
                token, 'Accept': 'application/json'}
@@ -47,19 +44,25 @@ def getInfo():
     email = info_response.json()["email"]
     name = info_response.json()["given_name"]
     picture = info_response.json()["picture"]
+
     returned_data = {'email': email, 'name': name, 'picture': picture}
+
+    database.insert_one(
+        'info', {'_id': cookie, 'email': email, 'name': name, 'picture': picture, 'token': token})
     # Send user back to homepage
-    return returned_data
+    return jsonify(returned_data)
 
 
 @app.route("/messages", methods=["POST"])
 def getMessages():
     data = request.form
-    token = data['token']
+    #token = data['token']
+    cookie = data['cookie']
+    res = database.find_one('info', {'_id': cookie})
+    token = res['token']
     read_endpoint = "https://www.googleapis.com/gmail/v1/users/userId/messages"
     headers = {'Authorization': 'Bearer ' +
                token, 'Accept': 'application/json'}
-
     read_response = requests.get(read_endpoint, headers=headers, params={
                                  'userId': 'me', 'labelIds': ['SENT']})
     messages = read_response.json().get("messages")
@@ -75,11 +78,14 @@ def getMessages():
         # Convert current message to mime format.
         mime_msg = email.message_from_string(string_message)
         # Convert current message from mime to string.
-        body, header = mime2str(mime_msg)
-
+        body, msg_headers = mime2str(mime_msg)
+        # Fill missing headers
+        size = len(msg_headers)
         clean_messages.append(
-            {'body': body, 'sender': header[0], 'subject': header[2]})
-        print(idx)
+            {'body': body, 'sender': msg_headers[0] if size > 0 else " ", 'subject': msg_headers[2] if size > 2 else " "})
+
+    database.insert_one(
+        'messages', {'_id': cookie, 'messages': clean_messages})
     # Send user back to homepage
     return jsonify(clean_messages)
 
