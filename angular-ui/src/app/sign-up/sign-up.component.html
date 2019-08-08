@@ -28,28 +28,26 @@
   <img src={{this.info.picture}} class="center" />
 </div>
 
-
-<div *ngIf="this.messages" class="center">
-  <table>
-    <tbody>
-      <tr *ngFor="let message of this.messages; let i = index">
-        <td> From {{message.sender}}</td>
-        <td> Subject {{message.subject}}</td>
-        <td> {{message.body}}</td>
-    </tbody>
-  </table>
+<div id="list-wrapper">
+  <div id="first" *ngIf="this.messages" class="scroll">
+    <ul>
+      <li *ngFor="let message of this.messages; let i = index">
+        <h3>{{message.subject}} from {{message.sender}}</h3>
+        <p>{{message.body}}</p>
+      </li>
+    </ul>
+  </div>
+  <div id="second" *ngIf="this.messages" class="scroll">
+    <ul>
+      <li *ngFor="let message of this.messages; let i = index">
+        <h3>{{message.subject}} from {{message.sender}}</h3>
+        <p>{{message.processed_body}}</p>
+      </li>
+    </ul>
+  </div>
 </div>
 
-<div class="scroll">
-  <ul>
-    <li *ngFor="let message of this.messages; let i = index">
-      <h3>{{message.subject}} from {{message.sender}}</h3>
-      <p>{{message.body}}</p>
-    </li>
-  </ul>
-</div>
 
-{{this.getCurrCookie()}}
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
 

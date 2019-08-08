@@ -15,7 +15,7 @@ from user import User
 import requests
 import json
 import email
-from helper import get_body, get_charset, get_header, mime2str
+from helper import get_body, get_charset, get_header, mime2str, process_text
 from email.header import decode_header
 from email.iterators import typed_subpart_iterator
 import chardet
@@ -79,10 +79,12 @@ def getMessages():
         mime_msg = email.message_from_string(string_message)
         # Convert current message from mime to string.
         body, msg_headers = mime2str(mime_msg)
+        proccesed_body = "\n".join(process_text(body))
+        print(idx)
         # Fill missing headers
         size = len(msg_headers)
         clean_messages.append(
-            {'body': body, 'sender': msg_headers[0] if size > 0 else " ", 'subject': msg_headers[2] if size > 2 else " "})
+            {'body': body, 'processed_body': proccesed_body, 'sender': (msg_headers[0] if size > 0 else " "), 'subject': (msg_headers[2] if size > 2 else " ")})
 
     database.insert_one(
         'messages', {'_id': cookie, 'messages': clean_messages})
