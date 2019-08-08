@@ -23,6 +23,7 @@ import {
   NG_GAPI_CONFIG,
 } from "ng-gapi";
 import { UserService } from './UserService';
+import { CommonModule } from '@angular/common';
 
 let gapiClientConfig: NgGapiClientConfig = {
   client_id: "301659838263-jcdvl8hovf52e7oa0rkruvq95ebcu9ah.apps.googleusercontent.com",
@@ -46,6 +47,7 @@ let gapiClientConfig: NgGapiClientConfig = {
     RoutingModule,
     HttpClientModule,
     MatProgressSpinnerModule,
+    CommonModule,
     OAuthModule.forRoot(),
     GoogleApiModule.forRoot({
       provide: NG_GAPI_CONFIG,

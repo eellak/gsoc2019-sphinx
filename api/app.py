@@ -35,11 +35,25 @@ app.config['JSON_AS_ASCII'] = False
 CORS(app)
 
 
-clean_messages = []
+@app.route("/info", methods=["POST"])
+def getInfo():
+    data = request.form
+    token = data['token']
+    info_endpoint = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json"
+    headers = {'Authorization': 'Bearer ' +
+               token, 'Accept': 'application/json'}
+
+    info_response = requests.get(info_endpoint, headers=headers)
+    email = info_response.json()["email"]
+    name = info_response.json()["given_name"]
+    picture = info_response.json()["picture"]
+    returned_data = {'email': email, 'name': name, 'picture': picture}
+    # Send user back to homepage
+    return returned_data
 
 
 @app.route("/messages", methods=["POST"])
-def readMessages():
+def getMessages():
     data = request.form
     token = data['token']
     read_endpoint = "https://www.googleapis.com/gmail/v1/users/userId/messages"
@@ -49,7 +63,7 @@ def readMessages():
     read_response = requests.get(read_endpoint, headers=headers, params={
                                  'userId': 'me', 'labelIds': ['SENT']})
     messages = read_response.json().get("messages")
-
+    clean_messages = []
     for idx, message in enumerate(messages):
         # Get message based in the id.
         get_endpoint = "https://www.googleapis.com/gmail/v1/users/userId/messages/id"
@@ -62,9 +76,10 @@ def readMessages():
         mime_msg = email.message_from_string(string_message)
         # Convert current message from mime to string.
         body, header = mime2str(mime_msg)
-        clean_messages.append(body)
+
+        clean_messages.append(
+            {'body': body, 'sender': header[0], 'subject': header[2]})
         print(idx)
-    print(clean_messages)
     # Send user back to homepage
     return jsonify(clean_messages)
 

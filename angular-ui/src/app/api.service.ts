@@ -21,7 +21,11 @@ export class ApiService implements OnInit {
   getCookieService() {
     return this.cookieValue
   }
-
+  public getInfoService(body: HttpParams, headers: HttpHeaders) {
+    return this.httpClient.post("http://127.0.0.1:5000/info", body, {
+      headers
+    })
+  }
   public getMessagesService(body: HttpParams, headers: HttpHeaders) {
     return this.httpClient.post("http://127.0.0.1:5000/messages", body, {
       headers

@@ -1,36 +1,64 @@
-<html>
+<img src="../../../assets/img/gsoc.png" alt="Gsoc Logo" class="center" />
 
-<head>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
-</head>
+<h1 class="center_title">Creation of an online Greek mail dictation system</h1>
 
-<body>
+<br>
+<br>
 
-  <img src="../../../assets/img/gsoc.png" alt="Gsoc Logo" class="center_img" />
+<div *ngIf="!this.validToken" class="btn white darken-4 col s10 m4 center">
+  <a (click)="signIn()" style="text-transform:none">
+    <img width="20px" alt="Google &quot;G&quot; Logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
+    Login with Google
+  </a>
+</div>
 
-  <h1 class="center_title">Creation of an online Greek mail dictation system</h1>
+<br>
+<br>
+<div *ngIf="this.validToken" class="center">
+  <button (click)="getMessages()" class=emailButton style="text-align: center;">Read My Emails </button>
+
 
   <br>
   <br>
-  <div class="btn white darken-4 col s10 m4 center_img">
-    <a (click)="login()" style="text-transform:none">
-      <img width="20px" alt="Google &quot;G&quot; Logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
-      Login with Google
-    </a>
-  </div>
 
-  <br>
-  <br>
+</div>
+
+<div *ngIf="this.info" class="center">
+  Hi {{this.info.name}} !!
+  <img src={{this.info.picture}} class="center" />
+</div>
 
 
-  <button (click)="getMessages()" class=emailButton>Read My Emails </button>
+<div *ngIf="this.messages" class="center">
+  <table>
+    <tbody>
+      <tr *ngFor="let message of this.messages; let i = index">
+        <td> From {{message.sender}}</td>
+        <td> Subject {{message.subject}}</td>
+        <td> {{message.body}}</td>
+    </tbody>
+  </table>
+</div>
 
-  {{messages}}
-  <!-- Compiled and minified CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+<div class="scroll">
+  <ul>
+    <li *ngFor="let message of this.messages; let i = index">
+      <h3>{{message.subject}} from {{message.sender}}</h3>
+      <p>{{message.body}}</p>
+    </li>
+  </ul>
+</div>
 
-  <!-- Compiled and minified JavaScript -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
-</body>
 
-</html>
+
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+
+
+
+
+
+<!-- Compiled and minified CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+<!-- Compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>

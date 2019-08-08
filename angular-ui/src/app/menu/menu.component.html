@@ -1,11 +1,15 @@
 <nav class="navbar navbar-inverse">
   <div class="container-fluid">
-
     <ul class="nav navbar-nav">
       <li><a [routerLink]="'/sign-up'">Sign Up</a></li>
       <li><a [routerLink]="'/language'">Language Adaptation</a></li>
       <li><a [routerLink]="'/acoustic'">Acoustic Adaptation</a></li>
       <li><a [routerLink]="'/dictation'">Dictation</a></li>
     </ul>
+    <div class=" nav navbar-right">
+      <button type="button" class="btn btn-default btn-sm" id="logout">
+        <span class="glyphicon glyphicon-log-out"></span> Log out
+      </button>
+    </div>
   </div>
 </nav>
