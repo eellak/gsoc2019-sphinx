@@ -15,7 +15,8 @@ import requests
 import json
 import email
 from preprocess_helper import get_body, get_charset, get_header, mime2str, process_text
-from clustering_helper import get_spacy, get_metrics, closest_point, extract_topn_from_vector, sort_coo
+from clustering_helper import get_spacy, get_metrics, closest_point, extract_topn_from_vector, sort_coo, silhouette_analysis, find_knee, run_kmeans
+from stop_words import STOP_WORDS
 from email.header import decode_header
 from email.iterators import typed_subpart_iterator
 import chardet
@@ -23,12 +24,16 @@ from bs4 import BeautifulSoup
 import base64
 from flask_cors import CORS
 import database
+import spacy
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
 
 # Flask app setup
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 app.config['JSON_AS_ASCII'] = False
 CORS(app)
+nlp = spacy.load('el_core_news_md')
 
 
 @app.route("/info", methods=["POST"])
@@ -67,7 +72,7 @@ def getMessages():
     messages = read_response.json().get("messages")
     clean_messages = []
     for idx, message in enumerate(messages):
-        # Get message based in the id.
+        # Get message based in the id.0.5311486608012452
         get_endpoint = "https://www.googleapis.com/gmail/v1/users/userId/messages/id"
         get_response = requests.get(get_endpoint, headers=headers, params={
             'userId': 'me', 'id': message['id'], 'format': 'raw'})
@@ -78,8 +83,7 @@ def getMessages():
         mime_msg = email.message_from_string(string_message)
         # Convert current message from mime to string.
         body, msg_headers = mime2str(mime_msg)
-        proccesed_body = "\n".join(process_text(body))
-        print(idx)
+        proccesed_body = process_text(body)
         # Fill missing headers
         size = len(msg_headers)
         clean_messages.append(
@@ -94,22 +98,31 @@ def getMessages():
 @app.route("/clustering", methods=["POST"])
 def getClusters():
     data = request.form
+    print(data)
     cookie = data['cookie']
     # Get optional arguments
     metric = data['metric']
-    n_clusters = data['n_clusters']
+    if 'n_clusters' in data:
+        n_clusters = data['n_clusters']
+    else:
+        n_clusters = None
     method = data['method']
-    min_cl = data['min_cl']
-    max_cl = data['max_cl']
+    min_cl = int(data['min_cl'])
+    max_cl = int(data['max_cl'])
     sentence = data['sentence']
 
     res = database.find_one('messages', {'_id': cookie})
     messages_col = res['messages']
+
     emails = []
     for msg in messages_col:
-        emails.append(msg['proccesed_body'])
+        if sentence == "true":
+            emails.extend(msg['processed_body'])
+        else:
+            emails.append(" ".join(msg['processed_body']))
 
-    X = get_spacy(emails)
+    X = get_spacy(emails, nlp)
+
     if n_clusters is None:
         # Get metrics in different number of clusters (range [min_cl, max_cl]).
         sse, silhouette = get_metrics(X, min_cl, max_cl)
@@ -126,32 +139,32 @@ def getClusters():
     # TODO: save samples in db
     # TODO: save keywords in db
 
-    if samples:
-        # Save the closest email in each center.
-        with open(os.path.join(output + 'samples'), 'w') as w:
-            for i in range(n_clusters):
-                w.write('Cluster ' + str(i) + '\n')
-                w.write(emails[closest_point(centers[i], X, metric)])
-                w.write('\n')
+    samples = []
+    # Save the closest email in each center.
+    for i in range(n_clusters):
+        samples.append(emails[closest_point(centers[i], X, metric)])
 
-    if keywords:
-        # We want to keep some representative words for each cluster
-        # in order to identify the topic it represents. So we take
-        # the words with the heighest tf-idf metric in each cluster.
-        cv = CountVectorizer(stop_words=STOP_WORDS)
-        tfidf = TfidfTransformer(smooth_idf=True, use_idf=True)
-        for i in range(n_clusters):
-            emails_cluster = [emails[j]
-                              for j in range(len(emails)) if labels[j] == i]
-            word_count_vector = cv.fit_transform(emails_cluster)
-            tfidf.fit(word_count_vector)
-            feature_names = cv.get_feature_names()
-            tf_idf_vector = tfidf.transform(
-                cv.transform(emails_cluster))
-            sorted_items = sort_coo(tf_idf_vector.tocoo())
-            keywords = extract_topn_from_vector(
-                feature_names, sorted_items, 5)
-    return '1'
+    # We want to keep some representative words for each cluster
+    # in order to identify the topic it represents. So we take
+    # the words with the heighest tf-idf metric in each cluster.
+    cv = CountVectorizer(stop_words=STOP_WORDS)
+    tfidf = TfidfTransformer(smooth_idf=True, use_idf=True)
+    for i in range(n_clusters):
+        emails_cluster = [emails[j]
+                          for j in range(len(emails)) if labels[j] == i]
+        word_count_vector = cv.fit_transform(emails_cluster)
+        tfidf.fit(word_count_vector)
+        feature_names = cv.get_feature_names()
+        tf_idf_vector = tfidf.transform(
+            cv.transform(emails_cluster))
+        sorted_items = sort_coo(tf_idf_vector.tocoo())
+        keywords = extract_topn_from_vector(
+            feature_names, sorted_items, 5)
+
+    # database.insert_one('clusters', {'_id': cookie, 'centers': centers.tolist(),
+    #                                 'labels': labels.tolist(), 'samples': samples, 'keywords': keywords})
+
+    return jsonify({'samples': samples, 'keywords': keywords})
 
 
 if __name__ == "__main__":

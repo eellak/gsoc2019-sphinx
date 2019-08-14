@@ -50,7 +50,7 @@ def extract_topn_from_vector(feature_names, sorted_items, topn=10):
     return results
 
 
-def get_spacy(emails):
+def get_spacy(emails, nlp):
     '''Represent emails as vectors using the spacy Greek model.
 
         Args:
@@ -59,7 +59,6 @@ def get_spacy(emails):
             X: A list that contains the vectors of the emails.
 
         '''
-    nlp = spacy.load('el_core_news_md')
     X = []
     for email in emails:
         doc = nlp(email)
@@ -139,7 +138,7 @@ def closest_point(center, X, metric):
     return min_point
 
 
-def get_metrics(X, plot, min_cl, max_cl):
+def get_metrics(X, min_cl, max_cl):
     '''Run k-means and keep sum of squared errors and silhouette coefficients
         for each number of clusters.
 
@@ -159,7 +158,6 @@ def get_metrics(X, plot, min_cl, max_cl):
     for k in ks:
         clf = KMeans(n_clusters=k, n_jobs=cpu_count(),
                      n_init=10 * cpu_count())
-        logging.info(clf)
         clf = clf.fit(X)
         sse.append(clf.inertia_)
         silhouette.append(silhouette_score(X, clf.labels_))
