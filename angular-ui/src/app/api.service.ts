@@ -20,7 +20,7 @@ export class ApiService implements OnInit {
     })
   }
   public getMessagesService(body: HttpParams, headers: HttpHeaders) {
-    return this.httpClient.post("http://127.0.0.1:5000/messages", body, {
+    return this.httpClient.post("http://127.0.0.1:5000/emails", body, {
       headers
     })
   }

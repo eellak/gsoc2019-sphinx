@@ -47,7 +47,7 @@ export class SignUpComponent implements OnInit {
 
 
   getInfo(cookie: string): void {
-    let body = new HttpParams().set('token', this.SESSION_STORAGE_KEY, ).set('cookie', cookie);
+    let body = new HttpParams().set('token', this.SESSION_STORAGE_KEY).set('cookie', this.getCurrCookie());
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/x-www-form-urlencoded');
     this.apiService.getInfoService(body, headers).subscribe((data) => {
@@ -64,7 +64,7 @@ export class SignUpComponent implements OnInit {
   }
 
   getMessages() {
-    let body = new HttpParams().set('token', this.SESSION_STORAGE_KEY).set('cookie', this.getCurrCookie());
+    let body = new HttpParams().set('cookie', this.getCurrCookie());
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/x-www-form-urlencoded');
     this.apiService.getMessagesService(body, headers).subscribe((data) => {
@@ -73,19 +73,8 @@ export class SignUpComponent implements OnInit {
   }
 
 
-  public getToken(): string {
-    let token: string = sessionStorage.getItem('token');
-    if (!token) {
-      throw new Error("no token set , authentication required");
-    }
-    return sessionStorage.getItem('token');
-  }
-
-
-
   private signInSuccessHandler(res: GoogleUser) {
     this.SESSION_STORAGE_KEY = res.getAuthResponse().access_token
-    localStorage.setItem('token', this.SESSION_STORAGE_KEY)
   }
 
 }
