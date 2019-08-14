@@ -15,7 +15,7 @@ import requests
 import json
 import email
 from preprocess_helper import get_body, get_charset, get_header, mime2str, process_text
-from clustering_helper import get_spacy, get_metrics, closest_point, extract_topn_from_vector, sort_coo, silhouette_analysis, find_knee, run_kmeans
+from clustering_helper import get_spacy, get_metrics, closest_point, extract_topn_from_vector, sort_coo, silhouette_analysis, find_knee, run_kmeans, save_clusters
 from stop_words import STOP_WORDS
 from email.header import decode_header
 from email.iterators import typed_subpart_iterator
@@ -102,28 +102,25 @@ def getClusters():
     cookie = data['cookie']
     # Get optional arguments
     metric = data['metric']
-    if 'n_clusters' in data:
-        n_clusters = data['n_clusters']
-    else:
-        n_clusters = None
+    n_clusters = data['n_clusters']
     method = data['method']
     min_cl = int(data['min_cl'])
     max_cl = int(data['max_cl'])
-    sentence = data['sentence']
+    level = data['level']
 
     res = database.find_one('messages', {'_id': cookie})
     messages_col = res['messages']
 
     emails = []
     for msg in messages_col:
-        if sentence == "true":
+        if level == "sentence":
             emails.extend(msg['processed_body'])
         else:
             emails.append(" ".join(msg['processed_body']))
 
     X = get_spacy(emails, nlp)
 
-    if n_clusters is None:
+    if n_clusters == "":
         # Get metrics in different number of clusters (range [min_cl, max_cl]).
         sse, silhouette = get_metrics(X, min_cl, max_cl)
         if method == 'elbow':
@@ -132,6 +129,7 @@ def getClusters():
             n_clusters = silhouette_analysis(silhouette, min_cl)
     # Run k-means with given number of clusters.
     labels, centers = run_kmeans(X, n_clusters)
+    save_clusters(emails, labels, cookie)
 
     # TODO: save clusters in db
     # TODO: save centers in db
@@ -161,8 +159,8 @@ def getClusters():
         keywords = extract_topn_from_vector(
             feature_names, sorted_items, 5)
 
-    # database.insert_one('clusters', {'_id': cookie, 'centers': centers.tolist(),
-    #                                 'labels': labels.tolist(), 'samples': samples, 'keywords': keywords})
+    database.insert_one('clusters', {'_id': cookie, 'centers': centers.tolist(),
+                                     'labels': labels.tolist(), 'samples': samples, 'keywords': keywords})
 
     return jsonify({'samples': samples, 'keywords': keywords})
 

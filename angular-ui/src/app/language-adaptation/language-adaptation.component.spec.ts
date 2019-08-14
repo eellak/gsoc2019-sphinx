@@ -8,9 +8,9 @@ describe('LanguageAdaptationComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ LanguageAdaptationComponent ]
+      declarations: [LanguageAdaptationComponent]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

@@ -1,1 +1,32 @@
-<p>language-adaptation works!</p>
+<form #clusterform="ngForm" (ngSubmit)="onSubmit(clusterform)">
+  Metric
+  <br>
+  <select name="metric" ngModel>
+    <option value="cosine">Cosine</option>
+    <option value="euclidean">Euclidean</option>
+  </select>
+  <br>
+  Number of cluster selection method
+  <br>
+  <input type="radio" name="method" value="silhouette" ngModel>Silhouette
+  <input type="radio" name="method" value="knee" ngModel>Knee
+  <br>
+  Number of clusters
+  <br>
+  <input type="number" name="n_clusters" ngModel>
+  <br>
+  Level of clustering
+  <br>
+  <input type="radio" name="level" value="email" ngModel>Email
+  <input type="radio" name="level" value="sentence" ngModel>Sentence
+  <br>
+  Specify min and max number of clusters
+  <br>
+  <input type="hidden" name="min_cl" [(ngModel)]="rangeSliderMinValue">
+  <input type="hidden" name="max_cl" [(ngModel)]="rangeSliderMaxValue">
+  <ng5-slider id="slider" [(value)]="rangeSliderMinValue" [(highValue)]="rangeSliderMaxValue" [options]="rangeSliderOptions"></ng5-slider>
+  <br>
+  <input type="submit" value="Cluster">
+</form>
+
+{{clusters.getClustersSession()}}

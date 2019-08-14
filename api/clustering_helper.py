@@ -210,3 +210,20 @@ def silhouette_analysis(silhouette, min_cl):
         '''
     n_clusters = silhouette.index(max(silhouette))
     return n_clusters + min_cl
+
+
+def save_clusters(emails, labels, cookie):
+    # If output directory does not exist, create it.
+    out = os.path.join('./data', cookie)
+    if not os.path.exists(out):
+        os.makedirs(out)
+
+    total_str = str(len(emails) - 1)
+    for i, email in enumerate(emails):
+        # Add leading zeros in order to have all names in the right order.
+        i_zeroed = str(i).rjust(len(total_str), '0')
+        path = './' + out + 'cluster_' + \
+            str(labels[i]) + '/data_' + i_zeroed
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, 'w') as f:
+            f.write(email)

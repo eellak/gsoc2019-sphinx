@@ -24,6 +24,8 @@ import {
 } from "ng-gapi";
 import { CommonModule } from '@angular/common';
 import { MyCookieService } from './cookie.service';
+import { FormsModule } from '@angular/forms';
+import { Ng5SliderModule } from 'ng5-slider';
 
 
 let gapiClientConfig: NgGapiClientConfig = {
@@ -53,7 +55,9 @@ let gapiClientConfig: NgGapiClientConfig = {
     GoogleApiModule.forRoot({
       provide: NG_GAPI_CONFIG,
       useValue: gapiClientConfig
-    })
+    }),
+    FormsModule,
+    Ng5SliderModule
   ],
   providers: [CookieService, LoaderService, { provide: HTTP_INTERCEPTORS, useClass: LoaderInterceptor, multi: true }, MyCookieService],
   bootstrap: [AppComponent]
