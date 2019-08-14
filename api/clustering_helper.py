@@ -198,6 +198,17 @@ def find_knee(sse, min_cl):
     return n_clusters
 
 
+def cluster2text(out, n_clusters):
+    for i in range(n_clusters):
+        cluster_path = os.path.join(out, 'cluster_' + str(i))
+        email_path = os.path.join(out, 'cluster_' + str(i) + '/data')
+        with open(os.path.join(cluster_path, 'corpus'), 'w') as w:
+            for email in os.listdir(email_path):
+                with open(os.path.join(email_path, email), 'r') as r:
+                    w.write(r.read())
+                    w.write('\n')
+
+
 def silhouette_analysis(silhouette, min_cl):
     '''Find optimal number of clusters using the silhouette method.
 
@@ -222,8 +233,8 @@ def save_clusters(emails, labels, cookie):
     for i, email in enumerate(emails):
         # Add leading zeros in order to have all names in the right order.
         i_zeroed = str(i).rjust(len(total_str), '0')
-        path = './' + out + 'cluster_' + \
-            str(labels[i]) + '/data_' + i_zeroed
+        path = './' + out + '/cluster_' + \
+            str(labels[i]) + '/data/data_' + i_zeroed
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, 'w') as f:
             f.write(email)

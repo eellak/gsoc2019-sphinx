@@ -15,7 +15,7 @@ import requests
 import json
 import email
 from preprocess_helper import get_body, get_charset, get_header, mime2str, process_text
-from clustering_helper import get_spacy, get_metrics, closest_point, extract_topn_from_vector, sort_coo, silhouette_analysis, find_knee, run_kmeans, save_clusters
+from clustering_helper import get_spacy, get_metrics, closest_point, extract_topn_from_vector, sort_coo, silhouette_analysis, find_knee, run_kmeans, save_clusters, cluster2text
 from stop_words import STOP_WORDS
 from email.header import decode_header
 from email.iterators import typed_subpart_iterator
@@ -27,6 +27,7 @@ import database
 import spacy
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
+import subprocess
 
 # Flask app setup
 app = Flask(__name__)
@@ -129,14 +130,9 @@ def getClusters():
             n_clusters = silhouette_analysis(silhouette, min_cl)
     # Run k-means with given number of clusters.
     labels, centers = run_kmeans(X, n_clusters)
+    out = os.path.join('./data', cookie)
     save_clusters(emails, labels, cookie)
-
-    # TODO: save clusters in db
-    # TODO: save centers in db
-
-    # TODO: save samples in db
-    # TODO: save keywords in db
-
+    cluster2text(out, n_clusters)
     samples = []
     # Save the closest email in each center.
     for i in range(n_clusters):
@@ -162,7 +158,22 @@ def getClusters():
     database.insert_one('clusters', {'_id': cookie, 'centers': centers.tolist(),
                                      'labels': labels.tolist(), 'samples': samples, 'keywords': keywords})
 
-    return jsonify({'samples': samples, 'keywords': keywords})
+    clusters = [[] for i in range(n_clusters)]
+    for idx, email in enumerate(emails):
+        clusters[labels[idx]].append(email)
+
+    mix = os.environ.get('general_lm')
+    weight = "0.5"
+    print(mix)
+    for cluster in os.listdir(out):
+        cluster_path = os.path.join(out, cluster)
+        if os.path.isdir(cluster_path):
+            if subprocess.call(['ngram-count -kndiscount -interpolate -text ' + os.path.join(cluster_path, 'corpus') + ' -wbdiscount1 -wbdiscount2 -wbdiscount3 -lm ' + os.path.join(cluster_path, 'model.lm')], shell=True):
+                print('Error in subprocess')
+            if subprocess.call(['ngram -lm ' + mix + ' -mix-lm ' + os.path.join(cluster_path, 'model.lm') + ' -lambda ' + weight + ' -write-lm ' + os.path.join(cluster_path, 'merged.lm')], shell=True):
+                print('Error in subprocess')
+
+    return jsonify({'samples': samples, 'keywords': keywords, 'clusters': clusters})
 
 
 if __name__ == "__main__":
