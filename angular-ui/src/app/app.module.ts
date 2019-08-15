@@ -26,7 +26,7 @@ import { CommonModule } from '@angular/common';
 import { MyCookieService } from './cookie.service';
 import { FormsModule } from '@angular/forms';
 import { Ng5SliderModule } from 'ng5-slider';
-
+import { AudioRecordingService } from './recorder.service'
 
 let gapiClientConfig: NgGapiClientConfig = {
   client_id: "301659838263-jcdvl8hovf52e7oa0rkruvq95ebcu9ah.apps.googleusercontent.com",
@@ -59,7 +59,7 @@ let gapiClientConfig: NgGapiClientConfig = {
     FormsModule,
     Ng5SliderModule
   ],
-  providers: [CookieService, LoaderService, { provide: HTTP_INTERCEPTORS, useClass: LoaderInterceptor, multi: true }, MyCookieService],
+  providers: [CookieService, LoaderService, { provide: HTTP_INTERCEPTORS, useClass: LoaderInterceptor, multi: true }, MyCookieService, AudioRecordingService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

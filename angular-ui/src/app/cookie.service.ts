@@ -6,13 +6,11 @@ import { CookieService } from 'ngx-cookie-service';
   providedIn: 'root'
 })
 
-export class MyCookieService implements OnInit {
+export class MyCookieService {
   constructor(private cookieService: CookieService) {
-  }
-
-  ngOnInit() {
     this.cookieService.set('cookie', Math.random().toString())
   }
+
 
   getCookie() {
     return this.cookieService.get('cookie')

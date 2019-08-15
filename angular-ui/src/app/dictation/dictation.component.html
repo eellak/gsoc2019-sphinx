@@ -1,1 +1,10 @@
-<p>dictation works!</p>
+<div class="center-rec">
+  <button class="btn btn-info btn-lg button-rec" *ngIf="!isRecording && !blobUrl" (click)="startRecording()"> <span class="glyphicon glyphicon-record"></span> Record </button>
+  <button class="btn btn-info btn-lg button-rec" *ngIf="isRecording && !blobUrl" (click)="stopRecording()"><span class="glyphicon glyphicon-stop"></span> Stop {{recordedTime}}</button>
+  <button class="btn btn-info btn-lg button-rec" *ngIf="!isRecording && blobUrl" (click)="clearRecordedData()"><span class="glyphicon glyphicon-trash"></span>Clear Recording</button>
+  <div>
+    <audio *ngIf="!isRecording && blobUrl" controls>
+      <source [src]="blobUrl" type="audio/webm">
+    </audio>
+  </div>
+</div>
