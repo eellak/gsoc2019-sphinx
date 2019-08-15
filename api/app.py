@@ -28,6 +28,8 @@ import spacy
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 import subprocess
+import base64
+import urllib
 
 # Flask app setup
 app = Flask(__name__)
@@ -174,6 +176,17 @@ def getClusters():
                 print('Error in subprocess')
 
     return jsonify({'samples': samples, 'keywords': keywords, 'clusters': clusters})
+
+
+@app.route("/dictation", methods=["POST"])
+def getDictation():
+    cookie = request.form['cookie']
+    # Get optional arguments
+    print(cookie)
+    url = request.files['url']
+    out = os.path.join('./data', cookie)
+    url.save(os.path.join(out, 'dictation.wav'))
+    return '1'
 
 
 if __name__ == "__main__":

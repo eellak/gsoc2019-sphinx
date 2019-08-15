@@ -24,7 +24,9 @@ export class SignUpComponent implements OnInit {
     this.differ = this.differs.find({}).create();
   }
 
+
   ngOnInit() {
+    console.log('2')
     this.validToken = false
     this.SESSION_STORAGE_KEY = ""
   }
@@ -45,6 +47,18 @@ export class SignUpComponent implements OnInit {
     }
   }
 
+  isValidToken() {
+    return sessionStorage.getItem('key')
+  }
+
+
+  getInfoSession() {
+    return JSON.parse(sessionStorage.getItem('info'))
+  }
+
+  getMessagesSession() {
+    return JSON.parse(sessionStorage.getItem('messages'))
+  }
 
   getInfo(cookie: string): void {
     let body = new HttpParams().set('token', this.SESSION_STORAGE_KEY).set('cookie', this.getCurrCookie());
@@ -52,6 +66,7 @@ export class SignUpComponent implements OnInit {
     headers = headers.append('Content-Type', 'application/x-www-form-urlencoded');
     this.apiService.getInfoService(body, headers).subscribe((data) => {
       this.info = data;
+      sessionStorage.setItem('info', JSON.stringify(data));
     })
   }
 
@@ -69,12 +84,14 @@ export class SignUpComponent implements OnInit {
     headers = headers.append('Content-Type', 'application/x-www-form-urlencoded');
     this.apiService.getMessagesService(body, headers).subscribe((data) => {
       this.messages = data;
+      sessionStorage.setItem('messages', JSON.stringify(this.messages));
     })
   }
 
 
   private signInSuccessHandler(res: GoogleUser) {
     this.SESSION_STORAGE_KEY = res.getAuthResponse().access_token
+    sessionStorage.setItem('key', this.SESSION_STORAGE_KEY);
   }
 
 }

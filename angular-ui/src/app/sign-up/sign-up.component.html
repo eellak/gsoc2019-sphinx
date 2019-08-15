@@ -5,7 +5,7 @@
 <br>
 <br>
 
-<div *ngIf="!this.validToken" class="btn white darken-4 col s10 m4 center">
+<div *ngIf="!this.isValidToken()" class="btn white darken-4 col s10 m4 center">
   <a (click)="signIn()" style="text-transform:none">
     <img width="20px" alt="Google &quot;G&quot; Logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
     Login with Google
@@ -14,32 +14,32 @@
 
 <br>
 <br>
-<div *ngIf="this.validToken" class="center">
+<div *ngIf="this.isValidToken()" class="center">
   <button (click)="getMessages()" class=emailButton style="text-align: center;">Read My Emails </button>
 
   <br>
   <br>
 </div>
 
-<div *ngIf="this.info" class="center">
-  Hi {{this.info.name}} !!
-  <img src={{this.info.picture}} class="center" />
+<div *ngIf="this.getInfoSession()" class="center">
+  Hi {{this.getInfoSession().name}} !!
+  <img src={{this.getInfoSession().picture}} class="center" />
 </div>
 
 <div id="list-wrapper">
-  <div id="first" *ngIf="this.messages" class="scroll">
+  <div id="first" *ngIf="this.getMessagesSession()" class="scroll">
     <ul>
-      <li *ngFor="let message of this.messages; let i = index">
+      <li *ngFor="let message of this.getMessagesSession(); let i = index">
         <h3>{{message.subject}} from {{message.sender}}</h3>
         <p>{{message.body}}</p>
       </li>
     </ul>
   </div>
-  <div id="second" *ngIf="this.messages" class="scroll">
+  <div id="second" *ngIf="this.getMessagesSession()" class="scroll">
     <ul>
-      <li *ngFor="let message of this.messages; let i = index">
+      <li *ngFor="let message of this.getMessagesSession(); let i = index">
         <h3>{{message.subject}} from {{message.sender}}</h3>
-        <p>{{message.processed_body}}</p>
+        <p *ngFor="let sentence of message.processed_body;">{{sentence}}</p>
       </li>
     </ul>
   </div>

@@ -7,4 +7,5 @@
       <source [src]="blobUrl" type="audio/webm">
     </audio>
   </div>
+  <button class="btn btn-info btn-lg button-rec" *ngIf="!isRecording && blobUrl" (click)="getDictation()">Get Dictation </button>
 </div>
