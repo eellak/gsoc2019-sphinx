@@ -26,7 +26,8 @@ import { CommonModule } from '@angular/common';
 import { MyCookieService } from './cookie.service';
 import { FormsModule } from '@angular/forms';
 import { Ng5SliderModule } from 'ng5-slider';
-import { AudioRecordingService } from './recorder.service'
+import { AudioRecordingService } from './recorder.service';
+import { FooterComponent } from './footer/footer.component'
 
 let gapiClientConfig: NgGapiClientConfig = {
   client_id: "301659838263-jcdvl8hovf52e7oa0rkruvq95ebcu9ah.apps.googleusercontent.com",
@@ -42,7 +43,8 @@ let gapiClientConfig: NgGapiClientConfig = {
     LanguageAdaptationComponent,
     AcousticAdaptationComponent,
     DictationComponent,
-    LoaderComponent
+    LoaderComponent,
+    FooterComponent
   ],
   imports: [
     BrowserModule,
