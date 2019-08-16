@@ -8,7 +8,7 @@ import requests
 import json
 import email
 from preprocess_helper import get_body, get_charset, get_header, mime2str, process_text
-from clustering_helper import get_spacy, get_metrics, closest_point, extract_topn_from_vector, sort_coo, silhouette_analysis, find_knee, run_kmeans, save_clusters, cluster2text
+from clustering_helper import get_spacy, get_metrics, closest_point, extract_topn_from_vector, sort_coo, silhouette_analysis, find_knee, run_kmeans, save_clusters, cluster2text, closest_cluster
 from stop_words import STOP_WORDS
 from email.header import decode_header
 from email.iterators import typed_subpart_iterator
@@ -23,6 +23,7 @@ from sklearn.feature_extraction.text import TfidfTransformer
 import subprocess
 import base64
 import urllib
+import numpy as np
 from py4j.java_gateway import JavaGateway
 
 # Flask app setup
@@ -35,9 +36,8 @@ CORS(app)
 nlp = spacy.load('el_core_news_md')
 # Connect to a JVM with a gateway in order to communicate with Java cmuSphinx
 gateway = JavaGateway()
-stream = gateway.entry_point.getStreamRecognizer()
 # Get useful paths for defaul models.
-acousticPath = os.environ.get("general_lm")
+acousticPath = os.environ.get("general_ac")
 dictPath = os.environ.get("general_dict")
 lmPath = os.environ.get("general_lm")
 
@@ -189,7 +189,7 @@ def getClusters():
 
     # Insert in database.
     database.insert_one('clusters', {'_id': cookie, 'centers': centers.tolist(),
-                                     'labels': labels.tolist(), 'samples': samples, 'keywords': keywords})
+                                     'labels': labels.tolist(), 'samples': samples, 'keywords': keywords, 'metric': metric})
 
     clusters = [[] for i in range(n_clusters)]
     for idx, email in enumerate(emails):
@@ -219,15 +219,31 @@ def getDictation():
         '''
     cookie = request.form['cookie']
     url = request.files['url']
+
     out = os.path.join('./data', cookie)
     # Save current dictation in filesystem.
     url.save(os.path.join(out, 'dictation.wav'))
     # Convert speech to text using Java cmuSphinx library.
-    stream.setConfiguration(amPath, dictPath, lmPath)
+    stream = gateway.entry_point.getStreamRecognizer()
+    stream.setConfiguration(acousticPath, dictPath, lmPath)
     py4j_relpath = os.path.join("../api/data", cookie)
-    decoded_text = stream.recognizeFile(
+    decoded_gen = stream.recognizeFile(
         os.path.join(py4j_relpath, "dictation.wav"))
-    return jsonify({'text': decoded_text})
+
+    res = database.find_one('clusters', {'_id': cookie})
+    centers = res['centers']
+    metric = res['metric']
+    doc = nlp(decoded_gen)
+    decoded_gen_spacy = doc.vector
+    cluster = closest_cluster(np.array(centers), decoded_gen_spacy, metric)
+    clusterRelPath = os.path.join(py4j_relpath, 'cluster_' + str(cluster))
+    lmAdaptPath = os.path.join(clusterRelPath, 'merged.lm')
+    stream.setConfiguration(acousticPath, dictPath, lmAdaptPath)
+    decoded_adapt = stream.recognizeFile(
+        os.path.join(py4j_relpath, "dictation.wav"))
+    returned_data = {'text_gen': decoded_gen,
+                     'text_adapt': decoded_adapt, 'cluster': cluster}
+    return jsonify(returned_data)
 
 
 if __name__ == "__main__":

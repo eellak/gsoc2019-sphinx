@@ -11,8 +11,12 @@
 </div>
 
 
-<div *ngIf="this.getText()">
-  <li *ngFor="let text of this.getText()">
-    {{text.text}}
-  </li>
+<div *ngIf="this.getDecoded()">
+  <table *ngFor="let text of this.getDecoded()">
+    <tr>
+      <td>{{text.text_gen}}</td>
+      <td>{{text.text_adapt}}</td>
+      <td>{{text.cluster}}</td>
+    </tr>
+  </table>
 </div>
