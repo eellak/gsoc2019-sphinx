@@ -16,10 +16,11 @@ export class DictationComponent implements OnDestroy {
   isRecording = false;
   recordedTime;
   blobUrl;
-  text;
+  decoded_text: string[];
   url;
 
   constructor(private httpClient: HttpClient, private audioRecordingService: AudioRecordingService, private sanitizer: DomSanitizer, private cookieServ: MyCookieService, private apiService: ApiService) {
+    this.decoded_text = [];
 
     this.audioRecordingService.recordingFailed().subscribe(() => {
       this.isRecording = false;
@@ -73,9 +74,14 @@ export class DictationComponent implements OnDestroy {
     body.append('cookie', this.getCurrCookie());
     body.append('url', this.url)
     this.apiService.getDictationService(body).subscribe((data) => {
-      this.text = data;
+      this.decoded_text.push(JSON.parse(JSON.stringify(data)));
     })
   }
+
+  getText() {
+    return this.decoded_text
+  }
+
 
 
 

@@ -9,3 +9,10 @@
   </div>
   <button class="btn btn-info btn-lg button-rec" *ngIf="!isRecording && blobUrl" (click)="getDictation()">Get Dictation </button>
 </div>
+
+
+<div *ngIf="this.getText()">
+  <li *ngFor="let text of this.getText()">
+    {{text.text}}
+  </li>
+</div>

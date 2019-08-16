@@ -30,6 +30,7 @@ from sklearn.feature_extraction.text import TfidfTransformer
 import subprocess
 import base64
 import urllib
+from py4j.java_gateway import JavaGateway
 
 # Flask app setup
 app = Flask(__name__)
@@ -37,6 +38,12 @@ app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 app.config['JSON_AS_ASCII'] = False
 CORS(app)
 nlp = spacy.load('el_core_news_md')
+
+gateway = JavaGateway()
+stream = gateway.entry_point.getStreamRecognizer()
+acousticPath = "../cmusphinx-el-gr-5.2/el-gr.cd_cont_5000"
+dictPath = "../cmusphinx-el-gr-5.2/el-gr.dic"
+langPath = "../cmusphinx-el-gr-5.2/el-gr.lm"
 
 
 @app.route("/info", methods=["POST"])
@@ -186,7 +193,10 @@ def getDictation():
     url = request.files['url']
     out = os.path.join('./data', cookie)
     url.save(os.path.join(out, 'dictation.wav'))
-    return '1'
+    stream.setConfiguration(acousticPath, dictPath, langPath)
+    py4j_relpath = os.path.join("../api/data", cookie)
+    x = stream.recognizeFile(os.path.join(py4j_relpath, "dictation.wav"))
+    return jsonify({'text': x})
 
 
 if __name__ == "__main__":
