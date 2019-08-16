@@ -4,13 +4,6 @@ import os
 import flask
 from flask import Flask, redirect, request, url_for, jsonify, session, render_template
 from flask_cors import CORS, cross_origin
-from flask_login import (
-    LoginManager,
-    current_user,
-    login_required,
-    login_user,
-    logout_user,
-)
 import requests
 import json
 import email
@@ -36,32 +29,43 @@ from py4j.java_gateway import JavaGateway
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 app.config['JSON_AS_ASCII'] = False
+# Enable CORS
 CORS(app)
+# Load spacy Greek model
 nlp = spacy.load('el_core_news_md')
-
+# Connect to a JVM with a gateway in order to communicate with Java cmuSphinx
 gateway = JavaGateway()
 stream = gateway.entry_point.getStreamRecognizer()
-acousticPath = "../cmusphinx-el-gr-5.2/el-gr.cd_cont_5000"
-dictPath = "../cmusphinx-el-gr-5.2/el-gr.dic"
-langPath = "../cmusphinx-el-gr-5.2/el-gr.lm"
+# Get useful paths for defaul models.
+acousticPath = os.environ.get("general_lm")
+dictPath = os.environ.get("general_dict")
+lmPath = os.environ.get("general_lm")
 
 
 @app.route("/info", methods=["POST"])
 def getInfo():
+    '''Endpoint that returns the email, the username and profile picture of a Gmail user.
+
+        Args:
+            token: Authentication token from Gmail api.
+            cookie: Cookie of current user.
+        '''
     data = request.form
     token = data['token']
     cookie = data['cookie']
+    # Send get request to gmail api.
     info_endpoint = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json"
     headers = {'Authorization': 'Bearer ' +
                token, 'Accept': 'application/json'}
-
     info_response = requests.get(info_endpoint, headers=headers)
+
     email = info_response.json()["email"]
     name = info_response.json()["given_name"]
     picture = info_response.json()["picture"]
 
     returned_data = {'email': email, 'name': name, 'picture': picture}
 
+    # Save user information in database.
     database.insert_one(
         'info', {'_id': cookie, 'email': email, 'name': name, 'picture': picture, 'token': token})
     # Send user back to homepage
@@ -69,11 +73,18 @@ def getInfo():
 
 
 @app.route("/emails", methods=["POST"])
-def getMessages():
+def getEmails():
+    '''Endpoint that returns the sent emails of a Gmail user.
+
+        Args:
+            cookie: Cookie of current user.
+        '''
     data = request.form
     cookie = data['cookie']
+    # Get authentication token of current user.
     res = database.find_one('info', {'_id': cookie})
     token = res['token']
+    # Send get request in gmail api.
     read_endpoint = "https://www.googleapis.com/gmail/v1/users/userId/messages"
     headers = {'Authorization': 'Bearer ' +
                token, 'Accept': 'application/json'}
@@ -94,23 +105,31 @@ def getMessages():
         # Convert current message from mime to string.
         body, msg_headers = mime2str(mime_msg)
         proccesed_body = process_text(body)
-        # Fill missing headers
         size = len(msg_headers)
         clean_messages.append(
             {'body': body, 'processed_body': proccesed_body, 'sender': (msg_headers[0] if size > 0 else " "), 'subject': (msg_headers[2] if size > 2 else " ")})
 
+    # Save user emails in database.
     database.insert_one(
         'messages', {'_id': cookie, 'messages': clean_messages})
-    # Send user back to homepage
     return jsonify(clean_messages)
 
 
 @app.route("/clustering", methods=["POST"])
 def getClusters():
+    '''Endpoint that clusters the emails.
+
+        Args:
+            cookie: Cookie of current user.
+            metric: Metric to be used for closest point calculation.
+            n_clusters: Number of clusters.
+            method: Method of selecting number of clusters to be used (knee, silhouette).
+            min_cl: Min number of clusters.
+            max_cl: Max number of clusters.
+            level: Level of clustering (per sentence or per email).
+        '''
     data = request.form
-    print(data)
     cookie = data['cookie']
-    # Get optional arguments
     metric = data['metric']
     n_clusters = data['n_clusters']
     method = data['method']
@@ -118,16 +137,16 @@ def getClusters():
     max_cl = int(data['max_cl'])
     level = data['level']
 
+    # Get messages current user
     res = database.find_one('messages', {'_id': cookie})
     messages_col = res['messages']
-
     emails = []
     for msg in messages_col:
         if level == "sentence":
             emails.extend(msg['processed_body'])
         else:
             emails.append(" ".join(msg['processed_body']))
-
+    # Represent them as vectors.
     X = get_spacy(emails, nlp)
 
     if n_clusters == "":
@@ -139,9 +158,13 @@ def getClusters():
             n_clusters = silhouette_analysis(silhouette, min_cl)
     # Run k-means with given number of clusters.
     labels, centers = run_kmeans(X, n_clusters)
-    out = os.path.join('./data', cookie)
+
+    # Save computed clusters in filesystem.
     save_clusters(emails, labels, cookie)
+    out = os.path.join('./data', cookie)
     cluster2text(out, n_clusters)
+
+    # Get a sample from each cluster.
     samples = []
     # Save the closest email in each center.
     for i in range(n_clusters):
@@ -164,6 +187,7 @@ def getClusters():
         keywords = extract_topn_from_vector(
             feature_names, sorted_items, 5)
 
+    # Insert in database.
     database.insert_one('clusters', {'_id': cookie, 'centers': centers.tolist(),
                                      'labels': labels.tolist(), 'samples': samples, 'keywords': keywords})
 
@@ -171,15 +195,14 @@ def getClusters():
     for idx, email in enumerate(emails):
         clusters[labels[idx]].append(email)
 
-    mix = os.environ.get('general_lm')
     weight = "0.5"
-    print(mix)
+    # Create language models using srilm.
     for cluster in os.listdir(out):
         cluster_path = os.path.join(out, cluster)
         if os.path.isdir(cluster_path):
             if subprocess.call(['ngram-count -kndiscount -interpolate -text ' + os.path.join(cluster_path, 'corpus') + ' -wbdiscount1 -wbdiscount2 -wbdiscount3 -lm ' + os.path.join(cluster_path, 'model.lm')], shell=True):
                 print('Error in subprocess')
-            if subprocess.call(['ngram -lm ' + mix + ' -mix-lm ' + os.path.join(cluster_path, 'model.lm') + ' -lambda ' + weight + ' -write-lm ' + os.path.join(cluster_path, 'merged.lm')], shell=True):
+            if subprocess.call(['ngram -lm ' + lmPath + ' -mix-lm ' + os.path.join(cluster_path, 'model.lm') + ' -lambda ' + weight + ' -write-lm ' + os.path.join(cluster_path, 'merged.lm')], shell=True):
                 print('Error in subprocess')
 
     return jsonify({'samples': samples, 'keywords': keywords, 'clusters': clusters})
@@ -187,16 +210,24 @@ def getClusters():
 
 @app.route("/dictation", methods=["POST"])
 def getDictation():
+    '''Endpoint that decodes speech to text.
+
+        Args:
+            cookie: Cookie of current user.
+            url: Sound file.
+
+        '''
     cookie = request.form['cookie']
-    # Get optional arguments
-    print(cookie)
     url = request.files['url']
     out = os.path.join('./data', cookie)
+    # Save current dictation in filesystem.
     url.save(os.path.join(out, 'dictation.wav'))
-    stream.setConfiguration(acousticPath, dictPath, langPath)
+    # Convert speech to text using Java cmuSphinx library.
+    stream.setConfiguration(amPath, dictPath, lmPath)
     py4j_relpath = os.path.join("../api/data", cookie)
-    x = stream.recognizeFile(os.path.join(py4j_relpath, "dictation.wav"))
-    return jsonify({'text': x})
+    decoded_text = stream.recognizeFile(
+        os.path.join(py4j_relpath, "dictation.wav"))
+    return jsonify({'text': decoded_text})
 
 
 if __name__ == "__main__":
