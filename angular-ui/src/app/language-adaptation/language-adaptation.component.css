@@ -1,10 +1,46 @@
-#slider{
-  width: 30%;
-}
-
-.center {
-  display: block;
+.slider-bar{
+  width: 50%;
+  block:inline;
   margin-left: auto;
   margin-right: auto;
-  width: 50%;
+}
+
+.slider-text {
+  block:inline;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 2%;
+  margin-bottom: 2%;
+}
+
+.div-form {
+  text-align: center;
+  margin: 0 20% 0 20%;
+}
+
+form{
+  background-color:  #cce6ff;
+}
+
+.col-25 {
+  float: left;
+  width: 35%;
+  margin-top: 2%;
+  margin-left: 10%;
+}
+
+.col-75 {
+  float: left;
+  width: 55%;
+  margin-top: 2%;
+}
+
+.submit-button{
+  background-color: blue;
+  margin: 5% 0 5% 0;
+  padding: 1.5%;
+  font-weight: 800;
+  color: white;
+  text-align: center;
+  font-size: 16px;
 }
