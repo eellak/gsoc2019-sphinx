@@ -1,15 +1,26 @@
-.center {
+.logo{
   display: block;
   margin-left: auto;
   margin-right: auto;
   width: 20%;
 }
+
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
 .center_title {
   text-align:center;
 }
 
 .emailButton {
-  text-align: center;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 20%;
   background-color: #008CBA;
   border: none;
   color: white;
@@ -37,9 +48,14 @@ div {
   margin: 20px;
 }
 
+.ul-msg {
+  list-style-type: none;
+  width:80%;
+  height: 800px;
+}
+
 ul {
   list-style-type: none;
-  height:1000px;
   width:80%;
 }
 
@@ -60,8 +76,14 @@ li:hover {
   background: #eee;
   cursor: pointer;
 }
+
 div.scroll {
     text-align:justify;
     overflow:hidden;
-    overflow-y:scroll
+    overflow-y:scroll;
+}
+
+
+li img {
+  float: left;
 }
