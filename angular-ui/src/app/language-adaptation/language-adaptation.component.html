@@ -53,29 +53,26 @@
   </form>
 </div>
 
-<div class="center" *ngIf="this.getClustersSession()">
-  <h3>Keywords</h3>
-  <ul class="w3-ul w3-hoverable">
-    <li *ngFor="let keyword of this.getClustersSession().keywords | keyvalue">
-      {{keyword.key}} : {{keyword.value}}
-    </li>
-  </ul>
-  <h3>Samples</h3>
-  <ul class="w3-ul w3-hoverable">
-    <li *ngFor="let sample of this.getClustersSession().samples">
-      {{sample}}
-    </li>
-  </ul>
-  <h3>Clusters</h3>
-  <ul class="w3-ul w3-hoverable">
-    <li *ngFor="let cluster of this.getClustersSession().clusters;  let i = index">
-      <h4>Cluster {{i}}</h4>
-      <ul class="w3-ul w3-hoverable">
-        <li *ngFor="let email of cluster">
+
+<div *ngIf="this.getClustersSession()">
+  <div class="space"></div>
+  <div class="columns">
+    <div class="cards" *ngFor="let sample of this.getClustersSession().samples; let i = index">
+      <div class="card-head">Cluster {{i}}</div>
+      <div class="card-text">
+        <h3> Representative email of the cluster </h3>
+        {{sample}}
+        <h3> Keywords of the cluster based on their tf-idf metric </h3>
+        <li *ngFor="let keyword of this.getClustersSession().keywords[i] | keyvalue">
+          {{keyword.key}} : {{keyword.value}}
+        </li>
+        <h3> Points of the cluster </h3>
+        <li style=" list-style-type: square;" *ngFor="let email of this.getClustersSession().clusters[i];">
           {{email}}
         </li>
-      </ul>
-    </li>
-  </ul>
+      </div>
+    </div>
+  </div>
 </div>
+
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
