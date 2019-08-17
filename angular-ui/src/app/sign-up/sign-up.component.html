@@ -3,7 +3,7 @@
 <h1 class="center_title">Creation of an online Greek mail dictation system</h1>
 
 <h3 class="center_title">The scope of this project is the implementation of a personalized Greek mail dictation system. More specifically, the Greek ASR system is adapted on current Gmail user in two ways:</h3>
-<ul class="center">
+<ul class="center ul-text">
   <li>
     <img src="../../../assets/img/email.png">
     <h3>Language Model adaptation by using user's sent emails</h3>
@@ -25,7 +25,7 @@
 </ul>
 
 
-<div *ngIf="!this.getAuthToken()" class="btn white darken-4 col s10 m4 logo">
+<div *ngIf="!this.getAuthToken()" class="btn white darken-4 col s10 m4 gmailButton">
   <a (click)="signIn()" style="text-transform:none">
     <img width="20px" alt="Google &quot;G&quot; Logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
     Login with Google
@@ -33,7 +33,7 @@
 </div>
 
 
-<div *ngIf="this.getAuthToken()" class="center">
+<div *ngIf="this.getAuthToken()">
   <button (click)="getMessages()" class="emailButton">Read My Emails </button>
 </div>
 
@@ -45,6 +45,7 @@
 <div id="list-wrapper">
   <div id="first" *ngIf="this.getMessagesSession()" class="scroll">
     <ul class="ul-msg">
+      <h2 class="center">Before processing</h2>
       <li *ngFor="let message of this.getMessagesSession(); let i = index">
         <h3>{{message.subject}} from {{message.sender}}</h3>
         <p>{{message.body}}</p>
@@ -53,6 +54,7 @@
   </div>
   <div id="second" *ngIf="this.getMessagesSession()" class="scroll">
     <ul class="ul-msg">
+      <h2 class="center">After processing (one sentence per line)</h2>
       <li *ngFor="let message of this.getMessagesSession(); let i = index">
         <h3>{{message.subject}} from {{message.sender}}</h3>
         <p *ngFor="let sentence of message.processed_body;">{{sentence}}</p>

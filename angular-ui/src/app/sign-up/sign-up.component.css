@@ -5,29 +5,33 @@
   width: 20%;
 }
 
+.gmailButton{
+  width: 20%;
+  margin: 5% 0% 5% 40%;
+}
+
 .center {
   display: block;
   margin-left: auto;
   margin-right: auto;
 }
 
-
 .center_title {
   text-align:center;
+  margin: 5% 0 5% 0;
 }
 
 .emailButton {
   display: block;
   margin-left: auto;
   margin-right: auto;
+  margin-top: 5%;
+  margin-bottom: 5%;
   width: 20%;
   background-color: #008CBA;
   border: none;
   color: white;
   padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
   font-size: 16px;
 }
 
@@ -35,6 +39,18 @@
   text-align: center;
 }
 
+/* Fonts */
+h3 {
+  font: bold 20px/1.5 Helvetica, Verdana, sans-serif;
+}
+
+h2 {
+  font: bold 30px/1.5 Helvetica, Verdana, sans-serif;
+}
+
+li p {
+  font: 200 12px/1.5 Georgia, Times New Roman, serif;
+}
 
 #list-wrapper {
     overflow: hidden; /* will contain if #first is longer than #second */
@@ -44,32 +60,27 @@
     float:left; /* add this */
 }
 
-div {
-  margin: 20px;
-}
+
 
 .ul-msg {
   list-style-type: none;
-  width:80%;
+  width: 80%;
   height: 800px;
+  margin-left: 10%;
 }
 
-ul {
+.ul-text {
   list-style-type: none;
-  width:80%;
+  width:50%;
 }
 
-h3 {
-  font: bold 20px/1.5 Helvetica, Verdana, sans-serif;
+
+.steps{
+  padding: 0 0% 8% 40%;
 }
 
-li p {
-  font: 200 12px/1.5 Georgia, Times New Roman, serif;
-}
-
-li {
-  padding: 10px;
-  overflow: auto;
+.li-steps{
+  text-align: left;
 }
 
 li:hover {
