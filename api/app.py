@@ -51,6 +51,7 @@ def getInfo():
             cookie: Cookie of current user.
         '''
     data = request.form
+    print(data)
     token = data['token']
     cookie = data['cookie']
     # Send get request to gmail api.
@@ -62,7 +63,7 @@ def getInfo():
     email = info_response.json()["email"]
     name = info_response.json()["given_name"]
     picture = info_response.json()["picture"]
-
+    print(cookie)
     returned_data = {'email': email, 'name': name, 'picture': picture}
 
     # Save user information in database.
@@ -80,10 +81,11 @@ def getEmails():
             cookie: Cookie of current user.
         '''
     data = request.form
+
     cookie = data['cookie']
+    print(cookie)
     # Get authentication token of current user.
-    res = database.find_one('info', {'_id': cookie})
-    token = res['token']
+    token = data['token']
     # Send get request in gmail api.
     read_endpoint = "https://www.googleapis.com/gmail/v1/users/userId/messages"
     headers = {'Authorization': 'Bearer ' +
@@ -93,6 +95,7 @@ def getEmails():
     messages = read_response.json().get("messages")
     clean_messages = []
     for idx, message in enumerate(messages):
+        print(idx)
         # Get message based in the id.0.5311486608012452
         get_endpoint = "https://www.googleapis.com/gmail/v1/users/userId/messages/id"
         get_response = requests.get(get_endpoint, headers=headers, params={
@@ -157,6 +160,7 @@ def getClusters():
         else:
             n_clusters = silhouette_analysis(silhouette, min_cl)
     # Run k-means with given number of clusters.
+    n_clusters = int(n_clusters)
     labels, centers = run_kmeans(X, n_clusters)
 
     # Save computed clusters in filesystem.
@@ -175,6 +179,7 @@ def getClusters():
     # the words with the heighest tf-idf metric in each cluster.
     cv = CountVectorizer(stop_words=STOP_WORDS)
     tfidf = TfidfTransformer(smooth_idf=True, use_idf=True)
+    keywords_total = []
     for i in range(n_clusters):
         emails_cluster = [emails[j]
                           for j in range(len(emails)) if labels[j] == i]
@@ -186,10 +191,11 @@ def getClusters():
         sorted_items = sort_coo(tf_idf_vector.tocoo())
         keywords = extract_topn_from_vector(
             feature_names, sorted_items, 5)
+        keywords_total.append(keywords)
 
     # Insert in database.
     database.insert_one('clusters', {'_id': cookie, 'centers': centers.tolist(),
-                                     'labels': labels.tolist(), 'samples': samples, 'keywords': keywords, 'metric': metric})
+                                     'labels': labels.tolist(), 'samples': samples, 'keywords': keywords_total, 'metric': metric})
 
     clusters = [[] for i in range(n_clusters)]
     for idx, email in enumerate(emails):
@@ -205,7 +211,7 @@ def getClusters():
             if subprocess.call(['ngram -lm ' + lmPath + ' -mix-lm ' + os.path.join(cluster_path, 'model.lm') + ' -lambda ' + weight + ' -write-lm ' + os.path.join(cluster_path, 'merged.lm')], shell=True):
                 print('Error in subprocess')
 
-    return jsonify({'samples': samples, 'keywords': keywords, 'clusters': clusters})
+    return jsonify({'samples': samples, 'keywords': keywords_total, 'clusters': clusters})
 
 
 @app.route("/dictation", methods=["POST"])
@@ -218,11 +224,13 @@ def getDictation():
 
         '''
     cookie = request.form['cookie']
+    method = request.form['method']
     url = request.files['url']
 
     out = os.path.join('./data', cookie)
     # Save current dictation in filesystem.
     url.save(os.path.join(out, 'dictation.wav'))
+
     # Convert speech to text using Java cmuSphinx library.
     stream = gateway.entry_point.getStreamRecognizer()
     stream.setConfiguration(acousticPath, dictPath, lmPath)
@@ -230,19 +238,23 @@ def getDictation():
     decoded_gen = stream.recognizeFile(
         os.path.join(py4j_relpath, "dictation.wav"))
 
-    res = database.find_one('clusters', {'_id': cookie})
-    centers = res['centers']
-    metric = res['metric']
-    doc = nlp(decoded_gen)
-    decoded_gen_spacy = doc.vector
-    cluster = closest_cluster(np.array(centers), decoded_gen_spacy, metric)
-    clusterRelPath = os.path.join(py4j_relpath, 'cluster_' + str(cluster))
-    lmAdaptPath = os.path.join(clusterRelPath, 'merged.lm')
-    stream.setConfiguration(acousticPath, dictPath, lmAdaptPath)
-    decoded_adapt = stream.recognizeFile(
-        os.path.join(py4j_relpath, "dictation.wav"))
-    returned_data = {'text_gen': decoded_gen,
-                     'text_adapt': decoded_adapt, 'cluster': cluster}
+    if method == "adapted":
+        res = database.find_one('clusters', {'_id': cookie})
+        centers = res['centers']
+        metric = res['metric']
+        doc = nlp(decoded_gen)
+        decoded_gen_spacy = doc.vector
+        cluster = closest_cluster(np.array(centers), decoded_gen_spacy, metric)
+        clusterRelPath = os.path.join(py4j_relpath, 'cluster_' + str(cluster))
+        lmAdaptPath = os.path.join(clusterRelPath, 'merged.lm')
+        stream.setConfiguration(acousticPath, dictPath, lmAdaptPath)
+        decoded_adapt = stream.recognizeFile(
+            os.path.join(py4j_relpath, "dictation.wav"))
+        returned_data = {'text_gen': decoded_gen,
+                         'text_adapt': decoded_adapt, 'cluster': cluster}
+    else:
+        returned_data = {'text_gen': decoded_gen,
+                         'text_adapt': "", 'cluster': ""}
     return jsonify(returned_data)
 
 

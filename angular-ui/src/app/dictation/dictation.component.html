@@ -1,22 +1,49 @@
 <div class="center-rec">
-  <button class="btn btn-info btn-lg button-rec" *ngIf="!isRecording && !blobUrl" (click)="startRecording()"> <span class="glyphicon glyphicon-record"></span> Record </button>
-  <button class="btn btn-info btn-lg button-rec" *ngIf="isRecording && !blobUrl" (click)="stopRecording()"><span class="glyphicon glyphicon-stop"></span> Stop {{recordedTime}}</button>
-  <button class="btn btn-info btn-lg button-rec" *ngIf="!isRecording && blobUrl" (click)="clearRecordedData()"><span class="glyphicon glyphicon-trash"></span>Clear Recording</button>
-  <div>
-    <audio *ngIf="!isRecording && blobUrl" controls>
-      <source [src]="blobUrl" type="audio/webm">
-    </audio>
+  <div *ngIf="!isRecording && !blobUrl">
+    <h3>Click on Record button and say a sentence of your email.</h3>
+    <button class="btn btn-info btn-lg button-rec" (click)="startRecording()"> <span class="glyphicon glyphicon-record"></span> Record </button>
   </div>
-  <button class="btn btn-info btn-lg button-rec" *ngIf="!isRecording && blobUrl" (click)="getDictation()">Get Dictation </button>
+  <div *ngIf="isRecording && !blobUrl">
+    <h3>Click Stop button to stop the recording.</h3>
+    <button class="btn btn-info btn-lg button-rec" (click)="stopRecording()"><span class="glyphicon glyphicon-stop"></span> Stop {{recordedTime}}</button>
+  </div>
+  <div *ngIf="!isRecording && blobUrl">
+    <div class="player">
+      <h3>Replay your recording and clear it in case something went wrong.</h3>
+      <audio controls>
+        <source [src]="blobUrl" type="audio/webm">
+      </audio>
+    </div>
+    <div class="clear-rec">
+      <button class="btn btn-info btn-lg button-rec" (click)="clearRecordedData()"><span class="glyphicon glyphicon-trash"></span>Clear Recording</button>
+    </div>
+  </div>
+  <div class="dic-button" *ngIf="!isRecording && blobUrl">
+    <h3>Choose type of language model to be used and get the decoded text</h3>
+    <div>
+      <form #dictateform="ngForm" (ngSubmit)="onSubmit(dictateform)" class="form w3-border w3-round-xlarge">
+        <input type="radio" name="lm" value="default" ngModel> Default language model<br>
+        <input type="radio" name="lm" value="adapted" ngModel> Adapted language model<br>
+        <br>
+        <button class="btn btn-info btn-lg button-rec" type="submit">Convert Speech to Text</button>
+      </form>
+    </div>
+  </div>
 </div>
 
-
-<div *ngIf="this.getDecoded()">
-  <table *ngFor="let text of this.getDecoded()">
+<div *ngIf="!isRecording && blobUrl && this.getDecoded()">
+  <table>
     <tr>
-      <td>{{text.text_gen}}</td>
-      <td>{{text.text_adapt}}</td>
-      <td>{{text.cluster}}</td>
+      <th> Default model</th>
+      <th> Adapted model</th>
+      <th> Cluster </th>
     </tr>
+    <div *ngFor="let text of this.getDecoded()">
+      <tr>
+        <td>{{text.text_gen}}</td>
+        <td>{{text.text_adapt}}</td>
+        <td>{{text.cluster}}</td>
+      </tr>
+    </div>
   </table>
 </div>

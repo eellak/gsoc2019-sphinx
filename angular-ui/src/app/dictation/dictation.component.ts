@@ -4,6 +4,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { MyCookieService } from '../cookie.service'
 import { ApiService } from '../api.service';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-dictation',
@@ -69,9 +70,14 @@ export class DictationComponent implements OnDestroy {
     return this.cookieServ.getCookie()
   }
 
-  getDictation() {
+  onSubmit(form: NgForm) {
+    this.getDictation(form)
+  }
+
+  getDictation(form) {
     const body = new FormData();
     body.append('cookie', this.getCurrCookie());
+    body.append('method', form.value.lm)
     body.append('url', this.url)
     this.apiService.getDictationService(body).subscribe((data) => {
       this.decoded.push(JSON.parse(JSON.stringify(data)));

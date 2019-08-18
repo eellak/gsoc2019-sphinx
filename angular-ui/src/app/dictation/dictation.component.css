@@ -3,7 +3,7 @@
 }
 
 .center-rec{
-padding: 10%;
+padding-top: 2%;
 text-align: center;
 display: block;
 margin-left: auto;
@@ -16,4 +16,29 @@ text-align: center;
 display: block;
 margin-left: auto;
 margin-right: auto;
+}
+
+
+
+h3 {
+  padding-top: 5%;
+  font: bold 20px/1.5 Helvetica, Verdana, sans-serif;
+  text-align: center
+}
+
+
+
+table{
+  margin: 5% 0% 0 40%;
+  width: 100%;
+  font-size: 15px;
+}
+tr {
+  display: block;
+  padding-bottom: 1%;
+}
+
+td{
+  margin: 0 20% 0 20%;
+  padding: 0 3% 0 2%;
 }
