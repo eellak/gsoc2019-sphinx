@@ -35,4 +35,8 @@ export class ApiService implements OnInit {
     return this.httpClient.post("http://127.0.0.1:5000/dictation", body)
   }
 
+  public saveDictationService(body: FormData) {
+    return this.httpClient.post("http://127.0.0.1:5000/saveDictation", body)
+  }
+
 }

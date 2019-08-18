@@ -98,7 +98,7 @@ export class DictationComponent implements OnDestroy {
         sessionStorage.setItem('sentence', sent.concat(temp.text_gen).concat(" "))
       }
       else {
-        sessionStorage.setItem('sentence', sent.concat(temp.text_adapt))
+        sessionStorage.setItem('sentence', sent.concat(temp.text_adapt).concat(" "))
       }
     })
   }

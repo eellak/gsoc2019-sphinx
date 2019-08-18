@@ -29,5 +29,5 @@ def get_text_sphinx4(py4j_relpath, acousticPath, dictPath, lmPath, gateway):
     stream = gateway.entry_point.getStreamRecognizer()
     stream.setConfiguration(acousticPath, dictPath, lmPath)
     decoded_text = stream.recognizeFile(
-        os.path.join(py4j_relpath, "dictation.wav"))
+        os.path.join(py4j_relpath, "curr_dictation.wav"))
     return decoded_text

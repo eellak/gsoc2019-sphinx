@@ -1,78 +1,80 @@
-<div *ngIf="!this.getClustersSession()" class="div-form">
-  <form #clusterform="ngForm" (ngSubmit)="onSubmit(clusterform)" class="form w3-border w3-round-xlarge">
-    <div class="row">
-      <div class="col-25">
-        <strong>Number of clusters:</strong> <br> (If none is specified, above methods are applied):
+<body>
+  <div *ngIf="!this.getClustersSession()" class="div-form">
+    <form #clusterform="ngForm" (ngSubmit)="onSubmit(clusterform)" class="form w3-border w3-round-xlarge">
+      <div class="row">
+        <div class="col-25">
+          <strong>Number of clusters:</strong> <br> (If none is specified, above methods are applied):
+        </div>
+        <div class="col-75">
+          <input type="number" name="n_clusters" ngModel>
+        </div>
       </div>
-      <div class="col-75">
-        <input type="number" name="n_clusters" ngModel>
+      <div class="row">
+        <div class="col-25">
+          <strong>Method for automatic selection of number of clusters:</strong>
+        </div>
+        <div class="col-75">
+          <input type="radio" name="method" value="silhouette" ngModel>Silhouette
+          <br>
+          <input type="radio" name="method" value="knee" ngModel>Knee
+        </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-25">
-        <strong>Method for automatic selection of number of clusters:</strong>
+      <div class="row">
+        <div class="slider-text">
+          <strong> Specify min and max number of clusters:</strong><br>(In case of automatic number of clusters selection)
+        </div>
+        <div class="slider-bar">
+          <input type="hidden" name="min_cl" [(ngModel)]="rangeSliderMinValue">
+          <input type="hidden" name="max_cl" [(ngModel)]="rangeSliderMaxValue">
+          <ng5-slider id="slider" [(value)]="rangeSliderMinValue" [(highValue)]="rangeSliderMaxValue" [options]="rangeSliderOptions"></ng5-slider>
+        </div>
       </div>
-      <div class="col-75">
-        <input type="radio" name="method" value="silhouette" ngModel>Silhouette
-        <br>
-        <input type="radio" name="method" value="knee" ngModel>Knee
-      </div>
-    </div>
-    <div class="row">
-      <div class="slider-text">
-        <strong> Specify min and max number of clusters:</strong><br>(In case of automatic number of clusters selection)
-      </div>
-      <div class="slider-bar">
-        <input type="hidden" name="min_cl" [(ngModel)]="rangeSliderMinValue">
-        <input type="hidden" name="max_cl" [(ngModel)]="rangeSliderMaxValue">
-        <ng5-slider id="slider" [(value)]="rangeSliderMinValue" [(highValue)]="rangeSliderMaxValue" [options]="rangeSliderOptions"></ng5-slider>
-      </div>
-    </div>
 
-    <div class="row">
-      <div class="col-25">
-        <strong>Distance Metric to be used:</strong>
+      <div class="row">
+        <div class="col-25">
+          <strong>Distance Metric to be used:</strong>
+        </div>
+        <div class="col-75">
+          <input type="radio" name="metric" value="cosine" ngModel>Cosine
+          <br>
+          <input type="radio" name="metric" value="euclidean" ngModel>Euclidean
+        </div>
       </div>
-      <div class="col-75">
-        <input type="radio" name="metric" value="cosine" ngModel>Cosine
-        <br>
-        <input type="radio" name="metric" value="euclidean" ngModel>Euclidean
+      <div class="row">
+        <div class="col-25">
+          <strong>Level of clustering:</strong>
+        </div>
+        <div class="col-75">
+          <input type="radio" name="level" value="email" ngModel>Email
+          <br>
+          <input type="radio" name="level" value="sentence" ngModel>Sentence
+        </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-25">
-        <strong>Level of clustering:</strong>
-      </div>
-      <div class="col-75">
-        <input type="radio" name="level" value="email" ngModel>Email
-        <br>
-        <input type="radio" name="level" value="sentence" ngModel>Sentence
-      </div>
-    </div>
-    <input class="submit-button w3-round-xlarge " type="submit" value="Cluster my Emails">
-  </form>
-</div>
+      <input class="submit-button w3-round-xlarge " type="submit" value="Cluster my Emails">
+    </form>
+  </div>
 
 
-<div *ngIf="this.getClustersSession()">
-  <div class="space"></div>
-  <div class="columns">
-    <div class="cards" *ngFor="let sample of this.getClustersSession().samples; let i = index">
-      <div class="card-head">Cluster {{i}}</div>
-      <div class="card-text">
-        <h3> Representative email of the cluster </h3>
-        {{sample}}
-        <h3> Keywords of the cluster based on their tf-idf metric </h3>
-        <li *ngFor="let keyword of this.getClustersSession().keywords[i] | keyvalue">
-          {{keyword.key}} : {{keyword.value}}
-        </li>
-        <h3> Points of the cluster </h3>
-        <li style=" list-style-type: square;" *ngFor="let email of this.getClustersSession().clusters[i];">
-          {{email}}
-        </li>
+  <div *ngIf="this.getClustersSession()">
+    <div class="space"></div>
+    <div class="columns">
+      <div class="cards" *ngFor="let sample of this.getClustersSession().samples; let i = index">
+        <div class="card-head">Cluster {{i}}</div>
+        <div class="card-text">
+          <h3> Representative email of the cluster </h3>
+          {{sample}}
+          <h3> Keywords of the cluster based on their tf-idf metric </h3>
+          <li *ngFor="let keyword of this.getClustersSession().keywords[i] | keyvalue">
+            {{keyword.key}} : {{keyword.value}}
+          </li>
+          <h3> Points of the cluster </h3>
+          <li style=" list-style-type: square;" *ngFor="let email of this.getClustersSession().clusters[i];">
+            {{email}}
+          </li>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</body>

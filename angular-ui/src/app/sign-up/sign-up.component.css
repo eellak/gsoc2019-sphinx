@@ -54,6 +54,9 @@ li p {
 
 #list-wrapper {
     overflow: hidden; /* will contain if #first is longer than #second */
+    margin: 0 2% 5% 2%;
+    border-style: ridge;
+
 }
 #first {
     width: 50%;
@@ -97,4 +100,8 @@ div.scroll {
 
 li img {
   float: left;
+}
+
+.border-bott{
+  border-bottom-style: solid;
 }

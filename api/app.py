@@ -215,56 +215,14 @@ def getClusters():
     return jsonify({'samples': samples, 'keywords': keywords_total, 'clusters': clusters})
 
 
-@app.route("/dictation2", methods=["POST"])
-def getDictation2():
-    '''Endpoint that decodes speech to text.
-
-        Args:
-            cookie: Cookie of current user.
-            url: Sound file.
-
-        '''
-    cookie = request.form['cookie']
-    method = request.form['method']
-    url = request.files['url']
-
-    out = os.path.join('./data', cookie)
-    # Save current dictation in filesystem.
-    url.save(os.path.join(out, 'dictation.wav'))
-
-    # Convert speech to text using Java cmuSphinx library.
-    stream = gateway.entry_point.getStreamRecognizer()
-    stream.setConfiguration(acousticPath, dictPath, lmPath)
-    py4j_relpath = os.path.join("../api/data", cookie)
-    decoded_gen = stream.recognizeFile(
-        os.path.join(py4j_relpath, "dictation.wav"))
-
-    if method == "adapted":
-        res = database.find_one('clusters', {'_id': cookie})
-        centers = res['centers']
-        metric = res['metric']
-        doc = nlp(decoded_gen)
-        decoded_gen_spacy = doc.vector
-        cluster = closest_cluster(np.array(centers), decoded_gen_spacy, metric)
-        clusterRelPath = os.path.join(py4j_relpath, 'cluster_' + str(cluster))
-        lmAdaptPath = os.path.join(clusterRelPath, 'merged.lm')
-        stream.setConfiguration(acousticPath, dictPath, lmAdaptPath)
-        decoded_adapt = stream.recognizeFile(
-            os.path.join(py4j_relpath, "dictation.wav"))
-        returned_data = {'text_gen': decoded_gen,
-                         'text_adapt': decoded_adapt, 'cluster': cluster}
-    else:
-        returned_data = {'text_gen': decoded_gen,
-                         'text_adapt': "", 'cluster': ""}
-    return jsonify(returned_data)
-
-
 @app.route("/dictation", methods=["POST"])
 def getDictation():
     '''Endpoint that decodes speech to text.
 
         Args:
             cookie: Cookie of current user.
+            method: Use language adaptation or not.
+            package: Sphinx4 or pocketsphinx
             url: Sound file.
 
         '''
@@ -310,6 +268,40 @@ def getDictation():
                          'text_adapt': decoded_adapt, 'cluster': cluster}
 
     return jsonify(returned_data)
+
+
+@app.route("/saveDictation", methods=["POST"])
+def saveDictation():
+    '''Endpoint that saves a sound file for later acoustic adaptation.
+
+        Args:
+            cookie: Cookie of current user.
+            url: Sound file.
+
+        '''
+    cookie = request.form['cookie']
+    text = request.form['text']
+    print(text)
+    url = request.files['url']
+
+    out = os.path.join('./data', cookie)
+
+    res = database.find_one('savedDictations', {'_id': cookie})
+    if res is None:
+        print('1')
+        counter = 0
+        database.insert_one(
+            'savedDictations', {'_id': cookie, 'num': counter})
+    else:
+        print('2')
+        counter = res['num'] + 1
+        database.update_one('savedDictations', {'_id': cookie}, {
+                            "$set": {'num': counter}})
+
+    # Save current dictation in filesystem.
+    url.save(os.path.join(out, str(counter) + '.wav'))
+
+    return '1'
 
 
 if __name__ == "__main__":

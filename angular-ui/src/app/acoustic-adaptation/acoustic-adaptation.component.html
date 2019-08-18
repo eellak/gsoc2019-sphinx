@@ -1,1 +1,25 @@
-<p>acoustic-adaptation works!</p>
+<div *ngIf="!isRecording && !blobUrl">
+  <button class="btn btn-info btn-lg button-rec" (click)="startRecording()"> <span class="glyphicon glyphicon-record"></span> Record </button>
+</div>
+<div *ngIf="isRecording && !blobUrl">
+  <button class="btn btn-info btn-lg button-rec" (click)="stopRecording()"><span class="glyphicon glyphicon-stop"></span> Stop {{recordedTime}}</button>
+</div>
+<div *ngIf="!isRecording && blobUrl">
+  <div class="player">
+    <audio controls>
+      <source [src]="blobUrl" type="audio/webm">
+    </audio>
+  </div>
+  <div class="clear-rec">
+    <button class="btn btn-info btn-lg button-rec" (click)="clearRecordedData()"><span class="glyphicon glyphicon-trash"></span>Clear Recording</button>
+  </div>
+</div>
+
+
+<div class="dic-button" *ngIf="!isRecording && blobUrl">
+  <form #acAdaptationform="ngForm" (ngSubmit)="onSubmit(acAdaptationform)" class="form w3-border w3-round-xlarge">
+    Transcription: <br>
+    <input type="text" name="text" ngModel>
+    <button class="btn btn-info btn-lg" type="submit">Save dictation</button>
+  </form>
+</div>

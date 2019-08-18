@@ -42,10 +42,10 @@
   <img src={{this.getInfoSession().picture}} class="center" />
 </div>
 
-<div id="list-wrapper">
-  <div id="first" *ngIf="this.getMessagesSession()" class="scroll">
+<div id="list-wrapper" *ngIf="this.getMessagesSession()">
+  <div id="first" class="scroll">
     <ul class="ul-msg">
-      <h2 class="center">Before processing</h2>
+      <h2 class="center border-bott">Before processing</h2>
       <li *ngFor="let message of this.getMessagesSession(); let i = index">
         <h3>{{message.subject}} from {{message.sender}}</h3>
         <p>{{message.body}}</p>
@@ -54,7 +54,7 @@
   </div>
   <div id="second" *ngIf="this.getMessagesSession()" class="scroll">
     <ul class="ul-msg">
-      <h2 class="center">After processing (one sentence per line)</h2>
+      <h2 class="center border-bott">After processing (one sentence per line)</h2>
       <li *ngFor="let message of this.getMessagesSession(); let i = index">
         <h3>{{message.subject}} from {{message.sender}}</h3>
         <p *ngFor="let sentence of message.processed_body;">{{sentence}}</p>

@@ -18,6 +18,10 @@
   margin: 0 20% 0 20%;
 }
 
+body{
+  margin-bottom: 5%;
+}
+
 form{
   background-color:  #cce6ff;
 }
@@ -71,7 +75,7 @@ li:hover {
 
 .cards {
   width: 70%;
-  margin-left: 25%;
+  margin-left: 15%;
   margin-bottom: 10%;
   background-color: white;
   border: 1px solid #ccc;
