@@ -24,6 +24,7 @@ import subprocess
 import base64
 import urllib
 import numpy as np
+from dictation_helper import get_text_sphinx4, get_text_pocketsphinx
 from py4j.java_gateway import JavaGateway
 
 # Flask app setup
@@ -214,8 +215,8 @@ def getClusters():
     return jsonify({'samples': samples, 'keywords': keywords_total, 'clusters': clusters})
 
 
-@app.route("/dictation", methods=["POST"])
-def getDictation():
+@app.route("/dictation2", methods=["POST"])
+def getDictation2():
     '''Endpoint that decodes speech to text.
 
         Args:
@@ -255,6 +256,59 @@ def getDictation():
     else:
         returned_data = {'text_gen': decoded_gen,
                          'text_adapt': "", 'cluster': ""}
+    return jsonify(returned_data)
+
+
+@app.route("/dictation", methods=["POST"])
+def getDictation():
+    '''Endpoint that decodes speech to text.
+
+        Args:
+            cookie: Cookie of current user.
+            url: Sound file.
+
+        '''
+    cookie = request.form['cookie']
+    method = request.form['method']
+    package = request.form['package']
+    url = request.files['url']
+
+    out = os.path.join('./data', cookie)
+    # Save current dictation in filesystem.
+    url.save(os.path.join(out, 'curr_dictation.wav'))
+
+    if package == "pocketsphinx":
+        decoded_gen = get_text_pocketsphinx(
+            out, lmPath, acousticPath, dictPath)
+    else:
+        py4j_relpath = os.path.join("../api/data", cookie)
+        decoded_gen = get_text_sphinx4(
+            py4j_relpath, acousticPath, dictPath, lmPath, gateway)
+
+    returned_data = {'text_gen': decoded_gen,
+                     'text_adapt': "", 'cluster': ""}
+    if method == "adapted":
+        # Find cluster
+        res = database.find_one('clusters', {'_id': cookie})
+        centers = res['centers']
+        metric = res['metric']
+        doc = nlp(decoded_gen)
+        decoded_gen_spacy = doc.vector
+        cluster = closest_cluster(np.array(centers), decoded_gen_spacy, metric)
+        if package == "pocketsphinx":
+            clusterPath = os.path.join(out, 'cluster_' + str(cluster))
+            lmAdaptPath = os.path.join(clusterPath, 'merged.lm')
+            decoded_adapt = get_text_pocketsphinx(
+                out, lmAdaptPath, acousticPath, dictPath)
+        else:
+            clusterRelPath = os.path.join(
+                py4j_relpath, 'cluster_' + str(cluster))
+            lmAdaptPath = os.path.join(clusterRelPath, 'merged.lm')
+            decoded_adapt = get_text_sphinx4(
+                py4j_relpath, acousticPath, dictPath, lmAdaptPath, gateway)
+        returned_data = {'text_gen': decoded_gen,
+                         'text_adapt': decoded_adapt, 'cluster': cluster}
+
     return jsonify(returned_data)
 
 

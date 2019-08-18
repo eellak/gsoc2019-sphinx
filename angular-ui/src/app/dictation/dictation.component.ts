@@ -17,11 +17,19 @@ export class DictationComponent implements OnDestroy {
   isRecording = false;
   recordedTime;
   blobUrl;
-  decoded: string[];
   url;
+  clusters: string[];
+  decoded_gen: string[];
+  decoded_adapt: string[];
+  sentence;
+
 
   constructor(private httpClient: HttpClient, private audioRecordingService: AudioRecordingService, private sanitizer: DomSanitizer, private cookieServ: MyCookieService, private apiService: ApiService) {
-    this.decoded = [];
+    this.clusters = [];
+    this.decoded_gen = [];
+    this.decoded_adapt = [];
+    this.sentence = "";
+    sessionStorage.setItem('sentence', this.sentence);
 
     this.audioRecordingService.recordingFailed().subscribe(() => {
       this.isRecording = false;
@@ -78,18 +86,36 @@ export class DictationComponent implements OnDestroy {
     const body = new FormData();
     body.append('cookie', this.getCurrCookie());
     body.append('method', form.value.lm)
+    body.append('package', form.value.package)
     body.append('url', this.url)
     this.apiService.getDictationService(body).subscribe((data) => {
-      this.decoded.push(JSON.parse(JSON.stringify(data)));
-      sessionStorage.setItem('decoded', JSON.stringify(this.decoded));
+      let temp = JSON.parse(JSON.stringify(data))
+      sessionStorage.setItem('decoded_gen', JSON.stringify(temp.text_gen));
+      sessionStorage.setItem('decoded_adapt', JSON.stringify(temp.text_adapt));
+      sessionStorage.setItem('cluster', JSON.stringify(temp.cluster));
+      let sent = this.getSentence()
+      if (temp.text_adapt == "") {
+        sessionStorage.setItem('sentence', sent.concat(temp.text_gen).concat(" "))
+      }
+      else {
+        sessionStorage.setItem('sentence', sent.concat(temp.text_adapt))
+      }
     })
   }
 
-  getDecoded() {
-    return JSON.parse(sessionStorage.getItem('decoded'))
+  getDecodedGen() {
+    return JSON.parse(sessionStorage.getItem('decoded_gen'))
+  }
+  getDecodedAdapt() {
+    return JSON.parse(sessionStorage.getItem('decoded_adapt'))
+  }
+  getCluster() {
+    return JSON.parse(sessionStorage.getItem('cluster'))
   }
 
-
+  getSentence() {
+    return sessionStorage.getItem('sentence')
+  }
 
 
 }
