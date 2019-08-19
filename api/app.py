@@ -27,6 +27,7 @@ import numpy as np
 from dictation_helper import get_text_sphinx4, get_text_pocketsphinx
 from py4j.java_gateway import JavaGateway
 import random
+import shutil
 
 # Flask app setup
 app = Flask(__name__)
@@ -42,6 +43,7 @@ gateway = JavaGateway()
 acousticPath = os.environ.get("general_ac")
 dictPath = os.environ.get("general_dict")
 lmPath = os.environ.get("general_lm")
+sphinxtrain = os.environ.get("sphinxtrain")
 
 
 @app.route("/info", methods=["POST"])
@@ -294,7 +296,6 @@ def saveDictation():
         '''
     cookie = request.form['cookie']
     text = request.form['text']
-    print(text)
     url = request.files['url']
 
     out = os.path.join('./data', cookie)
@@ -314,6 +315,12 @@ def saveDictation():
         database.update_one('savedDictations', {'_id': cookie}, {
                             "$set": {'num': counter}})
 
+    with open(os.path.join(out, 'ids'), 'a') as f:
+        f.write(str(counter) + '\n')
+    with open(os.path.join(out, 'transcriptions'), 'a') as f:
+        f.write('<s> ' + text.strip('\n') + ' </s> ' +
+                ' (' + str(counter) + ')' + '\n')
+
     # Save current dictation in filesystem.
     url.save(os.path.join(wav_path, str(counter) + '.wav'))
 
@@ -323,7 +330,40 @@ def saveDictation():
 @app.route("/adaptAcoustic", methods=["POST"])
 def adapt_acoustic():
     cookie = request.form['cookie']
+    out = os.path.join('./data', cookie)
     wav_path = os.path.join(out, 'wav')
+    output = os.path.join(out, 'acoustic/')
+    ids = os.path.join(out, 'ids')
+    wav = os.path.join(out, 'wav')
+    transcriptions = os.path.join(out, 'transcriptions')
+    feat_params = os.path.join(acousticPath, 'feat.params')
+    mfc_path = os.path.join(output, 'mfc')
+
+    generate_command = 'sphinx_fe -argfile ' + feat_params + ' -samprate 16000 -c ' + \
+        ids + ' -di ' + wav + ' -do ' + mfc_path + ' -ei wav -eo mfc -mswav yes'
+    if subprocess.call([generate_command], shell=True):
+        print('Error in subprocess')
+    shutil.copy2(sphinxtrain + 'bw', output)
+    shutil.copy2(sphinxtrain + 'map_adapt', output)
+    shutil.copy2(sphinxtrain + 'mk_s2sendump', output)
+
+    mdef_path = os.path.join(acousticPath, 'mdef.txt')
+    counts_path = os.path.join(output, 'counts')
+    os.makedirs(counts_path)
+    feature_path = os.path.join(acousticPath, 'feature_transform')
+    bw_command = output + 'bw -hmmdir ' + acousticPath + ' -cepdir ' + mfc_path + ' -moddeffn ' + mdef_path + ' -ts2cbfn .cont. -feat 1s_c_d_dd -cmn batch -agc none \
+                        -dictfn ' + dictPath + ' -ctlfn ' + ids + ' -lsnfn ' + transcriptions + ' -accumdir ' + counts_path + ' -lda ' + feature_path + ' -varnorm no -cmninit 40,3,-1'
+    if subprocess.call([bw_command], shell=True):
+        print('Error in subprocess')
+
+    shutil.copy2(sphinxtrain + 'mllr_solve', output)
+    means_path = os.path.join(acousticPath, 'means')
+    variance_path = os.path.join(acousticPath, 'variances')
+    mllr_path = os.path.join(output, 'mllr_matrix')
+    mllr_command = './' + output + 'mllr_solve -meanfn ' + means_path + ' -varfn ' + variance_path + \
+        ' -outmllrfn ' + mllr_path + ' -accumdir ' + counts_path
+    if subprocess.call([mllr_command], shell=True):
+        print('Error in subprocess')
 
     return {'message': 'OK'}
 

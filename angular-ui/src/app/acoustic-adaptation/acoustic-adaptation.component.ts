@@ -19,6 +19,7 @@ export class AcousticAdaptationComponent implements OnDestroy, OnInit {
   url;
   currEmail;
   reload;
+  end;
 
   constructor(private httpClient: HttpClient, private audioRecordingService: AudioRecordingService, private sanitizer: DomSanitizer, private cookieServ: MyCookieService, private apiService: ApiService) {
     this.audioRecordingService.recordingFailed().subscribe(() => {
@@ -34,6 +35,7 @@ export class AcousticAdaptationComponent implements OnDestroy, OnInit {
       this.blobUrl = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(data.blob));
     });
     this.reload = true;
+    this.end = false;
   }
 
   ngOnInit() { }
@@ -77,7 +79,7 @@ export class AcousticAdaptationComponent implements OnDestroy, OnInit {
     const body = new FormData();
     body.append('cookie', this.getCurrCookie());
     body.append('url', this.url)
-    body.append('text', this.getCurrEmail())
+    body.append('text', this.getCurrEmail().email)
     this.apiService.saveDictationService(body).subscribe((data) => {
       this.getEmail();
       this.reload = true;
@@ -101,6 +103,7 @@ export class AcousticAdaptationComponent implements OnDestroy, OnInit {
     const body = new FormData();
     body.append('cookie', this.getCurrCookie());
     this.apiService.adaptAcousticService(body).subscribe((data) => {
+      this.end = true;
     })
   }
 
