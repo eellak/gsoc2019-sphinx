@@ -1,0 +1,39 @@
+.button-start{
+  display: block;
+  margin-top: 10%;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
+
+.text{
+  width: 30%;
+  margin: 0% 0% 0% 10%;
+  padding: 1% 2% 1% 2%;
+  border: 1px solid #cdcdcd;
+  border-color: rgba(0, 0, 0, .15);
+  font-size: 16px;
+  float:left; /* add this */
+}
+
+.rec-button{
+  margin: 15% 0% 0% 0%;
+}
+
+.wrapper{
+  text-align: center;
+}
+
+
+.save-butt{
+  text-align: center;
+  margin-top: 5%;
+}
+
+.final-button{
+  margin: 20% 0 0 80%;
+}
+
+.green{
+  background-color: green;
+}

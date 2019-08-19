@@ -39,4 +39,13 @@ export class ApiService implements OnInit {
     return this.httpClient.post("http://127.0.0.1:5000/saveDictation", body)
   }
 
+  public getEmailService(body: FormData) {
+    return this.httpClient.post("http://127.0.0.1:5000/randomEmail", body)
+  }
+
+  public adaptAcousticService(body: FormData) {
+    return this.httpClient.post("http://127.0.0.1:5000/adaptAcoustic", body)
+  }
+
+
 }

@@ -26,6 +26,7 @@ import urllib
 import numpy as np
 from dictation_helper import get_text_sphinx4, get_text_pocketsphinx
 from py4j.java_gateway import JavaGateway
+import random
 
 # Flask app setup
 app = Flask(__name__)
@@ -270,6 +271,18 @@ def getDictation():
     return jsonify(returned_data)
 
 
+@app.route("/randomEmail", methods=["POST"])
+def get_random_email():
+    cookie = request.form['cookie']
+    res = database.find_one('messages', {'_id': cookie})
+    messages_col = res['messages']
+    sentences = []
+    for msg in messages_col:
+        sentences.extend(msg['processed_body'])
+    sel_sentence = random.choice(sentences)
+    return jsonify({'email': sel_sentence})
+
+
 @app.route("/saveDictation", methods=["POST"])
 def saveDictation():
     '''Endpoint that saves a sound file for later acoustic adaptation.
@@ -285,23 +298,34 @@ def saveDictation():
     url = request.files['url']
 
     out = os.path.join('./data', cookie)
+    if not os.path.exists(out):
+        os.makedirs(out)
+    wav_path = os.path.join(out, 'wav')
+    if not os.path.exists(wav_path):
+        os.makedirs(wav_path)
 
     res = database.find_one('savedDictations', {'_id': cookie})
     if res is None:
-        print('1')
         counter = 0
         database.insert_one(
             'savedDictations', {'_id': cookie, 'num': counter})
     else:
-        print('2')
         counter = res['num'] + 1
         database.update_one('savedDictations', {'_id': cookie}, {
                             "$set": {'num': counter}})
 
     # Save current dictation in filesystem.
-    url.save(os.path.join(out, str(counter) + '.wav'))
+    url.save(os.path.join(wav_path, str(counter) + '.wav'))
 
-    return '1'
+    return {'message': 'OK'}
+
+
+@app.route("/adaptAcoustic", methods=["POST"])
+def adapt_acoustic():
+    cookie = request.form['cookie']
+    wav_path = os.path.join(out, 'wav')
+
+    return {'message': 'OK'}
 
 
 if __name__ == "__main__":

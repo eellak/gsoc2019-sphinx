@@ -1,25 +1,34 @@
-<div *ngIf="!isRecording && !blobUrl">
-  <button class="btn btn-info btn-lg button-rec" (click)="startRecording()"> <span class="glyphicon glyphicon-record"></span> Record </button>
+<div class="button-start" *ngIf="!this.getCurrEmail()">
+  <button class="btn btn-info btn-lg button-start" (click)="this.getEmail()">Start adaptation</button>
 </div>
-<div *ngIf="isRecording && !blobUrl">
-  <button class="btn btn-info btn-lg button-rec" (click)="stopRecording()"><span class="glyphicon glyphicon-stop"></span> Stop {{recordedTime}}</button>
-</div>
-<div *ngIf="!isRecording && blobUrl">
-  <div class="player">
-    <audio controls>
-      <source [src]="blobUrl" type="audio/webm">
-    </audio>
+
+<div class="wrapper" *ngIf="this.getCurrEmail()">
+  <div class="text">
+    {{this.getCurrEmail().email}}
   </div>
-  <div class="clear-rec">
-    <button class="btn btn-info btn-lg button-rec" (click)="clearRecordedData()"><span class="glyphicon glyphicon-trash"></span>Clear Recording</button>
+  <div *ngIf="!isRecording && !blobUrl" class="rec-button">
+    <button class="btn btn-info btn-lg" (click)="startRecording()"> <span class="glyphicon glyphicon-record"></span> Record </button>
+  </div>
+  <div *ngIf="isRecording && !blobUrl" class="rec-button">
+    <button class="btn btn-info btn-lg " (click)="stopRecording()"><span class="glyphicon glyphicon-stop"></span> Stop {{recordedTime}}</button>
+  </div>
+  <div *ngIf="!isRecording && blobUrl && !reload" class="rec-button">
+    <div class="player">
+      <audio controls>
+        <source [src]="blobUrl" type="audio/webm">
+      </audio>
+    </div>
+    <div class="clear-rec">
+      <button class="btn btn-info btn-lg" (click)="clearRecordedData()"><span class="glyphicon glyphicon-trash"></span>Clear Recording</button>
+    </div>
   </div>
 </div>
 
+<div *ngIf="this.getCurrEmail() && !isRecording && blobUrl && !reload" class="save-butt">
+  <button class="btn btn-info btn-lg" (click)="saveDictation()">Save current dictation</button>
+</div>
 
-<div class="dic-button" *ngIf="!isRecording && blobUrl">
-  <form #acAdaptationform="ngForm" (ngSubmit)="onSubmit(acAdaptationform)" class="form w3-border w3-round-xlarge">
-    Transcription: <br>
-    <input type="text" name="text" ngModel>
-    <button class="btn btn-info btn-lg" type="submit">Save dictation</button>
-  </form>
+
+<div *ngIf="!isRecording && !blobUrl" class="final-button">
+  <button class="btn btn-info btn-lg green" (click)="adaptAcoustic()"> Adapt current dictations </button>
 </div>

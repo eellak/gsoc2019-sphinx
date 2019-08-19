@@ -11,12 +11,14 @@ import { NgForm } from '@angular/forms';
   templateUrl: './acoustic-adaptation.component.html',
   styleUrls: ['./acoustic-adaptation.component.css']
 })
-export class AcousticAdaptationComponent implements OnDestroy {
+export class AcousticAdaptationComponent implements OnDestroy, OnInit {
 
   isRecording = false;
   recordedTime;
   blobUrl;
   url;
+  currEmail;
+  reload;
 
   constructor(private httpClient: HttpClient, private audioRecordingService: AudioRecordingService, private sanitizer: DomSanitizer, private cookieServ: MyCookieService, private apiService: ApiService) {
     this.audioRecordingService.recordingFailed().subscribe(() => {
@@ -31,7 +33,10 @@ export class AcousticAdaptationComponent implements OnDestroy {
       this.url = data.blob;
       this.blobUrl = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(data.blob));
     });
+    this.reload = true;
   }
+
+  ngOnInit() { }
 
 
   startRecording() {
@@ -50,6 +55,7 @@ export class AcousticAdaptationComponent implements OnDestroy {
 
   stopRecording() {
     if (this.isRecording) {
+      this.reload = false;
       this.audioRecordingService.stopRecording();
       this.isRecording = false;
     }
@@ -67,19 +73,35 @@ export class AcousticAdaptationComponent implements OnDestroy {
     return this.cookieServ.getCookie()
   }
 
-  onSubmit(form: NgForm) {
-    this.saveDictation(form)
-  }
-
-  saveDictation(form) {
+  saveDictation() {
     const body = new FormData();
     body.append('cookie', this.getCurrCookie());
     body.append('url', this.url)
-    body.append('text', form.value.text)
+    body.append('text', this.getCurrEmail())
     this.apiService.saveDictationService(body).subscribe((data) => {
-      console.log(data)
+      this.getEmail();
+      this.reload = true;
+      this.blobUrl = "";
     })
+  }
 
+  getEmail() {
+    const body = new FormData();
+    body.append('cookie', this.getCurrCookie());
+    this.apiService.getEmailService(body).subscribe((data) => {
+      sessionStorage.setItem('currEmail', JSON.stringify(data));
+    })
+  }
+
+  getCurrEmail() {
+    return JSON.parse(sessionStorage.getItem('currEmail'))
+  }
+
+  adaptAcoustic() {
+    const body = new FormData();
+    body.append('cookie', this.getCurrCookie());
+    this.apiService.adaptAcousticService(body).subscribe((data) => {
+    })
   }
 
 }
