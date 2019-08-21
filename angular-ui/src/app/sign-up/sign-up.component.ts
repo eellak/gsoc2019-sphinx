@@ -57,6 +57,8 @@ export class SignUpComponent implements OnInit {
     let body = new HttpParams().set('token', this.getAuthToken()).set('cookie', this.getCookie());
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/x-www-form-urlencoded');
+    headers = headers.append('Access-Control-Allow-Origin', '*');
+    headers = headers.append("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     this.apiService.getMessagesService(body, headers).subscribe((data) => {
       sessionStorage.setItem('messages', JSON.stringify(data));
     })

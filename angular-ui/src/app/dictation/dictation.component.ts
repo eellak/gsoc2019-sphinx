@@ -83,12 +83,15 @@ export class DictationComponent implements OnDestroy {
   }
 
   getDictation(form) {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Access-Control-Allow-Origin', '*');
+    headers = headers.append("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     const body = new FormData();
     body.append('cookie', this.getCurrCookie());
     body.append('method', form.value.lm)
     body.append('package', form.value.package)
     body.append('url', this.url)
-    this.apiService.getDictationService(body).subscribe((data) => {
+    this.apiService.getDictationService(body, headers).subscribe((data) => {
       let temp = JSON.parse(JSON.stringify(data))
       sessionStorage.setItem('decoded_gen', JSON.stringify(temp.text_gen));
       sessionStorage.setItem('decoded_adapt', JSON.stringify(temp.text_adapt));

@@ -80,7 +80,10 @@ export class AcousticAdaptationComponent implements OnDestroy, OnInit {
     body.append('cookie', this.getCurrCookie());
     body.append('url', this.url)
     body.append('text', this.getCurrEmail().email)
-    this.apiService.saveDictationService(body).subscribe((data) => {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Access-Control-Allow-Origin', '*');
+    headers = headers.append("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    this.apiService.saveDictationService(body, headers).subscribe((data) => {
       this.getEmail();
       this.reload = true;
       this.blobUrl = "";
@@ -88,9 +91,12 @@ export class AcousticAdaptationComponent implements OnDestroy, OnInit {
   }
 
   getEmail() {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Access-Control-Allow-Origin', '*');
+    headers = headers.append("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     const body = new FormData();
     body.append('cookie', this.getCurrCookie());
-    this.apiService.getEmailService(body).subscribe((data) => {
+    this.apiService.getEmailService(body, headers).subscribe((data) => {
       sessionStorage.setItem('currEmail', JSON.stringify(data));
     })
   }
@@ -100,9 +106,12 @@ export class AcousticAdaptationComponent implements OnDestroy, OnInit {
   }
 
   adaptAcoustic() {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers = headers.append('Access-Control-Allow-Origin', '*');
+    headers = headers.append("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     const body = new FormData();
     body.append('cookie', this.getCurrCookie());
-    this.apiService.adaptAcousticService(body).subscribe((data) => {
+    this.apiService.adaptAcousticService(body, headers).subscribe((data) => {
       this.end = true;
     })
   }

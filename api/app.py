@@ -1,5 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3.7
 # -*- coding: utf-8 -*-
+
 import os
 import flask
 from flask import Flask, redirect, request, url_for, jsonify, session, render_template
@@ -44,6 +45,20 @@ acousticPath = os.environ.get("general_ac")
 dictPath = os.environ.get("general_dict")
 lmPath = os.environ.get("general_lm")
 sphinxtrain = os.environ.get("sphinxtrain")
+hostname = os.environ.get("host")
+ssl = os.environ.get("ssl")
+
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    if request.method == 'OPTIONS':
+        response.headers['Access-Control-Allow-Methods'] = 'DELETE, GET, POST, PUT'
+        headers = request.headers.get('Access-Control-Request-Headers')
+        if headers:
+            response.headers['Access-Control-Allow-Headers'] = headers
+    return response
+
+app.after_request(add_cors_headers)
+
 
 
 @app.route("/info", methods=["POST"])
@@ -105,6 +120,7 @@ def getEmails():
         get_response = requests.get(get_endpoint, headers=headers, params={
             'userId': 'me', 'id': message['id'], 'format': 'raw'})
         raw_msg = get_response.json().get("raw")
+        print(type(raw_msg))
         string_message = str(
             base64.urlsafe_b64decode(raw_msg), "ISO-8859-7")
         # Convert current message to mime format.
@@ -120,7 +136,6 @@ def getEmails():
     database.insert_one(
         'messages', {'_id': cookie, 'messages': clean_messages})
     return jsonify(clean_messages)
-
 
 @app.route("/clustering", methods=["POST"])
 def getClusters():
@@ -369,4 +384,7 @@ def adapt_acoustic():
 
 
 if __name__ == "__main__":
-    app.run()
+    if ssl:
+        app.run(ssl_context=('cert.pem', 'key.pem'), host=hostname)
+    else:
+        app.run(host=hostname)
