@@ -48,6 +48,7 @@ sphinxtrain = os.environ.get("sphinxtrain")
 hostname = os.environ.get("host")
 ssl = os.environ.get("ssl")
 
+
 def add_cors_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
     if request.method == 'OPTIONS':
@@ -57,22 +58,11 @@ def add_cors_headers(response):
             response.headers['Access-Control-Allow-Headers'] = headers
     return response
 
+
 app.after_request(add_cors_headers)
 
 
-
-@app.route("/info", methods=["POST"])
-def getInfo():
-    '''Endpoint that returns the email, the username and profile picture of a Gmail user.
-
-        Args:
-            token: Authentication token from Gmail api.
-            cookie: Cookie of current user.
-        '''
-    data = request.form
-    print(data)
-    token = data['token']
-    cookie = data['cookie']
+def getInfo(token):
     # Send get request to gmail api.
     info_endpoint = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json"
     headers = {'Authorization': 'Bearer ' +
@@ -82,14 +72,8 @@ def getInfo():
     email = info_response.json()["email"]
     name = info_response.json()["given_name"]
     picture = info_response.json()["picture"]
-    print(cookie)
-    returned_data = {'email': email, 'name': name, 'picture': picture}
 
-    # Save user information in database.
-    database.insert_one(
-        'info', {'_id': cookie, 'email': email, 'name': name, 'picture': picture, 'token': token})
-    # Send user back to homepage
-    return jsonify(returned_data)
+    return email, name, picture
 
 
 @app.route("/emails", methods=["POST"])
@@ -100,11 +84,25 @@ def getEmails():
             cookie: Cookie of current user.
         '''
     data = request.form
-
-    cookie = data['cookie']
-    print(cookie)
     # Get authentication token of current user.
     token = data['token']
+    cookie = data['cookie']
+    keep = data['keep']
+    email_name, name, picture = getInfo(token)
+
+    database.insert_one(
+        'connections', {'_id': cookie, 'email_name': email_name, 'keep': keep}
+    )
+    # Save user in database.
+    res = database.find_one('users', {'_id': email_name})
+    if res is not None:
+        res = database.find_one(
+            'messages', {'_id': email_name})
+        messages = res["messages"]
+        return jsonify(messages)
+
+    database.insert_one(
+        'users', {'_id': email_name, 'name': name, 'picture': picture})
     # Send get request in gmail api.
     read_endpoint = "https://www.googleapis.com/gmail/v1/users/userId/messages"
     headers = {'Authorization': 'Bearer ' +
@@ -134,8 +132,9 @@ def getEmails():
 
     # Save user emails in database.
     database.insert_one(
-        'messages', {'_id': cookie, 'messages': clean_messages})
+        'messages', {'_id': email_name, 'messages': clean_messages})
     return jsonify(clean_messages)
+
 
 @app.route("/clustering", methods=["POST"])
 def getClusters():
@@ -159,8 +158,12 @@ def getClusters():
     max_cl = int(data['max_cl'])
     level = data['level']
 
+    # Get current user
+    res = database.find_one('connections', {'_id': cookie})
+    email_name = res['email_name']
+
     # Get messages current user
-    res = database.find_one('messages', {'_id': cookie})
+    res = database.find_one('messages', {'_id': email_name})
     messages_col = res['messages']
     emails = []
     for msg in messages_col:
@@ -183,8 +186,8 @@ def getClusters():
     labels, centers = run_kmeans(X, n_clusters)
 
     # Save computed clusters in filesystem.
-    save_clusters(emails, labels, cookie)
-    out = os.path.join('./data', cookie)
+    save_clusters(emails, labels, email_name)
+    out = os.path.join('./data', email_name)
     cluster2text(out, n_clusters)
 
     # Get a sample from each cluster.
@@ -213,7 +216,7 @@ def getClusters():
         keywords_total.append(keywords)
 
     # Insert in database.
-    database.insert_one('clusters', {'_id': cookie, 'centers': centers.tolist(),
+    database.insert_one('clusters', {'_id': email_name, 'centers': centers.tolist(),
                                      'labels': labels.tolist(), 'samples': samples, 'keywords': keywords_total, 'metric': metric})
 
     clusters = [[] for i in range(n_clusters)]
@@ -249,7 +252,11 @@ def getDictation():
     package = request.form['package']
     url = request.files['url']
 
-    out = os.path.join('./data', cookie)
+    # Get current user
+    res = database.find_one('connections', {'_id': cookie})
+    email_name = res['email_name']
+
+    out = os.path.join('./data', email_name)
     # Save current dictation in filesystem.
     url.save(os.path.join(out, 'curr_dictation.wav'))
 
@@ -257,7 +264,7 @@ def getDictation():
         decoded_gen = get_text_pocketsphinx(
             out, lmPath, acousticPath, dictPath)
     else:
-        py4j_relpath = os.path.join("../api/data", cookie)
+        py4j_relpath = os.path.join("../api/data", email_name)
         decoded_gen = get_text_sphinx4(
             py4j_relpath, acousticPath, dictPath, lmPath, gateway)
 
@@ -265,7 +272,7 @@ def getDictation():
                      'text_adapt': "", 'cluster': ""}
     if method == "adapted":
         # Find cluster
-        res = database.find_one('clusters', {'_id': cookie})
+        res = database.find_one('clusters', {'_id': email_name})
         centers = res['centers']
         metric = res['metric']
         doc = nlp(decoded_gen)
@@ -291,7 +298,10 @@ def getDictation():
 @app.route("/randomEmail", methods=["POST"])
 def get_random_email():
     cookie = request.form['cookie']
-    res = database.find_one('messages', {'_id': cookie})
+    # Get current user
+    res = database.find_one('connections', {'_id': cookie})
+    email_name = res['email_name']
+    res = database.find_one('messages', {'_id': email_name})
     messages_col = res['messages']
     sentences = []
     for msg in messages_col:
@@ -310,24 +320,27 @@ def saveDictation():
 
         '''
     cookie = request.form['cookie']
+    # Get current user
+    res = database.find_one('connections', {'_id': cookie})
+    email_name = res['email_name']
     text = request.form['text']
     url = request.files['url']
 
-    out = os.path.join('./data', cookie)
+    out = os.path.join('./data', email_name)
     if not os.path.exists(out):
         os.makedirs(out)
     wav_path = os.path.join(out, 'wav')
     if not os.path.exists(wav_path):
         os.makedirs(wav_path)
 
-    res = database.find_one('savedDictations', {'_id': cookie})
+    res = database.find_one('savedDictations', {'_id': email_name})
     if res is None:
         counter = 0
         database.insert_one(
-            'savedDictations', {'_id': cookie, 'num': counter})
+            'savedDictations', {'_id': email_name, 'num': counter})
     else:
         counter = res['num'] + 1
-        database.update_one('savedDictations', {'_id': cookie}, {
+        database.update_one('savedDictations', {'_id': email_name}, {
                             "$set": {'num': counter}})
 
     with open(os.path.join(out, 'ids'), 'a') as f:
@@ -345,7 +358,11 @@ def saveDictation():
 @app.route("/adaptAcoustic", methods=["POST"])
 def adapt_acoustic():
     cookie = request.form['cookie']
-    out = os.path.join('./data', cookie)
+    # Get current user
+    res = database.find_one('connections', {'_id': cookie})
+    email_name = res['email_name']
+
+    out = os.path.join('./data', email_name)
     wav_path = os.path.join(out, 'wav')
     output = os.path.join(out, 'acoustic/')
     ids = os.path.join(out, 'ids')
@@ -381,6 +398,28 @@ def adapt_acoustic():
         print('Error in subprocess')
 
     return {'message': 'OK'}
+
+
+@app.route("/logOut", methods=["POST"])
+def log_out():
+    cookie = request.form['cookie']
+    # Get current user
+    res = database.find_one('connections', {'_id': cookie})
+    if res is None:
+        return jsonify({'message': 'error'})
+    email_name = res['email_name']
+    keep = res['keep']
+    database.delete_one('connections', {'_id': cookie})
+    if not keep == "yes":
+        database.delete_one('messages', {'_id': email_name})
+        database.delete_one('clusters', {'_id': email_name})
+        database.delete_one('saveDictations', {'_id': email_name})
+        database.delete_one('users', {'_id': email_name})
+        out = os.path.join("./data", email_name)
+        if os.path.exists(out):
+            shutil.rmtree(out)
+
+    return jsonify({'message': 'OK'})
 
 
 if __name__ == "__main__":

@@ -5,11 +5,7 @@
       <li><a [routerLink]="'/language'">Language Adaptation</a></li>
       <li><a [routerLink]="'/acoustic'">Acoustic Adaptation</a></li>
       <li><a [routerLink]="'/dictation'">Dictation</a></li>
+      <li><a class="last" (click)=logOut()>Log Out</a></li>
     </ul>
-    <div class=" nav navbar-right">
-      <button type="button" class="btn btn-default btn-sm" id="logout">
-        <span class="glyphicon glyphicon-log-out"></span> Log out
-      </button>
-    </div>
   </div>
 </nav>

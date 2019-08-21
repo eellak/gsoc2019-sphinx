@@ -4,6 +4,7 @@ import { HttpHeaders, HttpParams } from '@angular/common/http';
 import { GoogleAuthService } from 'ng-gapi';
 import GoogleUser = gapi.auth2.GoogleUser
 import { MyCookieService } from '../cookie.service'
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-sign-up',
@@ -52,9 +53,12 @@ export class SignUpComponent implements OnInit {
       });
   }
 
-  getMessages() {
-    console.log('2')
-    let body = new HttpParams().set('token', this.getAuthToken()).set('cookie', this.getCookie());
+  onSubmit(form: NgForm) {
+    this.getMessages(form)
+  }
+
+  getMessages(form) {
+    let body = new HttpParams().set('token', this.getAuthToken()).set('cookie', this.getCookie()).set('keep', form.value.keep);
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Content-Type', 'application/x-www-form-urlencoded');
     headers = headers.append('Access-Control-Allow-Origin', '*');
