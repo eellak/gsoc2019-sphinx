@@ -48,11 +48,10 @@ A detailed timeline follows, organized by [GSoC timeline](https://developers.goo
   - Evaluation of all implemented models in real email speech dataset of my mentor.
   - Implementation of the error detector of the correction system.
  
-- __Phase 3 (Jul 27 - Aug 26)__
+- __Phase 3 (Jul 27 - Aug 26)__ :heavy_check_mark:
   - Implementation of the error corrector of the correction system.
+  - Implementation of the API.
   - Implementation of the UI.
-  - Integration of special dictation commands.
-  - Playback of the email to the user.
  
 The whole model as a block diagram follows:
 
