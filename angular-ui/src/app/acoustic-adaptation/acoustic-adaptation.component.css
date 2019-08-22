@@ -1,9 +1,19 @@
 .button-start{
   display: block;
-  margin-top: 10%;
+  margin-top: 5%;
   margin-left: auto;
   margin-right: auto;
   width: 50%;
+}
+
+.desc{
+  display: block;
+  margin-top: 5%;
+  margin-left: auto;
+  margin-right: auto;
+  width: 40%;
+  font-weight: 700;
+  font-size: 16px;
 }
 
 .text{
@@ -36,4 +46,12 @@
 
 .green{
   background-color: green;
+}
+
+.finish{
+  display: block;
+  margin-top: 5%;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
 }

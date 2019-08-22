@@ -4,7 +4,7 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { SignUpComponent } from './sign-up/sign-up.component';
+import { LogInComponent } from './log-in/log-in.component';
 import { MenuComponent } from './menu/menu.component';
 import { LanguageAdaptationComponent } from './language-adaptation/language-adaptation.component';
 import { AcousticAdaptationComponent } from './acoustic-adaptation/acoustic-adaptation.component';
@@ -38,7 +38,7 @@ let gapiClientConfig: NgGapiClientConfig = {
 @NgModule({
   declarations: [
     AppComponent,
-    SignUpComponent,
+    LogInComponent,
     MenuComponent,
     LanguageAdaptationComponent,
     AcousticAdaptationComponent,

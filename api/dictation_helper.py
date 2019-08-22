@@ -3,14 +3,21 @@ import os
 import subprocess
 
 
-def get_text_pocketsphinx(out, lmPath, acousticPath, dictPath):
+def get_text_pocketsphinx(out, lmPath, acousticPath, dictPath, mllr_path):
     # Create temp id file.
     ids_path = os.path.join(out, "ids")
     with open(ids_path, 'w') as f:
         f.write('curr_dictation\n')
-    command = "pocketsphinx_batch -adcin yes -cepdir " + out + " -cepext .wav  -ctl " + ids_path + \
-        " -lm " + lmPath + " -dict " + dictPath + \
-        " -hmm " + acousticPath + " -hyp " + os.path.join(out, 'result')
+    if mllr_path == "" or not os.path.exists(mllr_path):
+        command = "pocketsphinx_batch -adcin yes -cepdir " + out + " -cepext .wav  -ctl " + ids_path + \
+            " -lm " + lmPath + " -dict " + dictPath + \
+            " -hmm " + acousticPath + " -hyp " + os.path.join(out, 'result')
+    else:
+        mllr_matrix = os.path.join(mllr_path, 'mllr_matrix')
+        command = "pocketsphinx_batch -adcin yes -cepdir " + out + " -cepext .wav  -ctl " + ids_path + \
+            " -lm " + lmPath + " -dict " + dictPath + \
+            " -hmm " + acousticPath + " -mllr " + mllr_matrix + \
+            " -hyp " + os.path.join(out, 'result')
     if subprocess.call([command], shell=True):
         print('Error in subprocess')
     # Read output temp file.

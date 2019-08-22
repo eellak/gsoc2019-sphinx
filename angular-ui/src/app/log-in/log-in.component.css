@@ -1,19 +1,38 @@
+.wrapper-top {
+    overflow: hidden; /* will contain if #first is longer than #second */
+}
+
+.github{
+  margin-left: 5%;
+}
+
+.find-us{
+  border: ridge;
+  background-color: #e6ffff;
+  padding: 1% 0% 1% 1%;
+  margin-top: 2%;
+  margin-left: 80%;
+  margin-right: 10%;
+  overflow: hidden; /* if you don't want #second to wrap below #first */
+}
+
 .logo{
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: 40%;
   width: 20%;
+  float:left; /* add this */
 }
 
 .gmailButton{
   width: 20%;
-  margin: 5% 0% 5% 40%;
+  margin: 5% 0% 10% 40%;
+  border: groove;
 }
 
 .center {
   display: block;
   margin-left: auto;
   margin-right: auto;
+  text-align: center;
 }
 
 .center_title {
@@ -25,7 +44,7 @@
   display: block;
   margin-left: auto;
   margin-right: auto;
-  margin-top: 5%;
+  margin-top: 1%;
   margin-bottom: 5%;
   width: 20%;
   background-color: #008CBA;
@@ -44,6 +63,10 @@ h3 {
   font: bold 20px/1.5 Helvetica, Verdana, sans-serif;
 }
 
+.desc-title{
+  margin-left: 35%;
+}
+
 h2 {
   font: bold 30px/1.5 Helvetica, Verdana, sans-serif;
 }
@@ -52,9 +75,10 @@ li p {
   font: 200 12px/1.5 Georgia, Times New Roman, serif;
 }
 
+
 #list-wrapper {
     overflow: hidden; /* will contain if #first is longer than #second */
-    margin: 0 2% 5% 2%;
+    margin: 5% 2% 5% 2%;
     border-style: ridge;
 
 }
@@ -64,6 +88,15 @@ li p {
 }
 
 
+#first-text {
+    float:left; /* add this */
+    margin-left: 37%;
+    font-weight: 800;
+}
+
+.check-butt{
+  margin-right: 37%;
+}
 
 .ul-msg {
   list-style-type: none;
@@ -104,4 +137,8 @@ li img {
 
 .border-bott{
   border-bottom-style: solid;
+}
+
+.send-form{
+  margin: 10%;
 }
