@@ -7,12 +7,12 @@ import { MyCookieService } from '../cookie.service'
 import { NgForm } from '@angular/forms';
 
 @Component({
-  selector: 'app-sign-up',
-  templateUrl: './sign-up.component.html',
-  styleUrls: ['./sign-up.component.css']
+  selector: 'app-log-in',
+  templateUrl: './log-in.component.html',
+  styleUrls: ['./log-in.component.css']
 })
 
-export class SignUpComponent implements OnInit {
+export class LogInComponent implements OnInit {
 
   constructor(private apiService: ApiService, private googleAuth: GoogleAuthService, private cookieServ: MyCookieService) { }
 
@@ -45,8 +45,8 @@ export class SignUpComponent implements OnInit {
     })
   }
 
-  async signIn() {
-    await this.googleAuth.getAuth()
+  signIn() {
+    this.googleAuth.getAuth()
       .subscribe((auth) => {
         auth.signIn().then(res => this.signInSuccessHandler(res)
         )
@@ -71,6 +71,7 @@ export class SignUpComponent implements OnInit {
 
   private signInSuccessHandler(res: GoogleUser) {
     sessionStorage.setItem('token', res.getAuthResponse().access_token);
+    window.location.reload();
   }
 
 }

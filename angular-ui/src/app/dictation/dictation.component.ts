@@ -21,15 +21,18 @@ export class DictationComponent implements OnDestroy {
   clusters: string[];
   decoded_gen: string[];
   decoded_adapt: string[];
-  sentence;
+  sentence_gen: string;
+  sentence_adapt: string;
 
 
   constructor(private httpClient: HttpClient, private audioRecordingService: AudioRecordingService, private sanitizer: DomSanitizer, private cookieServ: MyCookieService, private apiService: ApiService) {
     this.clusters = [];
     this.decoded_gen = [];
     this.decoded_adapt = [];
-    this.sentence = "";
-    sessionStorage.setItem('sentence', this.sentence);
+    this.sentence_gen = "";
+    this.sentence_adapt = "";
+    sessionStorage.setItem('sentence_gen', this.sentence_gen);
+    sessionStorage.setItem('sentence_adapt', this.sentence_adapt);
 
     this.audioRecordingService.recordingFailed().subscribe(() => {
       this.isRecording = false;
@@ -78,32 +81,22 @@ export class DictationComponent implements OnDestroy {
     return this.cookieServ.getCookie()
   }
 
-  onSubmit(form: NgForm) {
-    this.getDictation(form)
-  }
-
-  getDictation(form) {
+  getDictation() {
     let headers: HttpHeaders = new HttpHeaders();
     headers = headers.append('Access-Control-Allow-Origin', '*');
     headers = headers.append("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     const body = new FormData();
     body.append('cookie', this.getCurrCookie());
-    body.append('method', form.value.lm)
-    body.append('package', form.value.package)
     body.append('url', this.url)
     this.apiService.getDictationService(body, headers).subscribe((data) => {
       let temp = JSON.parse(JSON.stringify(data))
       sessionStorage.setItem('decoded_gen', JSON.stringify(temp.text_gen));
       sessionStorage.setItem('decoded_adapt', JSON.stringify(temp.text_adapt));
       sessionStorage.setItem('cluster', JSON.stringify(temp.cluster));
-      let sent = this.getSentence()
-      if (temp.text_adapt == "") {
-        sessionStorage.setItem('sentence', sent.concat(temp.text_gen).concat(" "))
-      }
-      else {
-        sessionStorage.setItem('sentence', sent.concat(temp.text_adapt).concat(" "))
-      }
-    })
+      sessionStorage.setItem('sentence_gen', this.getSentenceGen().concat(temp.text_gen).concat(" "))
+      sessionStorage.setItem('sentence_adapt', this.getSentenceAdapt().concat(temp.text_adapt).concat(" "))
+    }
+    )
   }
 
   getDecodedGen() {
@@ -116,8 +109,12 @@ export class DictationComponent implements OnDestroy {
     return JSON.parse(sessionStorage.getItem('cluster'))
   }
 
-  getSentence() {
-    return sessionStorage.getItem('sentence')
+  getSentenceGen() {
+    return sessionStorage.getItem('sentence_gen')
+  }
+
+  getSentenceAdapt() {
+    return sessionStorage.getItem('sentence_adapt')
   }
 
 

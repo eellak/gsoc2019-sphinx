@@ -1,12 +1,16 @@
+<div class="desc" *ngIf="!this.getCurrEmail()">
+  In order to adapt the default acoustic model to your speech, you should record your voice dictating some of your own emails. Each time you record one, you can replay it and then
+  save it to your dictations. After some dictations, click adapt current dictations button and wait.
+</div>
 <div class="button-start" *ngIf="!this.getCurrEmail()">
   <button class="btn btn-info btn-lg button-start" (click)="this.getEmail()">Start adaptation</button>
 </div>
 
-<div class="wrapper" *ngIf="this.getCurrEmail()">
+<div class="wrapper" *ngIf="this.getCurrEmail() && !end">
   <div class="text">
     {{this.getCurrEmail().email}}
   </div>
-  <div *ngIf="!isRecording && !blobUrl" class="rec-button">
+  <div *ngIf="!isRecording && !blobUrl && !end" class="rec-button">
     <button class="btn btn-info btn-lg" (click)="startRecording()"> <span class="glyphicon glyphicon-record"></span> Record </button>
   </div>
   <div *ngIf="isRecording && !blobUrl" class="rec-button">
@@ -33,5 +37,5 @@
   <button class="btn btn-info btn-lg green" (click)="adaptAcoustic()"> Adapt current dictations </button>
 </div>
 <div *ngIf="!isRecording && !blobUrl && end">
-  <h3>Acoustic Adaptaiton finished</h3>
+  <h3 class="finish">Acoustic Adaptation finished</h3>
 </div>

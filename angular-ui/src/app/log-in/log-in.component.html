@@ -1,5 +1,10 @@
 <body>
-  <img src="../../../assets/img/gsoc.png" alt="Gsoc Logo" class="logo" />
+  <div class="wrapper-top">
+    <img src="../../../assets/img/gsoc.png" alt="Gsoc Logo" class="logo" />
+    <div class="find-us">
+      <strong> Find us on </strong> <a class="github" href="https://github.com/eellak/gsoc2019-sphinx" target="_blank"><img src="../../assets/img/GitHub-Mark-32px.png"></a>
+    </div>
+  </div>
 
   <h1 class="center_title">Creation of an online Greek mail dictation system</h1>
 
@@ -19,7 +24,7 @@
       <img src="../../../assets/img/rec.jpg" width="200" height="160">
       <h3 class="desc-title">Acoustic Model adaptation by using user's previous dictation</h3>
       <ol class=" steps">
-        <li class="li-steps"> Record user's dictations </li>
+        <li class="li-steps"> Record user's dictations on email sentences</li>
         <li class="li-steps"> Adapt default acoustic model to them using mllr adaptation </li>
       </ol>
     </li>
@@ -36,9 +41,9 @@
   <div *ngIf="this.getAuthToken() && !this.getMessagesSession()" class="send-form">
     <form #saveform="ngForm" (ngSubmit)="onSubmit(saveform)">
       <div class="wrapper">
-        <div id="first-text"> Remember me after sign out (keep emails and clusters) </div>
+        <!--<div id="first-text"> Keep emails, clusters and dictations after log out </div>
         <input class="check-butt" type="radio" name="keep" value="yes" ngModel>
-        <br>
+        <br> -->
         <button type="submit" class="emailButton">Read My Emails </button>
       </div>
     </form>

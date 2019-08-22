@@ -186,8 +186,8 @@ def getClusters():
     labels, centers = run_kmeans(X, n_clusters)
 
     # Save computed clusters in filesystem.
-    save_clusters(emails, labels, email_name)
-    out = os.path.join('./data', email_name)
+    save_clusters(emails, labels, os.path.join(email_name, 'clusters'))
+    out = os.path.join('./data', os.path.join(email_name, 'clusters'))
     cluster2text(out, n_clusters)
 
     # Get a sample from each cluster.
@@ -248,8 +248,8 @@ def getDictation():
 
         '''
     cookie = request.form['cookie']
-    method = request.form['method']
-    package = request.form['package']
+    # method = request.form['method']
+    # package = request.form['package']
     url = request.files['url']
 
     # Get current user
@@ -260,37 +260,21 @@ def getDictation():
     # Save current dictation in filesystem.
     url.save(os.path.join(out, 'curr_dictation.wav'))
 
-    if package == "pocketsphinx":
-        decoded_gen = get_text_pocketsphinx(
-            out, lmPath, acousticPath, dictPath)
-    else:
-        py4j_relpath = os.path.join("../api/data", email_name)
-        decoded_gen = get_text_sphinx4(
-            py4j_relpath, acousticPath, dictPath, lmPath, gateway)
-
+    decoded_gen = get_text_pocketsphinx(
+        out, lmPath, acousticPath, dictPath, "")
+    res = database.find_one('clusters', {'_id': email_name})
+    centers = res['centers']
+    metric = res['metric']
+    doc = nlp(decoded_gen)
+    decoded_gen_spacy = doc.vector
+    mllr_path = os.path.join(out, 'acoustic')
+    cluster = closest_cluster(np.array(centers), decoded_gen_spacy, metric)
+    clusterPath = os.path.join(out, 'clusters/cluster_' + str(cluster))
+    lmAdaptPath = os.path.join(clusterPath, 'merged.lm')
+    decoded_adapt = get_text_pocketsphinx(
+        out, lmAdaptPath, acousticPath, dictPath, mllr_path)
     returned_data = {'text_gen': decoded_gen,
-                     'text_adapt': "", 'cluster': ""}
-    if method == "adapted":
-        # Find cluster
-        res = database.find_one('clusters', {'_id': email_name})
-        centers = res['centers']
-        metric = res['metric']
-        doc = nlp(decoded_gen)
-        decoded_gen_spacy = doc.vector
-        cluster = closest_cluster(np.array(centers), decoded_gen_spacy, metric)
-        if package == "pocketsphinx":
-            clusterPath = os.path.join(out, 'cluster_' + str(cluster))
-            lmAdaptPath = os.path.join(clusterPath, 'merged.lm')
-            decoded_adapt = get_text_pocketsphinx(
-                out, lmAdaptPath, acousticPath, dictPath)
-        else:
-            clusterRelPath = os.path.join(
-                py4j_relpath, 'cluster_' + str(cluster))
-            lmAdaptPath = os.path.join(clusterRelPath, 'merged.lm')
-            decoded_adapt = get_text_sphinx4(
-                py4j_relpath, acousticPath, dictPath, lmAdaptPath, gateway)
-        returned_data = {'text_gen': decoded_gen,
-                         'text_adapt': decoded_adapt, 'cluster': cluster}
+                     'text_adapt': decoded_adapt, 'cluster': cluster}
 
     return jsonify(returned_data)
 

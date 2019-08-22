@@ -1,19 +1,38 @@
+.wrapper-top {
+    overflow: hidden; /* will contain if #first is longer than #second */
+}
+
+.github{
+  margin-left: 5%;
+}
+
+.find-us{
+  border: ridge;
+  background-color: #e6ffff;
+  padding: 1% 0% 1% 1%;
+  margin-top: 2%;
+  margin-left: 80%;
+  margin-right: 10%;
+  overflow: hidden; /* if you don't want #second to wrap below #first */
+}
+
 .logo{
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: 40%;
   width: 20%;
+  float:left; /* add this */
 }
 
 .gmailButton{
   width: 20%;
-  margin: 5% 0% 5% 40%;
+  margin: 5% 0% 10% 40%;
+  border: groove;
 }
 
 .center {
   display: block;
   margin-left: auto;
   margin-right: auto;
+  text-align: center;
 }
 
 .center_title {
@@ -71,12 +90,12 @@ li p {
 
 #first-text {
     float:left; /* add this */
-    margin-left: 35%;
+    margin-left: 37%;
     font-weight: 800;
 }
 
 .check-butt{
-  margin-right: 35%;
+  margin-right: 37%;
 }
 
 .ul-msg {

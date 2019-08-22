@@ -223,9 +223,9 @@ def silhouette_analysis(silhouette, min_cl):
     return n_clusters + min_cl
 
 
-def save_clusters(emails, labels, cookie):
+def save_clusters(emails, labels, path):
     # If output directory does not exist, create it.
-    out = os.path.join('./data', cookie)
+    out = os.path.join('./data', path)
     if not os.path.exists(out):
         os.makedirs(out)
 
