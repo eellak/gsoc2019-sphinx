@@ -214,7 +214,8 @@ def getClusters():
         keywords = extract_topn_from_vector(
             feature_names, sorted_items, 5)
         keywords_total.append(keywords)
-
+    
+    database.delete_one('clusters', {'_id': email_name})
     # Insert in database.
     database.insert_one('clusters', {'_id': email_name, 'centers': centers.tolist(),
                                      'labels': labels.tolist(), 'samples': samples, 'keywords': keywords_total, 'metric': metric})
@@ -355,6 +356,10 @@ def adapt_acoustic():
     feat_params = os.path.join(acousticPath, 'feat.params')
     mfc_path = os.path.join(output, 'mfc')
 
+    # Remove previous adaptation
+    if os.path.exists(output):
+        shutil.rmtree(output)
+                    
     generate_command = 'sphinx_fe -argfile ' + feat_params + ' -samprate 16000 -c ' + \
         ids + ' -di ' + wav + ' -do ' + mfc_path + ' -ei wav -eo mfc -mswav yes'
     if subprocess.call([generate_command], shell=True):
