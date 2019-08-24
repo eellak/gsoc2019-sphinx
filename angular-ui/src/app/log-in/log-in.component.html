@@ -41,7 +41,7 @@
   <div *ngIf="this.getAuthToken() && !this.getMessagesSession()" class="send-form">
     <form #saveform="ngForm" (ngSubmit)="onSubmit(saveform)">
       <div class="wrapper">
-        <!--<div id="first-text"> Keep emails, clusters and dictations after log out </div>
+        <!-- <div id="first-text"> Keep emails, clusters and dictations after log out </div>
         <input class="check-butt" type="radio" name="keep" value="yes" ngModel>
         <br> -->
         <button type="submit" class="emailButton">Read My Emails </button>
@@ -49,15 +49,16 @@
     </form>
   </div>
 
-  <div *ngIf="this.getInfoSession()" class="center">
+  <!-- <div *ngIf="this.getInfoSession()" class="center">
     Hi {{this.getInfoSession().name}} !!
     <img src={{this.getInfoSession().picture}} class="center" />
-  </div>
+  </div> -->
 
   <div id="list-wrapper" *ngIf="this.getMessagesSession()">
     <div id="first" class="scroll">
       <ul class="ul-msg">
-        <h2 class="center border-bott">Before processing</h2>
+        <h2 class="center border-bott">Before processing
+        </h2>
         <li *ngFor="let message of this.getMessagesSession(); let i = index">
           <h3>{{message.subject}} from {{message.sender}}</h3>
           <p>{{message.body}}</p>

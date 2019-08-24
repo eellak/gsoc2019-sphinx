@@ -38,7 +38,17 @@
     <div>
       <h3>Post Processing</h3>
       <br>
-      <textarea class="text" rows="6" cols="60">{{this.getSentenceAdapt()}}</textarea>
+
+
+      <div *ngFor="let word of this.getSentenceAdapt().split(' '); let i = index" style="float: left;">
+        <div [class.err]="this.getErrors().split(' ')[i] === '1'" style="position:relative;">
+          <span [innerHTML]="word + '&nbsp;'"></span>
+        </div>
+
+      </div>
+
+
     </div>
   </div>
+
 </body>

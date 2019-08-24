@@ -40,3 +40,21 @@ body{
 .text{
   padding: 2%;
 }
+
+
+.err {
+  display: inline-block;
+  position: relative;
+}
+.err:before {
+  content: "~~~~~~~~~~~~";
+  font-size: 0.6em;
+  font-weight: 700;
+  font-family: Times New Roman, Serif;
+  color: red;
+  width: 100%;
+  position: absolute;
+  top: 12px;
+  left: -1px;
+  overflow: hidden;
+}

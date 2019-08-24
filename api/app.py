@@ -29,6 +29,8 @@ from dictation_helper import get_text_sphinx4, get_text_pocketsphinx
 from py4j.java_gateway import JavaGateway
 import random
 import shutil
+import arpa
+from nltk.util import ngrams
 
 # Flask app setup
 app = Flask(__name__)
@@ -214,7 +216,7 @@ def getClusters():
         keywords = extract_topn_from_vector(
             feature_names, sorted_items, 5)
         keywords_total.append(keywords)
-    
+
     database.delete_one('clusters', {'_id': email_name})
     # Insert in database.
     database.insert_one('clusters', {'_id': email_name, 'centers': centers.tolist(),
@@ -235,6 +237,29 @@ def getClusters():
                 print('Error in subprocess')
 
     return jsonify({'samples': samples, 'keywords': keywords_total, 'clusters': clusters})
+
+
+def error_detector(lmAdaptPath, sentence, threshold):
+    # Reading input language model.
+    models = arpa.loadf(lmAdaptPath)
+    # ARPA files may contain several models.
+    lm = models[0]
+    words = sentence.split()
+    scores = dict(zip(words, [0] * len(words)))
+    n_grams = list(ngrams(words, 3))
+    for n_gram in n_grams:
+        prop = lm.p(n_gram)
+        if prop < threshold:
+            for word in n_gram:
+                scores[word] += 1
+    sent_errors = ['0']
+    for n_gram in n_grams:
+        if scores[n_gram[1]] > 1:
+            sent_errors.append('1')
+        else:
+            sent_errors.append('0')
+    sent_errors.append('0')
+    return " ".join(sent_errors)
 
 
 @app.route("/dictation", methods=["POST"])
@@ -274,8 +299,10 @@ def getDictation():
     lmAdaptPath = os.path.join(clusterPath, 'merged.lm')
     decoded_adapt = get_text_pocketsphinx(
         out, lmAdaptPath, acousticPath, dictPath, mllr_path)
+
+    sent_errors = error_detector(lmAdaptPath, decoded_adapt, 0.05)
     returned_data = {'text_gen': decoded_gen,
-                     'text_adapt': decoded_adapt, 'cluster': cluster}
+                     'text_adapt': decoded_adapt, 'cluster': cluster, 'errors': sent_errors}
 
     return jsonify(returned_data)
 
@@ -359,7 +386,7 @@ def adapt_acoustic():
     # Remove previous adaptation
     if os.path.exists(output):
         shutil.rmtree(output)
-                    
+
     generate_command = 'sphinx_fe -argfile ' + feat_params + ' -samprate 16000 -c ' + \
         ids + ' -di ' + wav + ' -do ' + mfc_path + ' -ei wav -eo mfc -mswav yes'
     if subprocess.call([generate_command], shell=True):

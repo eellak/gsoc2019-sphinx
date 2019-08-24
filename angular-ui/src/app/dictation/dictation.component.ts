@@ -23,6 +23,7 @@ export class DictationComponent implements OnDestroy {
   decoded_adapt: string[];
   sentence_gen: string;
   sentence_adapt: string;
+  errors: string;
 
 
   constructor(private httpClient: HttpClient, private audioRecordingService: AudioRecordingService, private sanitizer: DomSanitizer, private cookieServ: MyCookieService, private apiService: ApiService) {
@@ -31,8 +32,10 @@ export class DictationComponent implements OnDestroy {
     this.decoded_adapt = [];
     this.sentence_gen = "";
     this.sentence_adapt = "";
+    this.errors = "";
     sessionStorage.setItem('sentence_gen', this.sentence_gen);
     sessionStorage.setItem('sentence_adapt', this.sentence_adapt);
+    sessionStorage.setItem('errors', this.errors);
 
     this.audioRecordingService.recordingFailed().subscribe(() => {
       this.isRecording = false;
@@ -93,10 +96,10 @@ export class DictationComponent implements OnDestroy {
       sessionStorage.setItem('decoded_gen', JSON.stringify(temp.text_gen));
       sessionStorage.setItem('decoded_adapt', JSON.stringify(temp.text_adapt));
       sessionStorage.setItem('cluster', JSON.stringify(temp.cluster));
+      sessionStorage.setItem('errors', this.getErrors().concat(temp.errors).concat(" "))
       sessionStorage.setItem('sentence_gen', this.getSentenceGen().concat(temp.text_gen).concat(" "))
       sessionStorage.setItem('sentence_adapt', this.getSentenceAdapt().concat(temp.text_adapt).concat(" "))
-    }
-    )
+    })
   }
 
   getDecodedGen() {
@@ -105,8 +108,13 @@ export class DictationComponent implements OnDestroy {
   getDecodedAdapt() {
     return JSON.parse(sessionStorage.getItem('decoded_adapt'))
   }
+
   getCluster() {
     return JSON.parse(sessionStorage.getItem('cluster'))
+  }
+
+  getErrors() {
+    return sessionStorage.getItem('errors')
   }
 
   getSentenceGen() {
@@ -116,6 +124,7 @@ export class DictationComponent implements OnDestroy {
   getSentenceAdapt() {
     return sessionStorage.getItem('sentence_adapt')
   }
+
 
 
 }
