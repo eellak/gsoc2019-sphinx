@@ -28,6 +28,12 @@
 
 .rec-button{
   margin: 15% 0% 0% 0%;
+  overflow: hidden
+}
+
+.player{
+  float: left;
+  margin-left: 35%
 }
 
 .wrapper{
@@ -42,6 +48,11 @@
 
 .final-button{
   margin: 20% 0 0 80%;
+}
+
+.clear-rec{
+  float: left;
+  margin-left: 1%;
 }
 
 .green{

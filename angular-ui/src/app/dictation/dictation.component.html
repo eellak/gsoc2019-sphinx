@@ -1,45 +1,46 @@
 <body>
   <div class="center-rec">
     <div *ngIf="!isRecording && !blobUrl">
-      <h3>Click on Record button and say a sentence of your email.</h3>
+      <h3>Click on Record button and each time dictate a sentence of your email.</h3>
+      <br>
       <button class="btn btn-info btn-lg button-rec" (click)="startRecording()"> <span class="glyphicon glyphicon-record"></span> Record </button>
     </div>
     <div *ngIf="isRecording && !blobUrl">
       <h3>Click Stop button to stop the recording.</h3>
+      <br>
       <button class="btn btn-info btn-lg button-rec" (click)="stopRecording()"><span class="glyphicon glyphicon-stop"></span> Stop {{recordedTime}}</button>
     </div>
-    <div *ngIf="!isRecording && blobUrl">
+    <div *ngIf="!isRecording && blobUrl" class="rec-button">
+      <h3>Replay your recording and clear it in case something went wrong.</h3>
+      <br>
       <div class="player">
-        <h3>Replay your recording and clear it in case something went wrong.</h3>
         <audio controls>
           <source [src]="blobUrl" type="audio/webm">
         </audio>
       </div>
       <div class="clear-rec">
-        <button class="btn btn-info btn-lg button-rec" (click)="clearRecordedData()"><span class="glyphicon glyphicon-trash"></span>Clear Recording</button>
+        <button class="btn btn-lg" (click)="clearRecordedData()"><span class="glyphicon glyphicon-trash"></span></button>
       </div>
       <div class="get-rec">
-        <button class="btn btn-info btn-lg button-rec" (click)="getDictation()">Convert Speech to Text</button>
+        <button class="btn btn-info btn-lg" (click)="getDictation()">Convert Speech to Text</button>
       </div>
     </div>
   </div>
 
   <div class="boxes" *ngIf="this.getSentenceGen()">
     <div>
-      <h3>Default acoustic and language models</h3>
+      <h3>Default acoustic and language model</h3>
       <br>
       <textarea class="text" rows="6" cols="60">{{this.getSentenceGen()}}</textarea>
     </div>
     <div>
-      <h3>Adapted acoustic and language models</h3>
+      <h3>Adapted acoustic and language model</h3>
       <br>
       <textarea class="text" rows="6" cols="60">{{this.getSentenceAdapt()}}</textarea>
     </div>
     <div>
-      <h3>Post Processing</h3>
+      <h3>Post Processing output</h3>
       <br>
-
-
       <div *ngFor="let word of this.getSentenceAdapt().split(' '); let i = index" style="float: left;">
         <div [class.err]="this.getErrors().split(' ')[i] === '1'" style="position:relative;">
           <span [innerHTML]="word + '&nbsp;'"></span>

@@ -1,5 +1,19 @@
-.button-rec{
-  width: 20%;
+.rec-button{
+  overflow: hidden
+}
+
+.player{
+  float: left;
+  margin-left: 30%;
+}
+.clear-rec{
+  float: left;
+  margin-left: 1%;
+}
+
+.get-rec{
+  float: left;
+  margin-left: 5%;
 }
 
 .center-rec{

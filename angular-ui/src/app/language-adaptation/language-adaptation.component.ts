@@ -11,11 +11,11 @@ import { HttpParams, HttpHeaders } from '@angular/common/http';
   styleUrls: ['./language-adaptation.component.css']
 })
 export class LanguageAdaptationComponent implements OnInit {
-  rangeSliderMinValue: number = 1;
-  rangeSliderMaxValue: number = 10;
+  rangeSliderMinValue: number = 2;
+  rangeSliderMaxValue: number = 8;
   rangeSliderOptions: Options = {
     floor: 2,
-    ceil: 10
+    ceil: 8
   }
   clusters: any;
 
