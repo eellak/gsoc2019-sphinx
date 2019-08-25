@@ -13,46 +13,12 @@ In the modern era of Big Data, many dictation systems have already been implemen
 ## Demo
 The project is hosted at https://snf-870034.vm.okeanos.grnet.gr.
 
-## Timeline
+## Timeline and Documentation
 
-A detailed timeline follows, organized by [GSoC timeline](https://developers.google.com/open-source/gsoc/timeline). More details can be found in [Project](https://github.com/eellak/gsoc2019-sphinx/projects/1) and [Wiki](https://github.com/eellak/gsoc2019-sphinx/wiki).
+- A detailed timeline can be found [here](https://github.com/eellak/gsoc2019-sphinx/wiki/Timeline), organized by [GSoC timeline](https://developers.google.com/open-source/gsoc/timeline). 
+- The whole progress of the project was tracked on a daily basis in [Project](https://github.com/eellak/gsoc2019-sphinx/projects/1).
+- More details can be found in [Wiki](https://github.com/eellak/gsoc2019-sphinx/wiki) and in the [Final Report](https://gist.github.com/PanosAntoniadis/2a056cdbe4eb8556c30e33193e84d1b0).
 
-- __Student application work (Mar 25 - Apr 09)__
-  
-  Get familiar with all the concepts of the project, read documentation and think about possible extensions. Some useful links follow:
-  - [Sphinx](https://cmusphinx.github.io/wiki/)
-  - [SRILM](http://www.speech.sri.com/projects/srilm/)
-  - [Spacy](https://spacy.io/)
-  - [scikit-learn](https://scikit-learn.org/)
-  - [Angular](https://angular.io/)
-  - [Flask](https://en.wikipedia.org/wiki/Flask_(web_framework))
-
-- __Community Bonding Period (May 6 - May 26)__ :heavy_check_mark:
-  - Get to know my mentors better and discuss the project more extensively.
-  - Implementation of the baseline part of the ASR system based on the default acoustic and language model, that can be found [here](https://www.dropbox.com/sh/fl6698yfuam54ch/AABx4hHs4P5kFVBGJQQZN_Voa?dl=0).
-  - Search for speech datasets (recordings along with their transcriptions) and organize them in order to be in Sphinx standard form.
-  - Implementation of a domain specific and a merged (specific + default) language model for each dataset.
-  - Evaluation of these models in both datasets. Using the default acoustic model and dictionary, the results are [here](https://github.com/eellak/gsoc2019-sphinx/wiki/Datasets-and-Adaptation).
-
-
-- __Phase 1 (May 27 - Jun 28)__ :heavy_check_mark:
-  - Extension of the the default dictionary using [Phonetisaurus](https://github.com/AdolfVonKleist/Phonetisaurus).
-  - Adaptation of the acoustic model in all datasets and evaluation.
-  - Implementation of a system that extracts the emails from a user's account.
-  - Email classification.
-  - Email clustering.
-  - Create a personal email dataset for evaluation.
-
-- __Phase 2 (Jun 29 - Jul 26)__ :heavy_check_mark:
-  - Improve email clustering. 
-  - Implementation of domain-specific language models.
-  - Evaluation of all implemented models in real email speech dataset of my mentor.
-  - Implementation of the error detector of the correction system.
- 
-- __Phase 3 (Jul 27 - Aug 26)__ :heavy_check_mark:
-  - Implementation of the error corrector of the correction system.
-  - Implementation of the flask API.
-  - Implementation of the angular UI.
  
 The whole model as a block diagram follows:
 
@@ -84,6 +50,16 @@ The whole model as a block diagram follows:
 - All language models are created using [SRILM](http://www.speech.sri.com/projects/srilm/).
 - All the required user data is stored in a __MongoDB__.
 - The UI is based on angular 8.
+
+## Project Deliverables
+
+1. Tool for __extracting and cleaning sent emails__ of a Gmail user. [Code](https://github.com/eellak/gsoc2019-sphinx/tree/master/email_processing) [Wiki](https://github.com/eellak/gsoc2019-sphinx/wiki/Fetching-and-Processing-Emails)
+2. Tool for __creating adapted language models__ through email clustering. [Code](https://github.com/eellak/gsoc2019-sphinx/tree/master/email_clustering) [Wiki](https://github.com/eellak/gsoc2019-sphinx/wiki/Domain-Specific-Language-Models)
+3. Tool for __correcting ASR output__. [Code](https://github.com/eellak/gsoc2019-sphinx/tree/master/post_processing) [Wiki](https://github.com/eellak/gsoc2019-sphinx/wiki/Post-Processing)
+4. Various tools for __preparing and evaluating a speech dataset__. [Code](https://github.com/eellak/gsoc2019-sphinx/tree/master/data/scripts) [Wiki](https://github.com/eellak/gsoc2019-sphinx/wiki/Datasets-and-Adaptation) 
+5. Simple tool for __creating a speech dataset__. [Code](https://github.com/PanosAntoniadis/fast-recorder)
+6. __API__ written in Flask. [Code](https://github.com/eellak/gsoc2019-sphinx/tree/master/api) [Wiki](https://github.com/eellak/gsoc2019-sphinx/wiki/API-Documentation)
+7. __Online webpage__ using Angular 8. [Code](https://github.com/eellak/gsoc2019-sphinx/tree/master/angular-ui) [Wiki](https://github.com/eellak/gsoc2019-sphinx/wiki/Angular-UI)
 
 ## People
 - Google Summer of Code 2019 Student: Panagiotis Antoniadis ([PanosAntoniadis](https://github.com/PanosAntoniadis))
