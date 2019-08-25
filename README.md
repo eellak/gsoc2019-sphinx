@@ -13,6 +13,8 @@ In the modern era of Big Data, many dictation systems have already been implemen
 ## Demo
 The project is hosted at https://snf-870034.vm.okeanos.grnet.gr.
 
+__Note:__ Till now, we use self signed ssl certificates for both the webpage and the api. As a result, before using the webpage, the user should give permission in both of them by entering https://snf-870034.vm.okeanos.grnet.gr and https://snf-870034.vm.okeanos.grnet.gr/api and clicking procceed in Advanced.
+
 ## Timeline and Documentation
 
 - A detailed timeline can be found [here](https://github.com/eellak/gsoc2019-sphinx/wiki/Timeline), organized by [GSoC timeline](https://developers.google.com/open-source/gsoc/timeline). 
