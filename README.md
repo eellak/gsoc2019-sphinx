@@ -28,6 +28,7 @@ The whole model as a block diagram follows:
 
 - **Getting started**
   - [Home](https://github.com/eellak/gsoc2019-sphinx/wiki)
+  - [GSoC 2019 Timeline](https://github.com/eellak/gsoc2019-sphinx/wiki/Timeline)
   - [Installation](https://github.com/eellak/gsoc2019-sphinx/wiki/Installation)
   - [Repository](https://github.com/eellak/gsoc2019-sphinx/wiki/Repository)
   - [Datasets and Adaptation](https://github.com/eellak/gsoc2019-sphinx/wiki/Datasets-and-Adaptation)
@@ -43,6 +44,8 @@ The whole model as a block diagram follows:
 - **Other**
   - [Licensing](https://github.com/eellak/gsoc2019-sphinx/wiki/Licensing)
   - [Future Work](https://github.com/eellak/gsoc2019-sphinx/wiki/Future-Work)
+
+
 
 ## Technologies used
 - The project is written in __Python 3.x__, using all the python packages in the [requirements file](https://github.com/eellak/gsoc2019-sphinx/blob/master/requirements.txt).
