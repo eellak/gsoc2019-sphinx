@@ -13,7 +13,7 @@ In the modern era of Big Data, many dictation systems have already been implemen
 ## Demo
 The project is hosted at https://snf-870149.vm.okeanos.grnet.gr.
 
-__Note:__ Till now, we use self signed ssl certificates for both the webpage and the api. As a result, before using the webpage, the user should give permission in both of them by entering https://snf-870149.vm.okeanos.grnet.gr and https://snf-870149.vm.okeanos.grnet.gr:5000 and clicking proceed in Advanced.
+__Note:__ Till now, we use self signed ssl certificates for both the webpage and the api. As a result, before using the webpage, the user should give permission in both of them by entering https://snf-870149.vm.okeanos.grnet.gr and https://snf-870149.vm.okeanos.grnet.gr:5000 and clicking Advanced and Proceed to url.
 
 ## Timeline and Documentation
 
