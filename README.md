@@ -11,9 +11,9 @@ With over 2.6 billion active users and over 4.6 billion email accounts in operat
 In the modern era of Big Data, many dictation systems have already been implemented reaching high accuracy in the proposed metrics. However,  each system concerns a certain language because of the huge diversity of spoken languages. As a result, the implementation of a Greek mail dictation system should be done from scratch based on the Greek language and its unique characteristics. A basic problem is the fact that the training part requires a large set of human transcribed recordings, while very small Greek speech datasets are available. So, the project’s purpose is the implementation of a personalized Greek mail dictation system, that will be trained in the speech of each user (speaker dependent). By this way, we solve the above problem by asking the user for some dictations at the start and train the system using these recordings. Ιt is worth noting, that this restriction of the system doesn’t pose a problem, since each email address corresponds to a single user. In addition, the system’s performance will be enhanced by adapting the language model to the user's existing emails. Extra utilities, such as special dictation commands and email replay, will facilitate the user interaction and make the whole procedure faster and more practical.
 
 ## Demo
-The project is hosted at https://snf-870034.vm.okeanos.grnet.gr.
+The project is hosted at https://snf-870149.vm.okeanos.grnet.gr.
 
-__Note:__ Till now, we use self signed ssl certificates for both the webpage and the api. As a result, before using the webpage, the user should give permission in both of them by entering https://snf-870034.vm.okeanos.grnet.gr and https://snf-870034.vm.okeanos.grnet.gr/api and clicking proceed in Advanced.
+__Note:__ Till now, we use self signed ssl certificates for both the webpage and the api. As a result, before using the webpage, the user should give permission in both of them by entering https://snf-870149.vm.okeanos.grnet.gr and https://snf-870149.vm.okeanos.grnet.gr:5000 and clicking Advanced and Proceed to url.
 
 ## Timeline and Documentation
 
