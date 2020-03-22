@@ -22,8 +22,16 @@ if __name__ == '__main__':
     required.add_argument(
         '--input', help="Folder that contains the clusters of the test set along with their hypothesis (output of decode.py)", required=True)
 
+    required.add_argument(
+        '--mllr', help="True for mllr adaptation", action='store_true')
+
+    required.add_argument(
+        '--map', help="True for map adaptation", action='store_true')
+
     args = parser.parse_args()
     input = args.input
+    mllr = args.mllr
+    map = args.map
 
     lines = []
     accuracies = []
@@ -31,7 +39,12 @@ if __name__ == '__main__':
     for cluster in sorted(os.listdir(input)):
         cluster_path = os.path.join(input, cluster)
         trans = os.path.join(cluster_path, 'transription')
-        merged = os.path.join(cluster_path, 'merged.hyp')
+        if mllr:
+            merged = os.path.join(cluster_path, 'mllr.hyp')
+        elif map:
+            merged = os.path.join(cluster_path, 'map.hyp')
+        else:
+            merged = os.path.join(cluster_path, 'merged.hyp')
         command = 'word_align.pl ' + trans + ' ' + merged + \
             ' | tail -2 | head -1 | cut -d " " -f11'
         result = subprocess.check_output(
