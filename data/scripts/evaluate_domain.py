@@ -39,6 +39,8 @@ if __name__ == '__main__':
     for cluster in sorted(os.listdir(input)):
         cluster_path = os.path.join(input, cluster)
         trans = os.path.join(cluster_path, 'transription')
+        if not os.path.exists(trans):
+            continue
         if mllr:
             merged = os.path.join(cluster_path, 'mllr.hyp')
         elif map:
