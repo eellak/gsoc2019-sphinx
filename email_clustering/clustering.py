@@ -1,15 +1,16 @@
 import os
-from kmeans import get_metrics, run_kmeans, save_clusters, find_knee, silhouette_analysis
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_extraction.text import TfidfTransformer
-from helper import get_emails, get_spacy, get_tfidf,  cluster2text, closest_cluster, closest_point
-from helper import sort_coo, extract_topn_from_vector, get_sentences
-import argparse
+import sys
 import sys
 import pickle
-from stop_words import STOP_WORDS
-from helper import get_trained_vec, get_trained_doc
 import logging
+import argparse
+
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from kmeans import get_metrics, run_kmeans, save_clusters, find_knee, silhouette_analysis, run_agglomerative, run_dendrogram
+
+from stop_words import STOP_WORDS
+from helper import get_emails, get_spacy, get_tfidf,  cluster2text, closest_cluster, closest_point
+from helper import sort_coo, extract_topn_from_vector, get_sentences, get_trained_vec, get_trained_doc
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
@@ -61,6 +62,12 @@ if __name__ == '__main__':
     optional.add_argument(
         '--sentence', help="If set, clustering is done using the sentences of the emails instead of the entire emails", action='store_true')
 
+    optional.add_argument(
+        '--agglomerative', help="If set, implement agglomerative clustering", action='store_true')
+
+    optional.add_argument(
+        '--dendrogram', help="If set, implement dendrogram clustering", action='store_true')
+
     args = parser.parse_args()
     input = args.input
     output = args.output
@@ -75,6 +82,8 @@ if __name__ == '__main__':
     keywords = args.keywords
     sentence = args.sentence
     vector_path = args.vector_path
+    agglomerative = args.agglomerative
+    dendrogram = args.dendrogram
 
     if not input.endswith('/'):
         input = input + '/'
@@ -126,11 +135,21 @@ if __name__ == '__main__':
         else:
             n_clusters = silhouette_analysis(silhouette, min_cl)
 
-    logging.info(
-        'Run k-means with {} number of clusters...'.format(n_clusters))
-    # Run k-means with given number of clusters.
-    labels, centers = run_kmeans(X, n_clusters)
+    if agglomerative:
+        logging.info(
+            'Run agglomerative clustering with {} number of clusters...'.format(n_clusters))
+        labels, centers = run_agglomerative(X, n_clusters)
+    elif dendrogram:
+        logging.info(
+            'Run divisive clustering with {} number of clusters...'.format(n_clusters))
+        labels, centers = run_dendrogram(X, n_clusters)
+    else:
+        logging.info(
+            'Run k-means with {} number of clusters...'.format(n_clusters))
+        # Run k-means with given number of clusters.
+        labels, centers = run_kmeans(X, n_clusters)
 
+    print(labels)
     # Save clusters in given folders.
     save_clusters(emails, labels, output)
 

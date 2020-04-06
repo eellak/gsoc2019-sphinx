@@ -1,12 +1,14 @@
 import os
+import logging
 import numpy as np
-from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score, silhouette_samples
 import matplotlib.pyplot as plt
+
 from numpy import sqrt
 from kneed import KneeLocator
 from multiprocessing import cpu_count
-import logging
+from sklearn.cluster import KMeans, AgglomerativeClustering
+from sklearn.metrics import silhouette_score, silhouette_samples
+from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
@@ -55,6 +57,28 @@ def get_metrics(X, plot, min_cl, max_cl):
     return sse, silhouette
 
 
+def run_dendrogram(X, n_clusters):
+    '''Run divisive clustering algorithm for given number of clusters.
+
+        Args:
+            X: A list that contains the vectors.
+            n_clusters: number of clusters
+        Returns:
+            labels: Label of each vector.
+
+        '''
+    Z = linkage(X, 'ward')
+    labels = fcluster(Z, n_clusters, criterion='maxclust')
+    for i in range(len(labels)):
+        labels[i] -= 1
+    centers = np.zeros((n_clusters, len(X[0])))
+    for i in range(n_clusters):
+        centers[i] = np.average([X[j]
+                                 for j in range(len(labels)) if labels[j] == i])
+
+    return labels, centers
+
+
 def run_kmeans(X, n_clusters):
     '''Run k-means algorithm for given number of clusters.
 
@@ -70,6 +94,27 @@ def run_kmeans(X, n_clusters):
                  n_init=10 * cpu_count())
     labels = clf.fit_predict(X)
     return labels, clf.cluster_centers_
+
+
+def run_agglomerative(X, n_clusters):
+    '''Run agglomerative hierarchical algorithm for given number of clusters.
+
+        Args:
+            X: A list that contains the vectors.
+            n_clusters: number of clusters
+        Returns:
+            labels: Label of each vector.
+
+        '''
+    clf = AgglomerativeClustering(
+        n_clusters=n_clusters,  affinity='euclidean', linkage='complete')
+    labels = clf.fit_predict(X)
+    centers = np.zeros((n_clusters, len(X[0])))
+    for i in range(n_clusters):
+        centers[i] = np.average([X[j]
+                                 for j in range(len(labels)) if labels[j] == i])
+
+    return labels, centers
 
 
 def find_knee(sse, min_cl):
