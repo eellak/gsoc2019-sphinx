@@ -28,10 +28,14 @@ if __name__ == '__main__':
     required.add_argument(
         '--map', help="True for map adaptation", action='store_true')
 
+    required.add_argument(
+        '--specific', help="True for specific language model", action='store_true')
+
     args = parser.parse_args()
     input = args.input
     mllr = args.mllr
     map = args.map
+    specific = args.specific
 
     lines = []
     accuracies = []
@@ -42,12 +46,15 @@ if __name__ == '__main__':
         if not os.path.exists(trans):
             continue
         if mllr:
-            merged = os.path.join(cluster_path, 'mllr.hyp')
+            hyp = os.path.join(cluster_path, 'mllr.hyp')
         elif map:
-            merged = os.path.join(cluster_path, 'map.hyp')
+            hyp = os.path.join(cluster_path, 'map.hyp')
         else:
-            merged = os.path.join(cluster_path, 'merged.hyp')
-        command = 'word_align.pl ' + trans + ' ' + merged + \
+            if specific:
+                hyp = os.path.join(cluster_path, 'specific.hyp')
+            else:
+                hyp = os.path.join(cluster_path, 'merged.hyp')
+        command = 'word_align.pl ' + trans + ' ' + hyp + \
             ' | tail -2 | head -1 | cut -d " " -f11'
         result = subprocess.check_output(
             command, shell=True).decode('utf-8')
