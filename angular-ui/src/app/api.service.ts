@@ -31,20 +31,39 @@ export class ApiService implements OnInit {
     })
   }
 
-  public getDictationService(body: FormData) {
-    return this.httpClient.post("http://127.0.0.1:5000/dictation", body)
+  public getDictationService(body: FormData, headers: HttpHeaders) {
+    return this.httpClient.post("http://127.0.0.1:5000/dictation", body, {
+      headers
+    }
+    )
   }
 
-  public saveDictationService(body: FormData) {
-    return this.httpClient.post("http://127.0.0.1:5000/saveDictation", body)
+  public saveDictationService(body: FormData, headers: HttpHeaders) {
+    return this.httpClient.post("http://127.0.0.1:5000/saveDictation", body, {
+      headers
+    }
+    )
   }
 
-  public getEmailService(body: FormData) {
-    return this.httpClient.post("http://127.0.0.1:5000/randomEmail", body)
+  public getEmailService(body: FormData, headers: HttpHeaders) {
+    return this.httpClient.post("http://127.0.0.1:5000/randomEmail", body, {
+      headers
+    }
+    )
   }
 
-  public adaptAcousticService(body: FormData) {
-    return this.httpClient.post("http://127.0.0.1:5000/adaptAcoustic", body)
+  public adaptAcousticService(body: FormData, headers: HttpHeaders) {
+    return this.httpClient.post("http://127.0.0.1:5000/adaptAcoustic", body, {
+      headers
+    }
+    )
+  }
+
+  public logOut(body: HttpParams, headers: HttpHeaders) {
+    return this.httpClient.post("http://127.0.0.1:5000/logOut", body, {
+      headers
+    }
+    )
   }
 
 

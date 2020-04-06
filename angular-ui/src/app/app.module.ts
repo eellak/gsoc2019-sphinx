@@ -30,7 +30,7 @@ import { AudioRecordingService } from './recorder.service';
 import { FooterComponent } from './footer/footer.component'
 
 let gapiClientConfig: NgGapiClientConfig = {
-  client_id: "301659838263-t8ddh4qm6308lqp8bhp7mehkdnfni6qp.apps.googleusercontent.com",
+  client_id: "301659838263-hlcrmdre1itkqj3bvue0bc846hhhd20k.apps.googleusercontent.com",
   discoveryDocs: ["https://accounts.google.com/.well-known/openid-configuration"],
   scope: "https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
 };
