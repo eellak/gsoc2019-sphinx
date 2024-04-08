@@ -62,7 +62,7 @@ pyasn1==0.4.5
 pyasn1-modules==0.2.5
 pycodestyle==2.5.0
 pycparser==2.19
-pymongo==3.8.0
+pymongo==4.6.3
 pyOpenSSL==19.0.0
 pyrsistent==0.15.4
 python-dateutil==2.8.0
