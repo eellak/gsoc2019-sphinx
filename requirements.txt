@@ -82,7 +82,7 @@ SQLAlchemy==1.3.6
 srsly==0.0.7
 termcolor==1.1.0
 thinc==7.0.8
-tqdm==4.32.2
+tqdm==4.66.3
 uritemplate==3.0.0
 urllib3==1.26.18
 wasabi==0.2.2
