@@ -86,5 +86,5 @@ tqdm==4.66.3
 uritemplate==3.0.0
 urllib3==1.26.19
 wasabi==0.2.2
-Werkzeug==3.0.1
+Werkzeug==3.0.6
 WTForms==2.2.1
