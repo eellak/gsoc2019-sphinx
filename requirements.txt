@@ -50,7 +50,7 @@ kneed==0.4.1
 MarkupSafe==1.1.1
 mongoengine==0.18.2
 murmurhash==1.0.2
-nltk==3.6.6
+nltk==3.9
 num2words==0.5.10
 numpy==1.22.0
 oauth2client==4.1.3
