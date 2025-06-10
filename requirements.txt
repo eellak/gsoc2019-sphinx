@@ -67,7 +67,7 @@ pyOpenSSL==19.0.0
 pyrsistent==0.15.4
 python-dateutil==2.8.0
 pytz==2019.2
-requests==2.32.0
+requests==2.32.4
 requests-oauthlib==1.2.0
 rsa==4.7
 s3transfer==0.2.1
