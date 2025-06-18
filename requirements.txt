@@ -84,7 +84,7 @@ termcolor==1.1.0
 thinc==7.0.8
 tqdm==4.66.3
 uritemplate==3.0.0
-urllib3==1.26.19
+urllib3==2.5.0
 wasabi==0.2.2
 Werkzeug==3.0.6
 WTForms==2.2.1
